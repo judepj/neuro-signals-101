@@ -1,0 +1,100 @@
+[
+  {
+    "objectID": "modules/01_signals.html",
+    "href": "modules/01_signals.html",
+    "title": "Module 1: Signals",
+    "section": "",
+    "text": "A 28-year-old woman comes to your clinic with episodes of “staring off” lasting 10–15 seconds, happening several times a day. Her partner says she doesn’t respond during these episodes. You order an EEG. The technician hands you a tracing. It looks like this:\nCan you tell what’s happening? When does the abnormal activity start? What’s different about it?\nBy the end of this tutorial, you’ll be able to answer those questions — and understand why the signal looks the way it does. But first, we need to learn the language that describes any electrical signal from the body."
+  },
+  {
+    "objectID": "modules/01_signals.html#the-basics",
+    "href": "modules/01_signals.html#the-basics",
+    "title": "Module 1: Signals",
+    "section": "The Basics",
+    "text": "The Basics\nEvery cell in your body produces tiny electrical signals. Neurons fire. Heart muscle contracts. Skeletal muscle twitches. These are not abstract physics — these are your patient’s physiology, translated into voltage over time.\nA signal is just a measurement that changes over time. When we record an EEG, ECG, or EMG, we’re measuring voltage (in microvolts or millivolts) at each moment.\nThe simplest signal you can imagine is a smooth, repeating wave. It has two properties that matter right now:\n\nAmplitude: How tall the wave is. Bigger amplitude = stronger signal.\nFrequency: How fast the wave repeats. Higher frequency = more cycles per second.\n\nThat’s it. Two knobs. Let’s play with them."
+  },
+  {
+    "objectID": "modules/01_signals.html#interactive-build-a-signal",
+    "href": "modules/01_signals.html#interactive-build-a-signal",
+    "title": "Module 1: Signals",
+    "section": "Interactive: Build a Signal",
+    "text": "Interactive: Build a Signal\nDrag the sliders. Watch the wave change in real time.\n\n  \n    Try a clinical preset:\n    \n      Alpha (10 Hz)\n    \n    \n      Delta (2 Hz)\n    \n    \n      Beta (20 Hz)\n    \n    \n      Heart (~72 bpm)\n    \n  \n  \n  \n    Amplitude (μV):\n      5.0\n    \n    \n  \n  \n    Frequency (Hz):\n      10.0\n    \n    \n  \n  \n\n\n\n\nExperiment:\n\nSet the frequency to 10 Hz. This is roughly the speed of the alpha rhythm — the dominant EEG wave when you close your eyes.\nNow crank it to 1 Hz. This is the delta range — slow waves you see in deep sleep.\nSet amplitude to 2 μV — that’s a weak EEG signal. Now set it to 10 μV — stronger. In real EEG, amplitudes are typically 10–100 μV."
+  },
+  {
+    "objectID": "modules/01_signals.html#one-more-thing-phase",
+    "href": "modules/01_signals.html#one-more-thing-phase",
+    "title": "Module 1: Signals",
+    "section": "One More Thing: Phase",
+    "text": "One More Thing: Phase\nYou now know amplitude (how tall) and frequency (how fast). There’s one more property worth seeing — phase.\nPhase tells you where in the cycle the wave is at a given moment. Two signals can have the same frequency and amplitude but be offset from each other — like two runners on the same track, one slightly ahead of the other.\nDrag the slider below. Both waves have the same frequency and amplitude — only the phase changes.\n\n  \n    Phase offset:\n      0°\n    \n    \n  \n  \n  \n    Both waves are identical. Try shifting the purple wave by 180° — now they're perfectly out of sync.\n  \n\n\n\n\nPhase won’t come up much in this tutorial — but remember this slider. When we get to EEG localization later, neurologists use phase reversal (where one electrode’s signal flips relative to its neighbor) to pinpoint exactly where a seizure starts. Same concept, real clinical stakes."
+  },
+  {
+    "objectID": "modules/01_signals.html#why-does-this-matter-clinically",
+    "href": "modules/01_signals.html#why-does-this-matter-clinically",
+    "title": "Module 1: Signals",
+    "section": "Why Does This Matter Clinically?",
+    "text": "Why Does This Matter Clinically?\nDifferent brain states produce different frequencies and amplitudes:\n\n\n\n\n\n\n\n\n\nBrain State\nDominant Frequency\nTypical Amplitude\nWhat’s Happening\n\n\n\n\nDeep sleep\n1–4 Hz (delta)\n100–200 μV\nLarge populations of neurons firing in sync\n\n\nRelaxed, eyes closed\n8–13 Hz (alpha)\n30–50 μV\nThalamo-cortical idle rhythm\n\n\nFocused attention\n13–30 Hz (beta)\n10–20 μV\nCortical neurons busy with different tasks\n\n\nActive thinking\n&gt;30 Hz (gamma)\n5–10 μV\nLocal, fast processing\n\n\n\nNotice the pattern: slower rhythms tend to be bigger, faster rhythms tend to be smaller. This isn’t a coincidence — slow rhythms reflect more neurons firing together (synchrony), which sums to a larger voltage at the scalp.\n\nAmplitude tells you how much electrical activity is reaching the electrode. Frequency tells you how fast that activity is oscillating. Together, they are the first two things you assess when you look at any physiological recording — EEG, ECG, or EMG."
+  },
+  {
+    "objectID": "modules/01_signals.html#its-not-just-the-brain",
+    "href": "modules/01_signals.html#its-not-just-the-brain",
+    "title": "Module 1: Signals",
+    "section": "It’s Not Just the Brain",
+    "text": "It’s Not Just the Brain\nThe same two properties — amplitude and frequency — describe signals from other parts of the body:\n\n\n\n\n\n\n\n\n\nSignal\nTypical Amplitude\nTypical Frequency\nSource\n\n\n\n\nEEG (brain)\n10–100 μV\n1–100 Hz\nCortical pyramidal neurons\n\n\nECG (heart)\n0.5–3 mV\n~1 Hz (60 bpm)\nCardiac muscle depolarization\n\n\nEMG (muscle)\n0.1–5 mV\n20–500 Hz\nMotor unit action potentials\n\n\n\nThe ECG is about 1,000× larger than the EEG. The EMG has much higher frequencies than either. These differences aren’t trivia — they determine what equipment you need, what filters you set, and what artifacts you worry about. (More on artifacts in Module 6.)"
+  },
+  {
+    "objectID": "modules/01_signals.html#compare-eeg-vs-ecg-vs-emg",
+    "href": "modules/01_signals.html#compare-eeg-vs-ecg-vs-emg",
+    "title": "Module 1: Signals",
+    "section": "Compare: EEG vs ECG vs EMG",
+    "text": "Compare: EEG vs ECG vs EMG\nWhat do these three signals actually look like side by side? Same 2 seconds of time, three different parts of the body. Notice the amplitude scales — they’re wildly different.\n\n  \n  \n    EEG (top) — ~50 μV. Alpha rhythm at 10 Hz. This is what you see over the occipital cortex, eyes closed. Tiny signal.\n    ECG (middle) — ~1 mV. The tall spike is the QRS complex — ventricular depolarization. That's 1000× larger than EEG.\n    EMG (bottom) — bursts during contraction, quiet at rest. Much faster oscillations — motor units firing asynchronously."
+  },
+  {
+    "objectID": "modules/01_signals.html#quiz-check-your-understanding",
+    "href": "modules/01_signals.html#quiz-check-your-understanding",
+    "title": "Module 1: Signals",
+    "section": "Quiz: Check Your Understanding",
+    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: A signal has a larger amplitude. What does that tell you?\n    \n       A. It means the signal is faster\n    \n    \n       B. The voltage is higher — more electrical activity is reaching the electrode\n    \n    \n       C. The electrode is closer to the source\n    \n    \n       D. The patient is awake\n    \n    \n  \n\n  \n\n  \n    Q2: A healthy resting heart rate is about 70 beats per minute. What is the frequency of the ECG signal?\n    \n       A. 0.5 Hz — about one beat every two seconds\n    \n    \n       B. About 1.2 Hz — roughly 70 beats per minute\n    \n    \n       C. 10 Hz — same as EEG alpha rhythm\n    \n    \n       D. 60 Hz — one beat per second\n    \n    \n  \n\n  \n\n  \n    Q3: Slow EEG rhythms (delta, during sleep) have much larger amplitude than fast rhythms (gamma). Why?\n    \n       A. More neurons are firing at higher frequency\n    \n    \n       B. More neurons are firing in synchrony, so their voltages add up\n    \n    \n       C. The electrodes are more sensitive to slow signals\n    \n    \n       D. The skull filters out fast signals more than slow ones"
+  },
+  {
+    "objectID": "modules/01_signals.html#summary",
+    "href": "modules/01_signals.html#summary",
+    "title": "Module 1: Signals",
+    "section": "Summary",
+    "text": "Summary\nYou now know two things about any physiological signal:\n\nAmplitude — how tall the wave is (measured in μV for EEG, mV for ECG/EMG)\nFrequency — how many cycles per second (measured in Hz)\n\nIn the next module, we’ll tackle a fundamental question: how does a machine capture a continuously changing biological signal and turn it into numbers a computer can work with?\n(Spoiler: it can go wrong in interesting ways.)\n\n← Home Module 2: Sampling →"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "EEG & Signal Processing",
+    "section": "",
+    "text": "You’re training to become a doctor. At some point — maybe in neurology, maybe in the ICU, maybe in the OR — you will look at a screen showing electrical signals from a patient’s brain, heart, or muscles.\nThis tutorial will teach you to read those signals. Not just glance at them — actually understand what you’re seeing."
+  },
+  {
+    "objectID": "index.html#welcome",
+    "href": "index.html#welcome",
+    "title": "EEG & Signal Processing",
+    "section": "",
+    "text": "You’re training to become a doctor. At some point — maybe in neurology, maybe in the ICU, maybe in the OR — you will look at a screen showing electrical signals from a patient’s brain, heart, or muscles.\nThis tutorial will teach you to read those signals. Not just glance at them — actually understand what you’re seeing."
+  },
+  {
+    "objectID": "index.html#how-this-works",
+    "href": "index.html#how-this-works",
+    "title": "EEG & Signal Processing",
+    "section": "How This Works",
+    "text": "How This Works\nEach module is interactive. You’ll drag sliders, change parameters, and watch signals respond in real time. There are short quiz questions along the way — these are not graded. They’re just checkpoints to make sure the concepts are landing.\nModule 8 is graded. That’s where you’ll get real EEG data and find out what’s going on with the patient."
+  },
+  {
+    "objectID": "index.html#modules",
+    "href": "index.html#modules",
+    "title": "EEG & Signal Processing",
+    "section": "Modules",
+    "text": "Modules\n\n\n\n#\nModule\nWhat You’ll Learn\n\n\n\n\n1\nSignals\nWhat electrical signals from the body look like and how to describe them\n\n\n2\nSampling\nHow we capture continuous biological signals with a digital machine\n\n\n3\nFiltering\nHow to clean up a noisy recording to see what matters\n\n\n4\nFFT\nHow to reveal the hidden frequencies in a signal\n\n\n5\nEEG Basics\nWhat the EEG measures, where electrodes go, and what the bands mean\n\n\n6\nArtifacts\nTelling brain activity apart from eye blinks, muscle, and noise\n\n\n7\nSpectrograms\nWatching brain rhythms change over time\n\n\n8\nThe Challenge\nA real EEG recording. A real clinical question. Your job to figure it out."
+  },
+  {
+    "objectID": "index.html#what-youll-need",
+    "href": "index.html#what-youll-need",
+    "title": "EEG & Signal Processing",
+    "section": "What You’ll Need",
+    "text": "What You’ll Need\n\nA web browser (you’re using one right now — good start)\nFor Module 8: Python or MATLAB, and a willingness to ask an AI for help writing code\n\nLet’s begin.\n\nBegin Module 1 →"
+  }
+]
