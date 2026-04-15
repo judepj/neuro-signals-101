@@ -1,0 +1,743 @@
+---
+title: "Module 7: Spectrograms"
+subtitle: "Watching the Brain Change — Frequency Over Time"
+format:
+  html:
+    code-fold: true
+---
+
+::: {.clinical-vignette}
+A patient in the epilepsy monitoring unit has a seizure. The neurologist pulls up the spectrogram on the review station: a sudden burst of color sweeps across the display — low frequencies first, then evolving to faster rhythmic activity, then abruptly stopping. In one image, you can see the seizure's entire story: onset, evolution, and termination. No other single view gives you this much information this fast.
+:::
+
+So far you've used the FFT to look at which frequencies are present in a signal — averaged over the whole recording. But the brain doesn't stay in one state. A patient falls asleep, wakes up, has a seizure, recovers. The frequencies change over time. A spectrogram shows you **when** each frequency appears — it's like a movie of the brain's frequency content.
+
+## The Idea
+
+An FFT tells you *what* frequencies are present. A spectrogram tells you *what* frequencies are present **and when**.
+
+The recipe is straightforward:
+
+1. **Chop** the signal into short, overlapping time windows
+2. **Compute the FFT** of each window
+3. **Stack** the results side by side: time on the x-axis, frequency on the y-axis, color = power
+
+That's it. Each vertical slice of the spectrogram is just an FFT of a short segment. String them together, and you can watch frequencies come and go.
+
+## Interactive: Building a Spectrogram from Scratch
+
+This widget walks you through the construction step by step. The signal below changes its dominant frequency over time: **5 Hz for the first 3 seconds**, then **15 Hz for 4 seconds**, then **8 Hz for the last 3 seconds**. A standard FFT would just average all three together. The spectrogram shows them separately.
+
+```{=html}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<div class="widget-box">
+  <div style="margin-bottom:12px;">
+    <button id="stepBtn1" onclick="spectroStep(1)" style="padding:8px 18px; margin:4px; border:2px solid #2980b9; background:#2980b9; color:white; border-radius:20px; cursor:pointer; font-size:0.88em; font-weight:600;">Step 1: The Signal</button>
+    <button id="stepBtn2" onclick="spectroStep(2)" style="padding:8px 18px; margin:4px; border:2px solid #e67e22; background:white; color:#e67e22; border-radius:20px; cursor:pointer; font-size:0.88em; font-weight:600;">Step 2: Chop into Windows</button>
+    <button id="stepBtn3" onclick="spectroStep(3)" style="padding:8px 18px; margin:4px; border:2px solid #8e44ad; background:white; color:#8e44ad; border-radius:20px; cursor:pointer; font-size:0.88em; font-weight:600;">Step 3: FFT Each Window</button>
+    <button id="stepBtn4" onclick="spectroStep(4)" style="padding:8px 18px; margin:4px; border:2px solid #27ae60; background:white; color:#27ae60; border-radius:20px; cursor:pointer; font-size:0.88em; font-weight:600;">Step 4: Spectrogram!</button>
+  </div>
+  <div id="stepExplain" style="padding:10px 14px; background:#f9f9f9; border-radius:8px; margin-bottom:10px; font-size:0.92em; line-height:1.6; color:#333;"></div>
+  <div id="stepPlot1" style="width:100%; height:280px;"></div>
+  <div id="stepPlot2" style="width:100%; height:300px; display:none;"></div>
+</div>
+
+<script>
+(function() {
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+  const rand = seededRand(42);
+
+  const sr = 256, dur = 10;
+  const N = sr * dur;
+  const t = [], signal = [];
+  for (let i = 0; i < N; i++) {
+    const ti = i / sr;
+    t.push(ti);
+    let freq;
+    if (ti < 3) freq = 5;
+    else if (ti < 7) freq = 15;
+    else freq = 8;
+    signal.push(Math.sin(2*Math.PI*freq*ti) + 0.3*(rand()-0.5));
+  }
+
+  // Spectrogram computation
+  function computeSpectrogram(sig, sr, winSec, hopSec) {
+    const winN = Math.floor(winSec * sr);
+    const hopN = Math.floor(hopSec * sr);
+    const times = [], power = [];
+    const maxFreqIdx = Math.min(Math.floor(50 * winN / sr), Math.floor(winN/2));
+    const freqs = [];
+    for (let k = 0; k <= maxFreqIdx; k++) freqs.push(k * sr / winN);
+
+    for (let start = 0; start + winN <= sig.length; start += hopN) {
+      times.push((start + winN/2) / sr);
+      const row = [];
+      const chunk = sig.slice(start, start + winN);
+      // Hanning window
+      for (let i = 0; i < chunk.length; i++) {
+        chunk[i] *= 0.5 * (1 - Math.cos(2*Math.PI*i/(chunk.length-1)));
+      }
+      for (let k = 0; k <= maxFreqIdx; k++) {
+        let re = 0, im = 0;
+        for (let n = 0; n < winN; n++) {
+          const angle = 2*Math.PI*k*n/winN;
+          re += chunk[n]*Math.cos(angle);
+          im -= chunk[n]*Math.sin(angle);
+        }
+        row.push(10*Math.log10((re*re+im*im)/(winN*winN) + 1e-10));
+      }
+      power.push(row);
+    }
+    return {times, freqs, power};
+  }
+
+  const btnColors = {1:'#2980b9', 2:'#e67e22', 3:'#8e44ad', 4:'#27ae60'};
+
+  function updateBtnStyles(active) {
+    for (let i = 1; i <= 4; i++) {
+      const btn = document.getElementById('stepBtn'+i);
+      if (i === active) {
+        btn.style.background = btnColors[i];
+        btn.style.color = 'white';
+      } else {
+        btn.style.background = 'white';
+        btn.style.color = btnColors[i];
+      }
+    }
+  }
+
+  window.spectroStep = function(step) {
+    updateBtnStyles(step);
+    const explain = document.getElementById('stepExplain');
+    const plot2 = document.getElementById('stepPlot2');
+
+    if (step === 1) {
+      explain.innerHTML = '<b>Step 1:</b> Here is our 10-second signal. It has three sections with different dominant frequencies: <span style="color:#2980b9;font-weight:600;">5 Hz</span> (0-3s), <span style="color:#e67e22;font-weight:600;">15 Hz</span> (3-7s), and <span style="color:#8e44ad;font-weight:600;">8 Hz</span> (7-10s). A regular FFT would just average all these together. We want to see <em>when</em> each frequency is active.';
+      plot2.style.display = 'none';
+
+      Plotly.react('stepPlot1', [{
+        x:t, y:signal, type:'scatter', mode:'lines',
+        line:{color:'#2c3e50', width:1.2},
+        hovertemplate:'%{x:.2f}s: %{y:.2f}<extra></extra>'
+      }], {
+        xaxis:{title:'Time (s)', range:[0,dur]},
+        yaxis:{title:'Amplitude', range:[-2,2]},
+        shapes:[
+          {type:'rect',x0:0,x1:3,y0:-2,y1:2,fillcolor:'rgba(41,128,185,0.08)',line:{width:0}},
+          {type:'rect',x0:3,x1:7,y0:-2,y1:2,fillcolor:'rgba(230,126,34,0.08)',line:{width:0}},
+          {type:'rect',x0:7,x1:10,y0:-2,y1:2,fillcolor:'rgba(142,68,173,0.08)',line:{width:0}}
+        ],
+        annotations:[
+          {x:1.5,y:1.8,text:'5 Hz',showarrow:false,font:{size:13,color:'#2980b9',weight:'bold'}},
+          {x:5,y:1.8,text:'15 Hz',showarrow:false,font:{size:13,color:'#e67e22',weight:'bold'}},
+          {x:8.5,y:1.8,text:'8 Hz',showarrow:false,font:{size:13,color:'#8e44ad',weight:'bold'}}
+        ],
+        margin:{t:10,b:42,l:50,r:10},
+        plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+        hovermode:'x unified'
+      }, {responsive:true, displayModeBar:false});
+    }
+
+    else if (step === 2) {
+      explain.innerHTML = '<b>Step 2:</b> We chop the signal into short, overlapping <b>windows</b> (here: 1-second windows, stepping every 0.25 seconds). Each window captures a short slice of the signal. The overlap ensures we don\'t miss events that fall on a window boundary.';
+      plot2.style.display = 'none';
+
+      // Show signal with window rectangles
+      const winSec = 1.0, hopSec = 0.25;
+      const shapes = [{type:'rect',x0:0,x1:3,y0:-2,y1:2,fillcolor:'rgba(41,128,185,0.05)',line:{width:0}},
+                      {type:'rect',x0:3,x1:7,y0:-2,y1:2,fillcolor:'rgba(230,126,34,0.05)',line:{width:0}},
+                      {type:'rect',x0:7,x1:10,y0:-2,y1:2,fillcolor:'rgba(142,68,173,0.05)',line:{width:0}}];
+      for (let s = 0; s + winSec <= dur; s += hopSec) {
+        shapes.push({type:'rect', x0:s, x1:s+winSec, y0:-1.7, y1:1.7,
+          fillcolor: 'rgba(231,76,60,0.06)', line:{color:'rgba(231,76,60,0.3)', width:1}});
+      }
+
+      Plotly.react('stepPlot1', [{
+        x:t, y:signal, type:'scatter', mode:'lines',
+        line:{color:'#2c3e50', width:1.2},
+        hovertemplate:'%{x:.2f}s: %{y:.2f}<extra></extra>'
+      }], {
+        xaxis:{title:'Time (s)', range:[0,dur]},
+        yaxis:{title:'Amplitude', range:[-2,2]},
+        shapes:shapes,
+        annotations:[{x:5,y:-1.9,text:'Each red rectangle = one window (1s wide, 0.25s hop)',
+          showarrow:false, font:{size:11,color:'#c0392b'}}],
+        margin:{t:10,b:42,l:50,r:10},
+        plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+        hovermode:'x unified'
+      }, {responsive:true, displayModeBar:false});
+    }
+
+    else if (step === 3) {
+      explain.innerHTML = '<b>Step 3:</b> We compute the FFT of each window. Below, select a few different windows to see how the frequency content changes. Early windows show a peak at 5 Hz, middle windows at 15 Hz, late windows at 8 Hz.';
+      plot2.style.display = 'block';
+
+      // Show signal on top, FFT of selected windows below
+      const winSec = 1.0, hopSec = 0.5;
+      const winN = Math.floor(winSec * sr);
+
+      // Pick 3 representative windows
+      const picks = [
+        {start:1.0, color:'#2980b9', label:'Window at 1.0-2.0s (expect 5 Hz)'},
+        {start:4.5, color:'#e67e22', label:'Window at 4.5-5.5s (expect 15 Hz)'},
+        {start:8.0, color:'#8e44ad', label:'Window at 8.0-9.0s (expect 8 Hz)'}
+      ];
+
+      const shapes = [];
+      const fftTraces = [];
+      picks.forEach(function(p) {
+        shapes.push({type:'rect', x0:p.start, x1:p.start+winSec, y0:-2, y1:2,
+          fillcolor:p.color.replace(')',',0.15)').replace('rgb','rgba'),
+          line:{color:p.color, width:2}});
+
+        const startIdx = Math.floor(p.start * sr);
+        const chunk = signal.slice(startIdx, startIdx + winN).slice();
+        for (let i = 0; i < chunk.length; i++) {
+          chunk[i] *= 0.5*(1-Math.cos(2*Math.PI*i/(chunk.length-1)));
+        }
+        const maxK = Math.min(Math.floor(50*winN/sr), Math.floor(winN/2));
+        const freqs = [], power = [];
+        for (let k = 1; k <= maxK; k++) {
+          freqs.push(k*sr/winN);
+          let re=0, im=0;
+          for (let n=0; n<winN; n++) {
+            const angle=2*Math.PI*k*n/winN;
+            re+=chunk[n]*Math.cos(angle);
+            im-=chunk[n]*Math.sin(angle);
+          }
+          power.push(10*Math.log10((re*re+im*im)/(winN*winN)+1e-10));
+        }
+        fftTraces.push({x:freqs, y:power, type:'scatter', mode:'lines',
+          line:{color:p.color, width:2}, name:p.label,
+          hovertemplate:'%{x:.1f} Hz: %{y:.1f} dB<extra></extra>'});
+      });
+
+      Plotly.react('stepPlot1', [{
+        x:t, y:signal, type:'scatter', mode:'lines',
+        line:{color:'#2c3e50', width:1.2},
+        hovertemplate:'%{x:.2f}s: %{y:.2f}<extra></extra>'
+      }], {
+        xaxis:{title:'Time (s)', range:[0,dur]},
+        yaxis:{title:'Amplitude', range:[-2,2]},
+        shapes:shapes,
+        margin:{t:10,b:42,l:50,r:10},
+        plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+        hovermode:'x unified'
+      }, {responsive:true, displayModeBar:false});
+
+      Plotly.react('stepPlot2', fftTraces, {
+        xaxis:{title:'Frequency (Hz)', range:[0,50]},
+        yaxis:{title:'Power (dB)'},
+        margin:{t:10,b:42,l:50,r:10},
+        plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+        legend:{x:0.4, y:1, font:{size:10}},
+        hovermode:'x unified'
+      }, {responsive:true, displayModeBar:false});
+    }
+
+    else if (step === 4) {
+      explain.innerHTML = '<b>Step 4:</b> Stack all those FFTs side by side and you get the <b>spectrogram</b>. Time runs left to right. Frequency runs bottom to top. <b>Color = power</b> (brighter = more energy at that frequency and time). You can clearly see the three frequency regimes: 5 Hz, then 15 Hz, then 8 Hz — exactly as designed.';
+      plot2.style.display = 'block';
+
+      // Signal on top
+      Plotly.react('stepPlot1', [{
+        x:t, y:signal, type:'scatter', mode:'lines',
+        line:{color:'#2c3e50', width:1.2},
+        hovertemplate:'%{x:.2f}s: %{y:.2f}<extra></extra>'
+      }], {
+        xaxis:{title:'Time (s)', range:[0,dur]},
+        yaxis:{title:'Amplitude', range:[-2,2]},
+        shapes:[
+          {type:'rect',x0:0,x1:3,y0:-2,y1:2,fillcolor:'rgba(41,128,185,0.05)',line:{width:0}},
+          {type:'rect',x0:3,x1:7,y0:-2,y1:2,fillcolor:'rgba(230,126,34,0.05)',line:{width:0}},
+          {type:'rect',x0:7,x1:10,y0:-2,y1:2,fillcolor:'rgba(142,68,173,0.05)',line:{width:0}}
+        ],
+        margin:{t:10,b:42,l:50,r:10},
+        plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+        hovermode:'x unified'
+      }, {responsive:true, displayModeBar:false});
+
+      // Spectrogram
+      const spec = computeSpectrogram(signal, sr, 1.0, 0.125);
+      // Transpose power for heatmap (z[freq][time])
+      const zData = [];
+      for (let f = 0; f < spec.freqs.length; f++) {
+        const row = [];
+        for (let ti = 0; ti < spec.times.length; ti++) {
+          row.push(spec.power[ti][f]);
+        }
+        zData.push(row);
+      }
+
+      Plotly.react('stepPlot2', [{
+        z:zData, x:spec.times, y:spec.freqs,
+        type:'heatmap', colorscale:'Viridis',
+        hovertemplate:'Time: %{x:.2f}s<br>Freq: %{y:.1f} Hz<br>Power: %{z:.1f} dB<extra></extra>',
+        colorbar:{title:'dB', titleside:'right', thickness:15}
+      }], {
+        xaxis:{title:'Time (s)', range:[0,dur]},
+        yaxis:{title:'Frequency (Hz)', range:[0,30]},
+        margin:{t:10,b:42,l:50,r:10},
+        plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa'
+      }, {responsive:true, displayModeBar:false});
+    }
+  };
+
+  // Start at step 1
+  spectroStep(1);
+})();
+</script>
+```
+
+::: {.try-it}
+**Walk through all four steps in order:**
+
+1. **Step 1** — See the raw signal with its three frequency regimes.
+2. **Step 2** — See how the signal is divided into overlapping windows.
+3. **Step 3** — See the FFT of three representative windows. Each peaks at the expected frequency.
+4. **Step 4** — See the full spectrogram. Each frequency lights up during its time period.
+
+This is exactly what clinical EEG software does — except it does it on 20+ channels simultaneously.
+:::
+
+::: {.key-concept}
+**A spectrogram is a stack of FFTs.** Each column is the frequency content of one short time window. Together they show you how the brain's frequency mix changes over time — sleep stages, seizure evolution, drug effects, and more.
+:::
+
+## Interactive: Design Your Own Signal
+
+Choose the dominant frequency for three time periods. The widget generates the signal and its spectrogram in real time. Use the **"Seizure-like"** preset to see what a seizure's frequency evolution looks like.
+
+```{=html}
+<div class="widget-box">
+  <div style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:12px; align-items:center;">
+    <div>
+      <label style="font-weight:600; font-size:0.88em; color:#555;">0 – 3 seconds:</label><br>
+      <select id="freq1" onchange="updateDesigner()" style="padding:6px 12px; border-radius:6px; border:1px solid #ccc; font-size:0.95em;">
+        <option value="2">Delta (2 Hz)</option>
+        <option value="5">Theta (5 Hz)</option>
+        <option value="10" selected>Alpha (10 Hz)</option>
+        <option value="20">Beta (20 Hz)</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-weight:600; font-size:0.88em; color:#555;">3 – 7 seconds:</label><br>
+      <select id="freq2" onchange="updateDesigner()" style="padding:6px 12px; border-radius:6px; border:1px solid #ccc; font-size:0.95em;">
+        <option value="2">Delta (2 Hz)</option>
+        <option value="5" selected>Theta (5 Hz)</option>
+        <option value="10">Alpha (10 Hz)</option>
+        <option value="20">Beta (20 Hz)</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-weight:600; font-size:0.88em; color:#555;">7 – 10 seconds:</label><br>
+      <select id="freq3" onchange="updateDesigner()" style="padding:6px 12px; border-radius:6px; border:1px solid #ccc; font-size:0.95em;">
+        <option value="2">Delta (2 Hz)</option>
+        <option value="5">Theta (5 Hz)</option>
+        <option value="10">Alpha (10 Hz)</option>
+        <option value="20" selected>Beta (20 Hz)</option>
+      </select>
+    </div>
+    <div>
+      <button onclick="setSeizurePreset()" style="padding:8px 20px; border:2px solid #c0392b; background:#c0392b; color:white; border-radius:20px; cursor:pointer; font-size:0.88em; font-weight:600;">Seizure-like Preset</button>
+    </div>
+  </div>
+  <div id="designerSignalPlot" style="width:100%; height:220px;"></div>
+  <div id="designerSpectroPlot" style="width:100%; height:280px;"></div>
+</div>
+
+<script>
+(function() {
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+
+  const sr = 256, dur = 10;
+
+  function computeSpectrogram(sig, sr, winSec, hopSec) {
+    const winN = Math.floor(winSec * sr);
+    const hopN = Math.floor(hopSec * sr);
+    const maxFreqIdx = Math.min(Math.floor(40 * winN / sr), Math.floor(winN/2));
+    const times = [], freqs = [], power = [];
+    for (let k = 0; k <= maxFreqIdx; k++) freqs.push(k * sr / winN);
+    for (let start = 0; start + winN <= sig.length; start += hopN) {
+      times.push((start + winN/2) / sr);
+      const row = [];
+      const chunk = sig.slice(start, start + winN);
+      for (let i = 0; i < chunk.length; i++) {
+        chunk[i] *= 0.5*(1-Math.cos(2*Math.PI*i/(chunk.length-1)));
+      }
+      for (let k = 0; k <= maxFreqIdx; k++) {
+        let re=0, im=0;
+        for (let n=0; n<winN; n++) {
+          const angle=2*Math.PI*k*n/winN;
+          re+=chunk[n]*Math.cos(angle);
+          im-=chunk[n]*Math.sin(angle);
+        }
+        row.push(10*Math.log10((re*re+im*im)/(winN*winN)+1e-10));
+      }
+      power.push(row);
+    }
+    return {times, freqs, power};
+  }
+
+  window.updateDesigner = function() {
+    const f1 = parseFloat(document.getElementById('freq1').value);
+    const f2 = parseFloat(document.getElementById('freq2').value);
+    const f3 = parseFloat(document.getElementById('freq3').value);
+    const rand = seededRand(55);
+
+    const N = sr * dur;
+    const t = [], signal = [];
+    for (let i = 0; i < N; i++) {
+      const ti = i / sr;
+      t.push(ti);
+      let freq;
+      if (ti < 3) freq = f1;
+      else if (ti < 7) freq = f2;
+      else freq = f3;
+      signal.push(Math.sin(2*Math.PI*freq*ti) + 0.3*(rand()-0.5));
+    }
+
+    const bandNames = {2:'Delta',5:'Theta',10:'Alpha',20:'Beta'};
+
+    Plotly.react('designerSignalPlot', [{
+      x:t, y:signal, type:'scatter', mode:'lines',
+      line:{color:'#2c3e50', width:1.2},
+      hovertemplate:'%{x:.2f}s: %{y:.2f}<extra></extra>'
+    }], {
+      xaxis:{title:'Time (s)', range:[0,dur]},
+      yaxis:{title:'Amplitude', range:[-2,2]},
+      shapes:[
+        {type:'rect',x0:0,x1:3,y0:-2,y1:2,fillcolor:'rgba(41,128,185,0.08)',line:{width:0}},
+        {type:'rect',x0:3,x1:7,y0:-2,y1:2,fillcolor:'rgba(230,126,34,0.08)',line:{width:0}},
+        {type:'rect',x0:7,x1:10,y0:-2,y1:2,fillcolor:'rgba(142,68,173,0.08)',line:{width:0}}
+      ],
+      annotations:[
+        {x:1.5,y:1.8,text:bandNames[f1]+' ('+f1+' Hz)',showarrow:false,font:{size:11,color:'#2980b9'}},
+        {x:5,y:1.8,text:bandNames[f2]+' ('+f2+' Hz)',showarrow:false,font:{size:11,color:'#e67e22'}},
+        {x:8.5,y:1.8,text:bandNames[f3]+' ('+f3+' Hz)',showarrow:false,font:{size:11,color:'#8e44ad'}}
+      ],
+      margin:{t:10,b:38,l:50,r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      hovermode:'x unified'
+    }, {responsive:true, displayModeBar:false});
+
+    const spec = computeSpectrogram(signal, sr, 1.0, 0.125);
+    const zData = [];
+    for (let f = 0; f < spec.freqs.length; f++) {
+      const row = [];
+      for (let ti = 0; ti < spec.times.length; ti++) row.push(spec.power[ti][f]);
+      zData.push(row);
+    }
+
+    Plotly.react('designerSpectroPlot', [{
+      z:zData, x:spec.times, y:spec.freqs,
+      type:'heatmap', colorscale:'Viridis',
+      hovertemplate:'Time: %{x:.2f}s<br>Freq: %{y:.1f} Hz<br>Power: %{z:.1f} dB<extra></extra>',
+      colorbar:{title:'dB', titleside:'right', thickness:15}
+    }], {
+      xaxis:{title:'Time (s)', range:[0,dur]},
+      yaxis:{title:'Frequency (Hz)', range:[0,30]},
+      margin:{t:10,b:42,l:50,r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa'
+    }, {responsive:true, displayModeBar:false});
+  };
+
+  window.setSeizurePreset = function() {
+    document.getElementById('freq1').value = '10';  // Normal alpha
+    document.getElementById('freq2').value = '2';    // Seizure onset: slow activity
+    document.getElementById('freq3').value = '20';   // Post-ictal: fast beta
+    updateDesigner();
+  };
+
+  // Initial render
+  updateDesigner();
+})();
+</script>
+```
+
+::: {.try-it}
+**Experiment with different combinations:**
+
+- Set all three periods to **Alpha (10 Hz)** — you'll see a single bright horizontal band that doesn't change. Boring brain.
+- Set them to **Delta → Alpha → Beta** — a waking-up sequence. Watch the bright band move upward.
+- Click **"Seizure-like Preset"** — Alpha (normal baseline) transitions to Delta (seizure onset, dominated by slow rhythmic activity) then Beta (post-ictal fast activity). This is a simplified version of what seizure spectrograms look like.
+:::
+
+## The Window Size Tradeoff
+
+Here's the catch with spectrograms. There's a fundamental tradeoff — almost like a Heisenberg uncertainty principle for time-frequency analysis:
+
+> **You can't have perfect time resolution and perfect frequency resolution at the same time.**
+
+- **Small window** = good time resolution (you know *when* something changed) but poor frequency resolution (frequencies are blurry)
+- **Large window** = good frequency resolution (clean, sharp frequency bands) but poor time resolution (changes are smeared over time)
+
+The math is simple: if your window is $T$ seconds long, your frequency resolution is $\Delta f = 1/T$ Hz. A 1-second window gives you 1 Hz resolution. A 0.25-second window gives you 4 Hz resolution — you can't distinguish frequencies closer than 4 Hz apart.
+
+## Interactive: The Window Size Tradeoff
+
+The signal below switches from **10 Hz to 20 Hz at exactly t = 2.5 seconds**. Drag the slider to change the window size and watch the spectrogram change. Small windows catch the transition sharply but blur the frequencies. Large windows show clean frequency bands but smear the transition.
+
+```{=html}
+<div class="widget-box">
+  <div style="margin-bottom:12px;">
+    <label for="winSlider" style="font-weight:600;">Window size:
+      <span id="winVal" style="color:#e74c3c; font-weight:700;">1.00</span> seconds
+    </label><br>
+    <input type="range" id="winSlider" min="0.25" max="2.0" step="0.05" value="1.0"
+           style="width:100%; accent-color:#e74c3c;">
+    <div id="resolutionInfo" style="font-size:0.92em; color:#555; margin-top:6px; padding:8px 12px; background:#f9f9f9; border-radius:6px;"></div>
+  </div>
+  <div id="winSignalPlot" style="width:100%; height:200px;"></div>
+  <div id="winSpectroPlot" style="width:100%; height:300px;"></div>
+</div>
+
+<script>
+(function() {
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+  const rand = seededRand(99);
+
+  const sr = 256, dur = 5;
+  const N = sr * dur;
+  const t = [], signal = [];
+  for (let i = 0; i < N; i++) {
+    const ti = i / sr;
+    t.push(ti);
+    const freq = (ti < 2.5) ? 10 : 20;
+    signal.push(Math.sin(2*Math.PI*freq*ti) + 0.2*(rand()-0.5));
+  }
+
+  function computeSpectrogram(sig, sr, winSec) {
+    const hopSec = Math.max(0.05, winSec / 4);
+    const winN = Math.floor(winSec * sr);
+    const hopN = Math.max(1, Math.floor(hopSec * sr));
+    const maxFreqIdx = Math.min(Math.floor(40 * winN / sr), Math.floor(winN/2));
+    const times = [], freqs = [], power = [];
+    for (let k = 0; k <= maxFreqIdx; k++) freqs.push(k * sr / winN);
+    for (let start = 0; start + winN <= sig.length; start += hopN) {
+      times.push((start + winN/2) / sr);
+      const row = [];
+      const chunk = sig.slice(start, start + winN);
+      for (let i = 0; i < chunk.length; i++) {
+        chunk[i] *= 0.5*(1-Math.cos(2*Math.PI*i/(chunk.length-1)));
+      }
+      for (let k = 0; k <= maxFreqIdx; k++) {
+        let re=0, im=0;
+        for (let n=0; n<winN; n++) {
+          const angle=2*Math.PI*k*n/winN;
+          re+=chunk[n]*Math.cos(angle);
+          im-=chunk[n]*Math.sin(angle);
+        }
+        row.push(10*Math.log10((re*re+im*im)/(winN*winN)+1e-10));
+      }
+      power.push(row);
+    }
+    return {times, freqs, power};
+  }
+
+  function updateWinPlot() {
+    const winSec = parseFloat(document.getElementById('winSlider').value);
+    document.getElementById('winVal').textContent = winSec.toFixed(2);
+
+    const freqRes = (1/winSec).toFixed(1);
+    const timeRes = winSec.toFixed(2);
+    const info = document.getElementById('resolutionInfo');
+    info.innerHTML = '<b>Window = ' + timeRes + 's</b> &rarr; Time resolution = ' + timeRes +
+      's, Frequency resolution = ' + freqRes + ' Hz' +
+      (winSec < 0.5 ? ' <span style="color:#27ae60;">(sharp time, blurry frequency)</span>' :
+       winSec > 1.5 ? ' <span style="color:#e74c3c;">(blurry time, sharp frequency)</span>' :
+       ' <span style="color:#e67e22;">(balanced)</span>');
+
+    // Signal plot with transition line
+    Plotly.react('winSignalPlot', [{
+      x:t, y:signal, type:'scatter', mode:'lines',
+      line:{color:'#2c3e50', width:1.2},
+      hovertemplate:'%{x:.2f}s: %{y:.2f}<extra></extra>'
+    }], {
+      xaxis:{title:'Time (s)', range:[0,dur]},
+      yaxis:{title:'Amplitude', range:[-1.8,1.8]},
+      shapes:[{type:'line',x0:2.5,x1:2.5,y0:-1.8,y1:1.8,
+        line:{color:'#c0392b',width:2,dash:'dash'}}],
+      annotations:[{x:2.5,y:1.7,text:'Transition: 10→20 Hz',showarrow:false,
+        font:{size:11,color:'#c0392b'}}],
+      margin:{t:10,b:38,l:50,r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      hovermode:'x unified'
+    }, {responsive:true, displayModeBar:false});
+
+    // Spectrogram
+    const spec = computeSpectrogram(signal, sr, winSec);
+    const zData = [];
+    for (let f = 0; f < spec.freqs.length; f++) {
+      const row = [];
+      for (let ti = 0; ti < spec.times.length; ti++) row.push(spec.power[ti][f]);
+      zData.push(row);
+    }
+
+    Plotly.react('winSpectroPlot', [{
+      z:zData, x:spec.times, y:spec.freqs,
+      type:'heatmap', colorscale:'Viridis',
+      hovertemplate:'Time: %{x:.2f}s<br>Freq: %{y:.1f} Hz<br>Power: %{z:.1f} dB<extra></extra>',
+      colorbar:{title:'dB', titleside:'right', thickness:15}
+    },{
+      // Marker for transition
+      x:[2.5], y:[15], type:'scatter', mode:'markers',
+      marker:{color:'red', size:0}, showlegend:false
+    }], {
+      xaxis:{title:'Time (s)', range:[0,dur]},
+      yaxis:{title:'Frequency (Hz)', range:[0,35]},
+      shapes:[{type:'line',x0:2.5,x1:2.5,y0:0,y1:35,
+        line:{color:'rgba(192,57,43,0.5)',width:1.5,dash:'dash'}}],
+      margin:{t:10,b:42,l:50,r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa'
+    }, {responsive:true, displayModeBar:false});
+  }
+
+  document.getElementById('winSlider').addEventListener('input', updateWinPlot);
+  updateWinPlot();
+})();
+</script>
+```
+
+::: {.try-it}
+**Try these three settings:**
+
+1. **Window = 0.25s** — The transition at 2.5s is sharp and crisp. But the frequency bands at 10 Hz and 20 Hz are wide and blurry (frequency resolution = 4 Hz — you can barely tell them apart).
+2. **Window = 2.0s** — The frequency bands are beautifully sharp and narrow. But the transition is smeared over nearly 2 seconds — you've lost the ability to say *exactly* when it happened.
+3. **Window = 0.75–1.0s** — A reasonable compromise. This is roughly what clinical EEG software uses.
+:::
+
+::: {.key-concept}
+**The time-frequency tradeoff:**
+
+- Frequency resolution = 1 / window size
+- Time resolution = window size
+- You **cannot** improve both simultaneously. Every spectrogram is a compromise.
+
+In clinical EEG, a window of **0.5–2 seconds** is typical. For seizure detection, you want to see fast changes (shorter window). For sleep staging, you can afford longer windows (better frequency resolution).
+:::
+
+## Clinical Applications
+
+Spectrograms are used daily in clinical neuroscience:
+
+| Application | What You See | Window Size |
+|-------------|-------------|-------------|
+| **Seizure detection** | Evolving frequency pattern: onset → spread → termination | 0.5–1s |
+| **Sleep staging** | Slow progression through frequency bands (awake→NREM→REM) | 2–5s |
+| **Anesthesia monitoring** | Frequency shift as drugs take effect | 1–2s |
+| **Brain-computer interfaces** | Motor imagery → frequency changes in mu/beta bands | 0.25–0.5s |
+| **ICU monitoring** | Long-term trends: detecting burst suppression or status epilepticus | 1–5s |
+
+In each case, the spectrogram gives clinicians a rapid visual summary that would take much longer to extract from raw EEG traces.
+
+## Quiz: Check Your Understanding
+
+```{=html}
+<div class="quiz-container">
+  <h4>Quiz</h4>
+
+  <div style="margin-bottom: 1.5em;" id="specQ1">
+    <p><strong>Q1:</strong> A spectrogram shows a bright horizontal band at 10 Hz during the first half of a recording, then it disappears. What most likely happened?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq1" value="a"> A. The patient fell asleep
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq1" value="b"> B. The patient likely opened their eyes — alpha blocking
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq1" value="c"> C. A seizure began
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq1" value="d"> D. An electrode fell off
+    </label>
+    <div id="sq1feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1.5em;" id="specQ2">
+    <p><strong>Q2:</strong> You increase the spectrogram window size from 0.5s to 2s. What improves and what gets worse?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq2" value="a"> A. Both time and frequency resolution improve
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq2" value="b"> B. Frequency resolution improves (0.5 Hz vs 2 Hz), but time resolution worsens (2s vs 0.5s)
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq2" value="c"> C. Time resolution improves, frequency resolution worsens
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq2" value="d"> D. Nothing changes — window size doesn't affect resolution
+    </label>
+    <div id="sq2feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1em;" id="specQ3">
+    <p><strong>Q3:</strong> A seizure spectrogram shows activity starting at low frequencies and gradually moving to higher frequencies over 30 seconds. This pattern is called:</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq3" value="a"> A. Alpha blocking
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq3" value="b"> B. Sleep spindle activity
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq3" value="c"> C. Seizure frequency evolution — a hallmark of electrographic seizures
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq3" value="d"> D. Normal background variation
+    </label>
+    <div id="sq3feedback"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const answers = {
+    sq1: {correct:'b', feedback:{
+      a:['incorrect','Sleep would shift the dominant frequency to slower rhythms (theta/delta) — not make 10 Hz disappear entirely. Good thought though.'],
+      b:['correct','Correct! The 10 Hz band is the alpha rhythm, prominent when eyes are closed. Opening the eyes suppresses it — this is called "alpha blocking" or "alpha attenuation." It\'s one of the first things you test in a clinical EEG.'],
+      c:['incorrect','A seizure would show evolving frequency patterns, not just the disappearance of one band.'],
+      d:['incorrect','An electrode falling off would cause sudden noise or flatline on one channel, not a clean frequency change.']
+    }},
+    sq2: {correct:'b', feedback:{
+      a:['incorrect','That would violate the time-frequency tradeoff. You can\'t improve both — they\'re inversely related.'],
+      b:['correct','Correct! Frequency resolution = 1/T. Going from 0.5s to 2s: frequency resolution improves from 2 Hz to 0.5 Hz. But now each time slice covers 2 seconds instead of 0.5 — you lose temporal precision. This is the fundamental tradeoff.'],
+      c:['incorrect','It\'s the opposite. Larger windows give better frequency resolution but worse time resolution.'],
+      d:['incorrect','Window size is the primary parameter controlling the time-frequency tradeoff in a spectrogram.']
+    }},
+    sq3: {correct:'c', feedback:{
+      a:['incorrect','Alpha blocking is the suppression of 10 Hz when eyes open — a normal phenomenon, not a seizure pattern.'],
+      b:['incorrect','Sleep spindles are brief 12-14 Hz bursts during NREM sleep. They don\'t evolve over 30 seconds.'],
+      c:['correct','Correct! Electrographic seizures classically show frequency evolution — the dominant frequency changes over the course of the seizure. This evolving pattern is one of the most reliable ways to distinguish a real seizure from an artifact or normal variant on the spectrogram.'],
+      d:['incorrect','Normal background variation is slow and subtle. A progressive frequency sweep over 30 seconds is a pathological pattern.']
+    }}
+  };
+
+  ['sq1','sq2','sq3'].forEach(function(qid) {
+    document.querySelectorAll('input[name="'+qid+'"]').forEach(function(r) {
+      r.addEventListener('change', function() {
+        const fb = answers[qid].feedback[r.value];
+        const div = document.getElementById(qid+'feedback');
+        div.className = fb[0]==='correct' ? 'quiz-feedback-correct' : 'quiz-feedback-incorrect';
+        div.innerHTML = (fb[0]==='correct' ? '&#10003; ' : '&#10007; ') + fb[1];
+      });
+    });
+  });
+})();
+</script>
+```
+
+## What's Next
+
+You now have every tool in the box: you understand signals, sampling, filtering, frequency decomposition, EEG patterns, artifacts, and time-frequency analysis. One thing remains: use it all on a real patient.
+
+**Module 8** is a real EEG recording from a real patient. Something is happening in that recording. Your job is to find it.
+
+::: {.module-nav}
+[← Module 6: Artifacts](06_artifacts.qmd)
+[Module 8: The Challenge →](08_challenge.qmd)
+:::

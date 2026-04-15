@@ -1,0 +1,650 @@
+---
+title: "Module 4: FFT"
+subtitle: "What Frequencies Are Hiding in Your Signal?"
+format:
+  html:
+    code-fold: true
+---
+
+::: {.clinical-vignette}
+A neurologist is reviewing a patient's EEG. She glances at the screen and says: "I see a lot of theta activity." How does she know? She's not counting cycles by hand — the machine computed a **power spectrum**. The Fourier Transform is doing the work behind the scenes, every time anyone looks at a frequency analysis of any physiological signal.
+:::
+
+Your signal is clean (thanks to filtering). But looking at a wiggly line in the time domain is like listening to an orchestra and trying to identify every instrument by ear. The **Fourier Transform** is like a prism — it splits the signal into its individual frequency components so you can see exactly what's inside.
+
+This module teaches you the single most important analysis tool in signal processing: the **Fast Fourier Transform (FFT)**. By the end, you'll be able to look at any signal and answer: *what frequencies are in there, and how strong are they?*
+
+## The Core Idea
+
+Any signal — no matter how messy it looks — is just a sum of simple sine waves at different frequencies. The FFT decomposes a signal into those individual components.
+
+Think of it this way:
+
+- **Time domain**: you see the signal as voltage changing over time (the wiggly line)
+- **Frequency domain**: you see which frequencies are present and how strong each one is (a bar chart of "ingredients")
+
+The FFT converts from the first view to the second. That's it.
+
+## Interactive: Build a Signal, See Its FFT
+
+This is the key insight. On the left: the time-domain signal (the wiggly line). On the right: the frequency spectrum (the "ingredients list"). Add frequency components and watch both plots update.
+
+```{=html}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<div class="widget-box">
+  <div style="margin-bottom: 1em;">
+    <strong style="font-size:0.95em;">Add frequency components:</strong>
+  </div>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom:1em;">
+    <!-- Delta 3 Hz -->
+    <div style="background:#f0f4ff; padding:10px; border-radius:8px; border:1px solid #ccc;">
+      <label style="font-weight:600; color:#2c3e50;">
+        <input type="checkbox" id="fft_chk_3" checked> 3 Hz (Delta)
+      </label><br>
+      <label style="font-size:0.85em; color:#666;">Amplitude:
+        <span id="fft_amp_3_val" style="color:#2c3e50; font-weight:700;">1.0</span>
+      </label><br>
+      <input type="range" id="fft_amp_3" min="0.1" max="3" step="0.1" value="1"
+             style="width:100%; accent-color:#2c3e50;">
+    </div>
+
+    <!-- Alpha 10 Hz -->
+    <div style="background:#f4f0ff; padding:10px; border-radius:8px; border:1px solid #ccc;">
+      <label style="font-weight:600; color:#8e44ad;">
+        <input type="checkbox" id="fft_chk_10" checked> 10 Hz (Alpha)
+      </label><br>
+      <label style="font-size:0.85em; color:#666;">Amplitude:
+        <span id="fft_amp_10_val" style="color:#8e44ad; font-weight:700;">1.5</span>
+      </label><br>
+      <input type="range" id="fft_amp_10" min="0.1" max="3" step="0.1" value="1.5"
+             style="width:100%; accent-color:#8e44ad;">
+    </div>
+
+    <!-- Beta 25 Hz -->
+    <div style="background:#fff4f0; padding:10px; border-radius:8px; border:1px solid #ccc;">
+      <label style="font-weight:600; color:#e67e22;">
+        <input type="checkbox" id="fft_chk_25"> 25 Hz (Beta)
+      </label><br>
+      <label style="font-size:0.85em; color:#666;">Amplitude:
+        <span id="fft_amp_25_val" style="color:#e67e22; font-weight:700;">0.8</span>
+      </label><br>
+      <input type="range" id="fft_amp_25" min="0.1" max="3" step="0.1" value="0.8"
+             style="width:100%; accent-color:#e67e22;">
+    </div>
+
+    <!-- 60 Hz noise -->
+    <div style="background:#fff0f0; padding:10px; border-radius:8px; border:1px solid #ccc;">
+      <label style="font-weight:600; color:#c0392b;">
+        <input type="checkbox" id="fft_chk_60"> 60 Hz (Power line noise)
+      </label><br>
+      <label style="font-size:0.85em; color:#666;">Amplitude:
+        <span id="fft_amp_60_val" style="color:#c0392b; font-weight:700;">0.5</span>
+      </label><br>
+      <input type="range" id="fft_amp_60" min="0.1" max="3" step="0.1" value="0.5"
+             style="width:100%; accent-color:#c0392b;">
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+    <div id="fft_time_plot" style="width:100%; height:320px;"></div>
+    <div id="fft_freq_plot" style="width:100%; height:320px;"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const comps = [
+    {freq: 3,  id: '3',  color: '#2c3e50', label: 'Delta (3 Hz)'},
+    {freq: 10, id: '10', color: '#8e44ad', label: 'Alpha (10 Hz)'},
+    {freq: 25, id: '25', color: '#e67e22', label: 'Beta (25 Hz)'},
+    {freq: 60, id: '60', color: '#c0392b', label: '60 Hz noise'}
+  ];
+
+  const sr = 512, dur = 2;
+  const N = sr * dur;
+
+  function getActive() {
+    const active = [];
+    comps.forEach(function(c) {
+      const chk = document.getElementById('fft_chk_' + c.id);
+      const sl = document.getElementById('fft_amp_' + c.id);
+      const valSpan = document.getElementById('fft_amp_' + c.id + '_val');
+      const amp = parseFloat(sl.value);
+      valSpan.textContent = amp.toFixed(1);
+      if (chk.checked) {
+        active.push({freq: c.freq, amp: amp, color: c.color, label: c.label});
+      }
+    });
+    return active;
+  }
+
+  function update() {
+    const active = getActive();
+
+    // Build time-domain signal
+    const t = [], y = [];
+    for (let i = 0; i < N; i++) {
+      const ti = i / sr;
+      t.push(ti);
+      let v = 0;
+      active.forEach(function(a) { v += a.amp * Math.sin(2 * Math.PI * a.freq * ti); });
+      y.push(v);
+    }
+
+    // Time-domain plot
+    const trTime = {
+      x: t, y: y, type: 'scatter', mode: 'lines',
+      line: {color: '#2c3e50', width: 1.5},
+      hovertemplate: 'Time: %{x:.3f} s<br>%{y:.2f}<extra></extra>'
+    };
+    const layTime = {
+      title: {text: 'Time Domain', font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Time (s)', range: [0, Math.min(dur, 1)]},
+      yaxis: {title: 'Amplitude'},
+      margin: {t: 30, b: 45, l: 50, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      hovermode: 'x unified'
+    };
+    Plotly.react('fft_time_plot', [trTime], layTime, {responsive: true, displayModeBar: false});
+
+    // Frequency-domain: plot known peaks directly (cleaner for teaching)
+    const freqs = [], mags = [], colors = [], labels = [];
+    active.forEach(function(a) {
+      freqs.push(a.freq);
+      mags.push(a.amp);
+      colors.push(a.color);
+      labels.push(a.label);
+    });
+
+    const trFreq = {
+      x: freqs, y: mags, type: 'bar',
+      marker: {color: colors},
+      text: labels,
+      textposition: 'outside',
+      hovertemplate: '%{text}<br>Frequency: %{x} Hz<br>Amplitude: %{y:.2f}<extra></extra>',
+      width: freqs.map(function() { return 2; })
+    };
+    const layFreq = {
+      title: {text: 'Frequency Spectrum (FFT)', font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Frequency (Hz)', range: [0, 70], dtick: 10},
+      yaxis: {title: 'Magnitude', range: [0, 3.5]},
+      margin: {t: 30, b: 45, l: 50, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      bargap: 0.5
+    };
+    Plotly.react('fft_freq_plot', [trFreq], layFreq, {responsive: true, displayModeBar: false});
+  }
+
+  // Attach listeners
+  comps.forEach(function(c) {
+    document.getElementById('fft_chk_' + c.id).addEventListener('change', update);
+    document.getElementById('fft_amp_' + c.id).addEventListener('input', update);
+  });
+
+  update();
+})();
+</script>
+```
+
+::: {.try-it}
+**Experiment:**
+
+- Start with just the 3 Hz and 10 Hz components checked. The time-domain signal looks complex, but the spectrum shows exactly two clean peaks.
+- Now add 60 Hz. The wiggly line gets much messier — but the spectrum immediately reveals the culprit.
+- Turn off everything except 10 Hz. The time domain becomes a clean sine wave, and the spectrum has a single peak. The FFT is just reading the recipe.
+:::
+
+::: {.key-concept}
+The FFT doesn't create information — it **reorganizes** it. The same signal, viewed two different ways. The time domain shows *what happens when*. The frequency domain shows *what frequencies are present and how strong they are*. Both are equally valid descriptions of the same signal.
+:::
+
+## Interactive: Mystery Signal Challenge
+
+Here's a signal that looks like a mess. Can you guess what frequencies are hiding inside? Click "Reveal FFT" to find out.
+
+```{=html}
+<div class="widget-box">
+  <div style="margin-bottom: 1em;">
+    <strong>Choose a mystery signal:</strong><br>
+    <button id="myst_btn_1" onclick="window.setMystery(0)"
+            style="padding:6px 14px; margin:3px; border:2px solid #2980b9; background:#2980b9; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Normal Awake EEG
+    </button>
+    <button id="myst_btn_2" onclick="window.setMystery(1)"
+            style="padding:6px 14px; margin:3px; border:2px solid #27ae60; background:#27ae60; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Deep Sleep
+    </button>
+    <button id="myst_btn_3" onclick="window.setMystery(2)"
+            style="padding:6px 14px; margin:3px; border:2px solid #c0392b; background:#c0392b; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Noisy Recording
+    </button>
+  </div>
+
+  <div id="mystery_time_plot" style="width:100%; height:280px;"></div>
+
+  <div style="text-align:center; margin:1em 0;">
+    <em id="mystery_prompt" style="color:#555;">What frequencies do you think are in this signal?</em><br>
+    <button id="mystery_reveal_btn" onclick="window.revealMysteryFFT()"
+            style="padding:8px 20px; margin-top:8px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:20px; cursor:pointer; font-size:0.95em; font-weight:600;">
+      Reveal FFT
+    </button>
+  </div>
+
+  <div id="mystery_freq_plot" style="width:100%; height:280px;"></div>
+  <div id="mystery_explanation" style="font-size:0.9em; color:#555; padding:8px; display:none;"></div>
+</div>
+
+<script>
+(function() {
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+
+  const mysteries = [
+    {
+      name: 'Normal Awake EEG',
+      components: [{f:10, a:1.2}, {f:18, a:0.6}, {f:5, a:0.4}],
+      noise: 0.3,
+      explanation: '<b>Normal awake EEG:</b> Dominant alpha (10 Hz) from occipital regions, some beta (18 Hz) from frontal activity, and a touch of theta (5 Hz). This is what a healthy, relaxed adult\'s EEG looks like.',
+      peakLabels: ['Alpha (10 Hz)', 'Beta (18 Hz)', 'Theta (5 Hz)']
+    },
+    {
+      name: 'Deep Sleep',
+      components: [{f:2, a:2.5}, {f:6, a:0.8}],
+      noise: 0.2,
+      explanation: '<b>Deep sleep (Stage N3):</b> Massive delta waves (2 Hz) dominate — large, slow oscillations reflecting synchronized cortical activity. Some theta (6 Hz) mixed in. Alpha and beta are essentially absent.',
+      peakLabels: ['Delta (2 Hz)', 'Theta (6 Hz)']
+    },
+    {
+      name: 'Noisy Recording',
+      components: [{f:10, a:1.0}, {f:60, a:1.5}],
+      noise: 0.4,
+      explanation: '<b>Alpha rhythm contaminated by 60 Hz power line noise.</b> The alpha peak (10 Hz) is genuine brain activity. The 60 Hz spike is an artifact from nearby electrical equipment. This is the most common artifact in clinical EEG — and the first thing to filter out.',
+      peakLabels: ['Alpha (10 Hz)', '60 Hz noise!']
+    }
+  ];
+
+  const sr = 512, dur = 2, N = sr * dur;
+  let currentMystery = 0;
+  let revealed = false;
+
+  function buildSignal(m) {
+    const rand = seededRand(42 + m * 7);
+    const t = [], y = [];
+    for (let i = 0; i < N; i++) {
+      const ti = i / sr;
+      t.push(ti);
+      let v = 0;
+      mysteries[m].components.forEach(function(c) {
+        v += c.a * Math.sin(2 * Math.PI * c.f * ti);
+      });
+      v += mysteries[m].noise * (rand() - 0.5) * 2;
+      y.push(v);
+    }
+    return {t: t, y: y};
+  }
+
+  function plotTime(m) {
+    const sig = buildSignal(m);
+    const tr = {
+      x: sig.t, y: sig.y, type: 'scatter', mode: 'lines',
+      line: {color: '#2c3e50', width: 1.3},
+      hovertemplate: '%{x:.3f} s: %{y:.2f}<extra></extra>'
+    };
+    const lay = {
+      title: {text: 'Mystery Signal: ' + mysteries[m].name, font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Time (s)', range: [0, 1]},
+      yaxis: {title: 'Amplitude'},
+      margin: {t: 30, b: 45, l: 50, r: 15},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      hovermode: 'x unified'
+    };
+    Plotly.react('mystery_time_plot', [tr], lay, {responsive: true, displayModeBar: false});
+  }
+
+  function plotFreq(m) {
+    const mc = mysteries[m];
+    const freqs = mc.components.map(function(c) { return c.f; });
+    const mags = mc.components.map(function(c) { return c.a; });
+    const colors = freqs.map(function(f) {
+      if (f <= 4) return '#2c3e50';
+      if (f <= 8) return '#1abc9c';
+      if (f <= 13) return '#8e44ad';
+      if (f <= 30) return '#e67e22';
+      return '#c0392b';
+    });
+
+    const tr = {
+      x: freqs, y: mags, type: 'bar',
+      marker: {color: colors},
+      text: mc.peakLabels,
+      textposition: 'outside',
+      hovertemplate: '%{text}<br>%{x} Hz: magnitude %{y:.2f}<extra></extra>',
+      width: freqs.map(function() { return 2; })
+    };
+    const lay = {
+      title: {text: 'Frequency Spectrum', font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Frequency (Hz)', range: [0, 70], dtick: 10},
+      yaxis: {title: 'Magnitude', range: [0, Math.max.apply(null, mags) * 1.5]},
+      margin: {t: 30, b: 45, l: 50, r: 15},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa'
+    };
+    Plotly.react('mystery_freq_plot', [tr], lay, {responsive: true, displayModeBar: false});
+  }
+
+  window.setMystery = function(m) {
+    currentMystery = m;
+    revealed = false;
+    plotTime(m);
+    Plotly.purge('mystery_freq_plot');
+    document.getElementById('mystery_prompt').textContent = 'What frequencies do you think are in this signal?';
+    document.getElementById('mystery_reveal_btn').style.display = '';
+    document.getElementById('mystery_explanation').style.display = 'none';
+  };
+
+  window.revealMysteryFFT = function() {
+    if (revealed) return;
+    revealed = true;
+    plotFreq(currentMystery);
+    document.getElementById('mystery_prompt').textContent = '';
+    document.getElementById('mystery_reveal_btn').style.display = 'none';
+    document.getElementById('mystery_explanation').style.display = 'block';
+    document.getElementById('mystery_explanation').innerHTML = mysteries[currentMystery].explanation;
+  };
+
+  // Initialize
+  plotTime(0);
+})();
+</script>
+```
+
+::: {.try-it}
+**Experiment:**
+
+- Try the "Deep Sleep" signal. Notice how the time-domain trace is slow and rolling — big, lazy waves. The FFT confirms: almost all the power is at 2 Hz (delta).
+- Try "Noisy Recording." It looks almost like the normal awake EEG, but the FFT instantly reveals the 60 Hz contamination that's hard to spot by eye.
+:::
+
+## Frequency Resolution: Why Recording Duration Matters
+
+Here's a subtlety that matters in practice. Suppose your signal contains two frequencies that are close together — say 9 Hz and 11 Hz. Can the FFT tell them apart?
+
+It depends on **how long you record**. The frequency resolution of the FFT is:
+
+$$\Delta f = \frac{1}{T}$$
+
+where $T$ is the recording duration in seconds. A 1-second recording can resolve frequencies 1 Hz apart. A 0.5-second recording? Only 2 Hz apart — and those two peaks will blur into one.
+
+Drag the slider and watch the two peaks separate (or merge).
+
+```{=html}
+<div class="widget-box">
+  <div style="margin-bottom: 1em;">
+    <label for="res_dur_slider" style="font-weight:600;">Recording duration:
+      <span id="res_dur_val" style="color:#2980b9; font-weight:700;">1.0 s</span>
+    </label><br>
+    <input type="range" id="res_dur_slider" min="0.5" max="5" step="0.1" value="1.0"
+           style="width:100%; accent-color:#2980b9;">
+    <div style="font-size:0.9em; margin-top:4px;">
+      Frequency resolution: <strong><span id="res_delta_f" style="color:#e74c3c;">1.00 Hz</span></strong>
+      <span style="color:#888;"> ($\Delta f = 1/T$)</span>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+    <div id="res_time_plot" style="width:100%; height:300px;"></div>
+    <div id="res_freq_plot" style="width:100%; height:300px;"></div>
+  </div>
+
+  <div id="res_commentary" style="font-size:0.9em; color:#555; margin-top:8px; font-style:italic; padding:6px;"></div>
+</div>
+
+<script>
+(function() {
+  const sl = document.getElementById('res_dur_slider');
+  const durVal = document.getElementById('res_dur_val');
+  const dfVal = document.getElementById('res_delta_f');
+  const commentary = document.getElementById('res_commentary');
+
+  const f1 = 9, f2 = 11, a1 = 1.0, a2 = 0.8;
+  const sr = 256;
+
+  function simpleDFT(signal, sampleRate) {
+    var N = signal.length;
+    var freqs = [], mags = [];
+    var maxK = Math.min(Math.floor(N / 2), Math.floor(50 * N / sampleRate));
+    for (var k = 0; k <= maxK; k++) {
+      var re = 0, im = 0;
+      for (var n = 0; n < N; n++) {
+        var angle = 2 * Math.PI * k * n / N;
+        re += signal[n] * Math.cos(angle);
+        im -= signal[n] * Math.sin(angle);
+      }
+      freqs.push(k * sampleRate / N);
+      mags.push(2 * Math.sqrt(re * re + im * im) / N);
+    }
+    return {freqs: freqs, mags: mags};
+  }
+
+  function update() {
+    var dur = parseFloat(sl.value);
+    var df = 1 / dur;
+    durVal.textContent = dur.toFixed(1) + ' s';
+    dfVal.textContent = df.toFixed(2) + ' Hz';
+
+    var N = Math.round(sr * dur);
+    var t = [], y = [];
+    for (var i = 0; i < N; i++) {
+      var ti = i / sr;
+      t.push(ti);
+      y.push(a1 * Math.sin(2 * Math.PI * f1 * ti) + a2 * Math.sin(2 * Math.PI * f2 * ti));
+    }
+
+    // Time domain
+    var trT = {
+      x: t, y: y, type: 'scatter', mode: 'lines',
+      line: {color: '#2c3e50', width: 1.5},
+      hovertemplate: '%{x:.3f} s: %{y:.2f}<extra></extra>'
+    };
+    var layT = {
+      title: {text: '9 Hz + 11 Hz signal', font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Time (s)'},
+      yaxis: {title: 'Amplitude', range: [-2.5, 2.5]},
+      margin: {t: 30, b: 45, l: 50, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      hovermode: 'x unified'
+    };
+    Plotly.react('res_time_plot', [trT], layT, {responsive: true, displayModeBar: false});
+
+    // Frequency domain (actual DFT)
+    var dft = simpleDFT(y, sr);
+    var trF = {
+      x: dft.freqs, y: dft.mags, type: 'scatter', mode: 'lines',
+      line: {color: '#8e44ad', width: 2},
+      fill: 'tozeroy', fillcolor: 'rgba(142,68,173,0.15)',
+      hovertemplate: '%{x:.1f} Hz: %{y:.3f}<extra></extra>'
+    };
+
+    // Mark the target frequencies
+    var shapes = [
+      {type: 'line', x0: 9, x1: 9, y0: 0, y1: 1.2, line: {color: '#e74c3c', width: 1, dash: 'dash'}},
+      {type: 'line', x0: 11, x1: 11, y0: 0, y1: 1.2, line: {color: '#2980b9', width: 1, dash: 'dash'}}
+    ];
+    var annotations = [
+      {x: 9, y: 1.25, text: '9 Hz', showarrow: false, font: {size: 10, color: '#e74c3c'}},
+      {x: 11, y: 1.25, text: '11 Hz', showarrow: false, font: {size: 10, color: '#2980b9'}}
+    ];
+
+    var layF = {
+      title: {text: 'FFT Spectrum', font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Frequency (Hz)', range: [0, 30], dtick: 5},
+      yaxis: {title: 'Magnitude', range: [0, 1.4]},
+      margin: {t: 30, b: 45, l: 50, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      shapes: shapes, annotations: annotations
+    };
+    Plotly.react('res_freq_plot', [trF], layF, {responsive: true, displayModeBar: false});
+
+    // Commentary
+    if (df > 2) {
+      commentary.textContent = 'Resolution too poor (' + df.toFixed(1) + ' Hz). The two peaks are merged into one blob. You cannot tell there are two frequencies.';
+    } else if (df > 1.5) {
+      commentary.textContent = 'Getting closer, but the peaks are still blurred together. You might suspect two frequencies, but you can\'t be sure.';
+    } else if (df > 1) {
+      commentary.textContent = 'Almost there. The peaks are starting to separate, but there\'s still overlap.';
+    } else if (df > 0.5) {
+      commentary.textContent = 'Two distinct peaks at 9 Hz and 11 Hz. With ' + dur.toFixed(1) + ' seconds of data, you can resolve them.';
+    } else {
+      commentary.textContent = 'Crystal clear separation. With ' + dur.toFixed(1) + ' seconds, your resolution is ' + df.toFixed(2) + ' Hz — much finer than the 2 Hz gap between the frequencies.';
+    }
+  }
+
+  sl.addEventListener('input', update);
+  update();
+})();
+</script>
+```
+
+::: {.key-concept}
+**Frequency resolution = $1/T$**, where $T$ is the recording duration. Want to distinguish frequencies 1 Hz apart? You need at least 1 second of data. Want 0.5 Hz resolution? Record for 2 seconds. This is a fundamental tradeoff: **better frequency resolution requires longer recordings**.
+
+This matters clinically. A 1-second EEG epoch can tell you whether activity is roughly "alpha-range" or "beta-range." But to precisely characterize a 9 Hz vs. 11 Hz rhythm, you need several seconds of clean data.
+:::
+
+::: {.try-it}
+**Experiment:**
+
+- Set duration to 0.5 seconds. The two peaks are invisible — just one merged bump.
+- Slowly increase to 1 second. Can you start to see a hint of separation?
+- At 2-3 seconds, the two peaks are clearly distinct.
+- At 5 seconds, they're razor-sharp. More data = more precision.
+:::
+
+## Why This Matters Clinically
+
+The FFT is behind every frequency analysis in clinical neurophysiology:
+
+- **EEG interpretation**: identifying dominant rhythms (alpha, beta, theta, delta)
+- **Sleep staging**: each sleep stage has a characteristic power spectrum
+- **Seizure detection**: abnormal rhythmic activity shows up as unexpected spectral peaks
+- **Monitoring**: brain-computer interfaces and neurofeedback systems use real-time FFT
+- **Artifact detection**: 60 Hz peaks = power line noise; broad spectral bumps = muscle artifact
+
+Every time a monitor displays a "power spectrum" or "spectral analysis" — whether it's in the EEG lab, the OR, or the ICU — it's running an FFT under the hood.
+
+## Quiz: Check Your Understanding
+
+```{=html}
+<div class="quiz-container">
+  <h4>Quiz</h4>
+
+  <div style="margin-bottom: 1.5em;" id="fft_quiz1">
+    <p><strong>Q1:</strong> An EEG signal shows a sharp peak at 10 Hz in the power spectrum. What brain rhythm is this?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq1" value="a"> A. Delta rhythm
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq1" value="b"> B. Alpha rhythm
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq1" value="c"> C. Beta rhythm
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq1" value="d"> D. Gamma rhythm
+    </label>
+    <div id="fq1feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1.5em;" id="fft_quiz2">
+    <p><strong>Q2:</strong> Your FFT shows peaks at 10 Hz AND 60 Hz. The 60 Hz peak is most likely:</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq2" value="a"> A. Gamma rhythm from active cognition
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq2" value="b"> B. Power line noise, not brain activity
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq2" value="c"> C. A harmonic of the 10 Hz alpha
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq2" value="d"> D. Muscle artifact from jaw clenching
+    </label>
+    <div id="fq2feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1em;" id="fft_quiz3">
+    <p><strong>Q3:</strong> You have a 2-second EEG recording. Your frequency resolution is:</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq3" value="a"> A. 2 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq3" value="b"> B. 1 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq3" value="c"> C. 0.5 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq3" value="d"> D. It depends on the sampling rate
+    </label>
+    <div id="fq3feedback"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const answers = {
+    fq1: {correct: 'b', feedback: {
+      a: ['incorrect', 'Delta is 1-4 Hz. 10 Hz is well above that range.'],
+      b: ['correct', 'Correct. Alpha rhythm occupies the 8-13 Hz band. A peak at 10 Hz is right in the middle of the alpha range — the dominant rhythm when a patient is relaxed with eyes closed.'],
+      c: ['incorrect', 'Beta starts at 13 Hz. 10 Hz falls below that cutoff.'],
+      d: ['incorrect', 'Gamma is above 30 Hz. 10 Hz is nowhere near gamma territory.']
+    }},
+    fq2: {correct: 'b', feedback: {
+      a: ['incorrect', 'While gamma activity can occur near 60 Hz, a sharp peak at exactly 60 Hz is the hallmark of power line interference — not physiological activity.'],
+      b: ['correct', 'Correct. A sharp spike at exactly 60 Hz (or 50 Hz in Europe) is almost always power line noise picked up by the recording equipment. This is the most common artifact in EEG.'],
+      c: ['incorrect', 'Harmonics of 10 Hz would appear at 20 Hz, 30 Hz, 40 Hz, etc. — not 60 Hz (which is the 6th harmonic, extremely unlikely for a biological signal).'],
+      d: ['incorrect', 'Muscle artifact is typically broadband (spread across many frequencies), not a sharp spike at one exact frequency.']
+    }},
+    fq3: {correct: 'c', feedback: {
+      a: ['incorrect', 'That would be the resolution of a 0.5-second recording. Remember: &Delta;f = 1/T.'],
+      b: ['incorrect', 'Close — that\'s for a 1-second recording. With 2 seconds, you get even better resolution.'],
+      c: ['correct', 'Correct. &Delta;f = 1/T = 1/2 = 0.5 Hz. With a 2-second recording, you can distinguish frequencies that are 0.5 Hz apart.'],
+      d: ['incorrect', 'Frequency resolution depends on recording <em>duration</em>, not sampling rate. Sampling rate determines the <em>maximum</em> frequency you can capture (Nyquist), but resolution is purely 1/T.']
+    }}
+  };
+
+  ['fq1','fq2','fq3'].forEach(function(qid) {
+    var radios = document.querySelectorAll('input[name="' + qid + '"]');
+    radios.forEach(function(r) {
+      r.addEventListener('change', function() {
+        var fb = answers[qid].feedback[r.value];
+        var div = document.getElementById(qid + 'feedback');
+        div.className = fb[0] === 'correct' ? 'quiz-feedback-correct' : 'quiz-feedback-incorrect';
+        div.innerHTML = (fb[0] === 'correct' ? '&#10003; ' : '&#10007; ') + fb[1];
+      });
+    });
+  });
+})();
+</script>
+```
+
+## Summary
+
+You can now decompose any signal into its frequency components. The FFT takes a confusing time-domain signal and reveals its "ingredients" — which frequencies are present and how strong each one is.
+
+Three things to remember:
+
+1. **The FFT is a prism** — it splits a mixed signal into individual frequency components
+2. **Peaks in the spectrum = frequencies in the signal** — clean peaks mean periodic activity; a sharp 60 Hz peak means noise
+3. **Resolution = $1/T$** — longer recordings give you finer frequency detail
+
+But so far we've been working with clean synthetic signals — sums of perfect sine waves. Real brain signals are messier, more interesting, and carry clinical meaning. Time to meet actual EEG.
+
+::: {.module-nav}
+[← Module 3: Filtering](03_filtering.qmd)
+[Module 5: EEG Basics →](05_eeg_basics.qmd)
+:::

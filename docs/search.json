@@ -1,5 +1,173 @@
 [
   {
+    "objectID": "modules/06_artifacts.html",
+    "href": "modules/06_artifacts.html",
+    "title": "Module 6: Artifacts",
+    "section": "",
+    "text": "A medical student is shadowing in the epilepsy monitoring unit. The patient’s EEG suddenly shows a massive, sharp deflection. The student’s eyes go wide: “Is that a seizure?!” The attending neurologist glances at the screen, then at the patient, and says flatly: “No. She blinked.” Knowing the difference between an artifact and a seizure could change a diagnosis — or prevent an unnecessary one.\nYou can now read an EEG — electrode positions, frequency bands, basic patterns. But here’s the dirty secret: a lot of what shows up on the EEG screen isn’t brain activity at all. Eye blinks, muscle tension, heartbeats, loose electrodes, power lines — they all contaminate the recording. An experienced neurologist can spot these instantly. By the end of this module, so can you."
+  },
+  {
+    "objectID": "modules/06_artifacts.html#the-five-usual-suspects",
+    "href": "modules/06_artifacts.html#the-five-usual-suspects",
+    "title": "Module 6: Artifacts",
+    "section": "The Five Usual Suspects",
+    "text": "The Five Usual Suspects\nEvery EEG reader learns to recognize these five artifacts on sight:\n\n\n\n\n\n\n\n\n\nArtifact\nSource\nKey Feature\nWhere It’s Worst\n\n\n\n\nEye blink\nCorneoretinal dipole\nLarge, slow, positive deflection\nFp1, Fp2 (frontal)\n\n\nMuscle (EMG)\nJaw clenching, frowning\nHigh-frequency “fuzz”\nTemporal electrodes\n\n\n60 Hz line noise\nPower lines\nPerfect sinusoidal ripple\nAll channels equally\n\n\nECG\nHeart’s electrical field\nPeriodic sharp waves at heart rate\nDiffuse, ~1 Hz\n\n\nElectrode pop\nLoose or faulty electrode\nSudden spike, single channel\nJust one electrode\n\n\n\nLet’s learn to recognize each one — and then practice."
+  },
+  {
+    "objectID": "modules/06_artifacts.html#interactive-artifact-anatomy",
+    "href": "modules/06_artifacts.html#interactive-artifact-anatomy",
+    "title": "Module 6: Artifacts",
+    "section": "Interactive: Artifact Anatomy",
+    "text": "Interactive: Artifact Anatomy\nClick each tab to see how the artifact looks in the time domain, what it looks like in the frequency domain, and how to deal with it clinically.\n\n\n\n  \n    Eye Blink\n    Muscle\n    60 Hz Noise\n    ECG\n    Electrode Pop\n  \n  \n  \n    \n      Time Domain\n      \n    \n    \n      Frequency Spectrum\n      \n    \n  \n  \n    \n      Artifact Alone\n      \n    \n    \n      Artifact + Clean EEG\n      \n    \n  \n\n\n\n\n\n\nExplore each artifact type:\n\nClick through all five tabs. For each one, compare the time domain (left) and frequency spectrum (right).\nNotice how eye blinks add energy at low frequencies, while muscle artifact adds energy at high frequencies.\nThe 60 Hz line noise has the most distinctive frequency signature — a single sharp spike at exactly 60 Hz.\nFor the electrode pop, notice how only ONE channel would be affected (here shown as a single sharp transient)."
+  },
+  {
+    "objectID": "modules/06_artifacts.html#interactive-brain-or-noise-the-artifact-game",
+    "href": "modules/06_artifacts.html#interactive-brain-or-noise-the-artifact-game",
+    "title": "Module 6: Artifacts",
+    "section": "Interactive: “Brain or Noise?” — The Artifact Game",
+    "text": "Interactive: “Brain or Noise?” — The Artifact Game\nTime to test yourself. Each trial shows a synthetic EEG segment. Is it real brain activity, or is it contaminated by an artifact? Click your answer, get instant feedback, and track your score.\n\n  \n    Trial 1 of 8\n    Score: 0 / 0\n  \n  \n  \n    \n      Brain Activity\n    \n    \n      Artifact\n    \n  \n  \n  \n    \n      Next →\n    \n  \n\n\n\n\nTips for the game:\n\nLook for sudden, large deflections that don’t match the ongoing background — could be a blink or electrode pop.\nListen for high-frequency fuzz — that’s muscle.\nLook for perfect regularity — 60 Hz noise or ECG.\nClean EEG has a natural, somewhat irregular rhythm. Artifacts tend to stand out because they don’t “fit” the background."
+  },
+  {
+    "objectID": "modules/06_artifacts.html#interactive-before-after-cleaning-an-artifact",
+    "href": "modules/06_artifacts.html#interactive-before-after-cleaning-an-artifact",
+    "title": "Module 6: Artifacts",
+    "section": "Interactive: Before & After — Cleaning an Artifact",
+    "text": "Interactive: Before & After — Cleaning an Artifact\nReal EEG recordings usually have multiple artifacts. Here’s a “dirty” EEG contaminated with both eye blink artifacts and 60 Hz line noise. Use the toggle buttons to remove them and watch what changes — in both the time domain and the frequency spectrum.\n\n  \n    \n      Remove Blinks\n    \n    \n      Remove 60 Hz\n    \n    \n      Remove Both\n    \n    \n      Show Original (Dirty)\n    \n  \n  Showing the original dirty signal — blinks + 60 Hz noise present.\n  \n    \n      \n    \n    \n      \n    \n  \n\n\n\n\nTry each cleaning step:\n\nClick “Remove Blinks” — watch the large slow deflections disappear from the time trace. In the spectrum, low-frequency power drops.\nClick “Remove 60 Hz” — the fast ripple disappears. In the spectrum, the sharp spike at 60 Hz is gone (this is what a notch filter does).\nClick “Remove Both” — now you see clean EEG. Compare with the dotted gray line (original dirty spectrum) to see everything that was removed.\n\n\n\nArtifact rejection is not optional. If you analyze contaminated EEG, your results are wrong. Garbage in, garbage out. The three main strategies are:\n\nPrevention — Good electrode application, low impedances, relaxed patient\nRejection — Identify and discard contaminated epochs\nCorrection — Use signal processing (notch filters, ICA) to remove the artifact while keeping the brain signal\n\nIn clinical practice, you’ll use all three. Prevention is always best."
+  },
+  {
+    "objectID": "modules/06_artifacts.html#why-artifacts-fool-people",
+    "href": "modules/06_artifacts.html#why-artifacts-fool-people",
+    "title": "Module 6: Artifacts",
+    "section": "Why Artifacts Fool People",
+    "text": "Why Artifacts Fool People\nHere’s the thing that makes artifacts dangerous: some artifacts look like real brain pathology.\n\nAn eye blink can look like a frontal spike (which could mean epilepsy)\nA muscle artifact can look like high-frequency beta activity (which has clinical significance)\nAn ECG artifact can look like periodic discharges (which can indicate serious brain injury)\n\nThe difference is in the distribution (which channels are affected), the morphology (exact shape), and the context (what the patient was doing). A skilled EEG reader checks all three before making a call.\n\nThe artifact checklist — Before calling something abnormal, ask:\n\nIs it in only one electrode? Probably electrode pop or bad contact.\nIs it only in frontal channels? Could be an eye blink.\nIs it perfectly periodic? Check if it matches the heart rate (ECG) or a power-line harmonic (60/120 Hz).\nIs it broadband and “fuzzy”? Likely muscle.\nDoes it correlate with patient behavior? Ask the tech: “Was the patient doing anything when this happened?”"
+  },
+  {
+    "objectID": "modules/06_artifacts.html#quiz-check-your-understanding",
+    "href": "modules/06_artifacts.html#quiz-check-your-understanding",
+    "title": "Module 6: Artifacts",
+    "section": "Quiz: Check Your Understanding",
+    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: A sudden large positive deflection appears simultaneously in Fp1 and Fp2 but not in occipital channels. This is most likely:\n    \n       A. A seizure — it's a big voltage change\n    \n    \n       B. Eye blink artifact — frontally distributed, positive polarity\n    \n    \n       C. 60 Hz line noise\n    \n    \n       D. ECG artifact\n    \n    \n  \n\n  \n\n  \n    Q2: An EEG recording shows high-frequency \"fuzz\" predominantly over temporal electrodes. The patient was chewing gum. This is:\n    \n       A. Beta rhythm from concentration\n    \n    \n       B. 60 Hz interference\n    \n    \n       C. Muscle (EMG) artifact from jaw muscles\n    \n    \n       D. Electrode malfunction\n    \n    \n  \n\n  \n\n  \n    Q3: You notice a sharp deflection repeating exactly every 0.8 seconds in the EEG. This interval matches the patient's pulse. This is:\n    \n       A. Epileptiform discharges\n    \n    \n       B. Eye blink artifact\n    \n    \n       C. ECG artifact — cardiac electrical contamination\n    \n    \n       D. Normal alpha rhythm"
+  },
+  {
+    "objectID": "modules/06_artifacts.html#whats-next",
+    "href": "modules/06_artifacts.html#whats-next",
+    "title": "Module 6: Artifacts",
+    "section": "What’s Next",
+    "text": "What’s Next\nYou can now tell brain from noise. With clean EEG in hand, there’s one more power tool to learn: instead of looking at frequencies averaged over the whole recording, what if you could watch them change in real time? That’s the spectrogram — and it’s how neurologists track brain dynamics as they unfold.\n\n← Module 5: EEG Basics Module 7: Spectrograms →"
+  },
+  {
+    "objectID": "modules/03_filtering.html",
+    "href": "modules/03_filtering.html",
+    "title": "Module 3: Filtering",
+    "section": "",
+    "text": "A neurology resident is reviewing an EEG recording. The tracing is a mess — every channel shows a fast, jittery oscillation riding on top of the brain waves. It’s 60 Hz power line noise, picked up from the hospital’s electrical wiring. The attending says: “Apply a notch filter at 60 Hz.” The resident clicks a button. The noise vanishes. The underlying alpha rhythm is now clearly visible. But what just happened? Did the filter remove only the noise? Could it have removed something important from the brain signal too?\nYour EEG recording is full of stuff you don’t want. 60 Hz power line noise. Slow electrode drift (the baseline wanders up and down over seconds). Muscle artifact from the patient clenching their jaw. Filtering is how you separate what matters from what doesn’t — like adjusting the bass and treble on a stereo, but for brain waves.\nThe idea is simple: every signal is a mixture of different frequencies. A filter lets certain frequencies through and blocks others. The question is always: which frequencies do you keep?"
+  },
+  {
+    "objectID": "modules/03_filtering.html#the-anatomy-of-a-dirty-signal",
+    "href": "modules/03_filtering.html#the-anatomy-of-a-dirty-signal",
+    "title": "Module 3: Filtering",
+    "section": "The Anatomy of a Dirty Signal",
+    "text": "The Anatomy of a Dirty Signal\nBefore we filter anything, let’s see what we’re dealing with. The signal below is synthetic, but it’s a realistic mix of what you’d see in a real EEG recording:\n\nA 2 Hz drift (slow baseline wander from electrode impedance changes)\nA 10 Hz alpha rhythm (the brain signal you actually want)\nA 60 Hz line noise (power line interference)\nSome random noise (thermal noise from electronics)\n\n\n\n\n  \n    Choose a filter:\n    \n      Raw Signal\n    \n    \n      High-pass (1 Hz)\n    \n    \n      Low-pass (40 Hz)\n    \n    \n      Band-pass (1–40 Hz)\n    \n  \n  \n    Showing: Raw signal — all components present.\n  \n  \n  \n\n\n\n\nExperiment:\n\nClick Raw — this is what the technician sees before any filtering. Hard to read, right?\nClick High-pass (1 Hz) — the slow drift disappears, but the 60 Hz fuzz is still there.\nClick Low-pass (40 Hz) — the 60 Hz noise vanishes, but now the slow drift is back.\nClick Band-pass (1–40 Hz) — both the drift and line noise are gone. This is the standard clinical EEG filter. The 10 Hz alpha wave is clearly visible.\n\n\n\nThe three basic filter types:\n\nHigh-pass filter: Removes frequencies below the cutoff. Lets high frequencies through. Removes slow drift.\nLow-pass filter: Removes frequencies above the cutoff. Lets low frequencies through. Removes fast noise.\nBand-pass filter: Combination of high-pass and low-pass. Only lets frequencies between two cutoffs through. This is what you’ll use most in clinical EEG.\n\nThe standard clinical EEG display filter is 1–40 Hz band-pass (sometimes 0.5–70 Hz for more detail)."
+  },
+  {
+    "objectID": "modules/03_filtering.html#interactive-adjustable-band-pass-filter",
+    "href": "modules/03_filtering.html#interactive-adjustable-band-pass-filter",
+    "title": "Module 3: Filtering",
+    "section": "Interactive: Adjustable Band-Pass Filter",
+    "text": "Interactive: Adjustable Band-Pass Filter\nNow you control the filter cutoffs. Drag the sliders and watch the signal change in real time. The small plot on the right shows the filter’s frequency response — which frequencies it lets through (green) and which it blocks (red).\n\n  \n    Low cutoff (high-pass):\n      1.0 Hz\n    \n    \n  \n  \n    High cutoff (low-pass):\n      40 Hz\n    \n    \n  \n  \n  \n    \n    \n  \n\n\n\n\nExperiment:\n\nSet the low cutoff to 1 Hz and high cutoff to 40 Hz. This is the standard clinical EEG filter. The signal should look clean.\nNow lower the high cutoff to 15 Hz. You’ll lose the beta rhythm. Lower it to 8 Hz — now even alpha disappears. You’re over-filtering.\nSet the high cutoff back to 40 Hz and raise the low cutoff to 8 Hz. Now you’re only seeing alpha and above — the theta and delta rhythms are gone. Good for highlighting alpha, bad if you need to see sleep slow waves.\nWatch the frequency response plot on the right. The green circles are components that survive the filter; the red Xs are blocked."
+  },
+  {
+    "objectID": "modules/03_filtering.html#the-notch-filter-surgical-noise-removal",
+    "href": "modules/03_filtering.html#the-notch-filter-surgical-noise-removal",
+    "title": "Module 3: Filtering",
+    "section": "The Notch Filter: Surgical Noise Removal",
+    "text": "The Notch Filter: Surgical Noise Removal\nSometimes you don’t want to block a range of frequencies — you want to remove a single, specific frequency. The classic example: 60 Hz power line noise (50 Hz in Europe). A notch filter cuts out a narrow band around one frequency and leaves everything else untouched.\nThe widget below shows a signal with clear 10 Hz brain activity contaminated by 60 Hz line noise. Toggle the notch filter and watch it disappear — both in the time domain (left) and the frequency domain (right).\n\n  \n    \n      Notch Filter: OFF\n    \n  \n  \n    60 Hz line noise is contaminating the signal.\n  \n  \n    \n    \n  \n\n\n\n\nWatch carefully:\n\nWith the notch OFF, look at the time domain signal — the fast 60 Hz oscillation rides on top of the slower alpha wave, making it look “hairy.”\nToggle the notch ON. The signal instantly smooths out, and in the power spectrum, the 60 Hz peak disappears while the 10 Hz peak stays perfectly intact.\nToggle back and forth a few times. This is exactly what happens in the clinic when you apply a notch filter.\n\n\n\nThe notch filter tradeoff: A notch filter at 60 Hz removes power line noise beautifully. But it also removes any brain activity that happens to be at 60 Hz — specifically, gamma oscillations, which are involved in attention, perception, and binding of sensory information. In most clinical settings, this is an acceptable tradeoff (gamma is hard to see on scalp EEG anyway). But in research settings where gamma activity matters, alternatives like shielded rooms and careful grounding are used instead."
+  },
+  {
+    "objectID": "modules/03_filtering.html#filter-rules-of-thumb-for-clinical-eeg",
+    "href": "modules/03_filtering.html#filter-rules-of-thumb-for-clinical-eeg",
+    "title": "Module 3: Filtering",
+    "section": "Filter Rules of Thumb for Clinical EEG",
+    "text": "Filter Rules of Thumb for Clinical EEG\nHere’s what you’ll see on most EEG machines:\n\n\n\n\n\n\n\n\nSetting\nTypical Value\nWhat It Does\n\n\n\n\nHigh-pass filter\n0.5–1 Hz\nRemoves electrode drift and DC offset\n\n\nLow-pass filter\n35–70 Hz\nRemoves muscle artifact and high-frequency noise\n\n\nNotch filter\n60 Hz (US) / 50 Hz (EU)\nRemoves power line interference\n\n\nStandard display\n1–40 Hz band-pass\nThe “default view” — clean enough for most clinical reads\n\n\n\nThese are display filters — they change what you see, not what’s stored. Modern digital EEG systems record the raw data and let you adjust the filters afterward. This is one of the great advantages of digital over analog: you can always go back and re-filter."
+  },
+  {
+    "objectID": "modules/03_filtering.html#why-would-a-doctor-care-about-this",
+    "href": "modules/03_filtering.html#why-would-a-doctor-care-about-this",
+    "title": "Module 3: Filtering",
+    "section": "Why Would a Doctor Care About This?",
+    "text": "Why Would a Doctor Care About This?\nBecause filter settings change what you see, and what you see changes your diagnosis.\n\nToo aggressive high-pass (e.g., 5 Hz): You’ll miss slow waves — including the hallmark of absence seizures (3 Hz spike-and-wave from Module 1) if they have slow components.\nToo aggressive low-pass (e.g., 15 Hz): You’ll miss fast activity — including spikes, which have high-frequency content.\nNo notch filter: The 60 Hz noise may obscure subtle seizure patterns.\nNotch filter always on: You might miss gamma-frequency abnormalities (rare, but it happens).\n\nThe attending doesn’t just “read” an EEG — they adjust the filters, re-read, adjust again. It’s an interactive process."
+  },
+  {
+    "objectID": "modules/03_filtering.html#quiz-check-your-understanding",
+    "href": "modules/03_filtering.html#quiz-check-your-understanding",
+    "title": "Module 3: Filtering",
+    "section": "Quiz: Check Your Understanding",
+    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: An EEG recording shows slow undulations with a period of about 5 seconds (0.2 Hz). Which filter type removes this artifact?\n    \n       A. Low-pass filter\n    \n    \n       B. High-pass filter with cutoff above 0.2 Hz\n    \n    \n       C. Notch filter at 0.2 Hz\n    \n    \n       D. Band-pass filter centered at 0.2 Hz\n    \n    \n  \n\n  \n\n  \n    Q2: You apply a band-pass filter of 1–40 Hz to an EEG recording. A 50 Hz muscle artifact is present. Does it survive the filter?\n    \n       A. Yes — the filter only removes frequencies below 1 Hz\n    \n    \n       B. No — 50 Hz is above the 40 Hz high cutoff, so it's removed\n    \n    \n       C. Partially — the filter attenuates it but doesn't remove it completely\n    \n    \n       D. You need a notch filter for muscle artifacts\n    \n    \n  \n\n  \n\n  \n    Q3: A notch filter at 60 Hz removes power line noise. Could it also remove brain activity at 60 Hz?\n    \n       A. No — the filter can distinguish between noise and brain signals\n    \n    \n       B. Yes — gamma oscillations near 60 Hz would be attenuated too\n    \n    \n       C. No — brain activity doesn't occur at 60 Hz\n    \n    \n       D. Only if the brain signal is stronger than the noise"
+  },
+  {
+    "objectID": "modules/03_filtering.html#summary",
+    "href": "modules/03_filtering.html#summary",
+    "title": "Module 3: Filtering",
+    "section": "Summary",
+    "text": "Summary\nFiltering is your first line of defense against noise. The key ideas:\n\nHigh-pass filters remove slow drift (low frequencies). Standard EEG: 0.5–1 Hz cutoff.\nLow-pass filters remove fast noise and muscle artifact (high frequencies). Standard EEG: 35–70 Hz cutoff.\nBand-pass filters combine both — they define the window of frequencies you care about.\nNotch filters surgically remove a single frequency (typically 60 Hz power line noise).\nEvery filter is a tradeoff — removing noise always risks removing signal. Clinical judgment determines the right balance.\n\nThe signal is clean. But right now we’re looking at wiggly lines in the time domain. What if we could peek inside and see exactly which frequencies are present, and how strong each one is? That’s the Fourier Transform — and it’s the single most important tool in signal processing.\n\n← Module 2: Sampling Module 4: FFT →"
+  },
+  {
+    "objectID": "modules/04_fft.html",
+    "href": "modules/04_fft.html",
+    "title": "Module 4: FFT",
+    "section": "",
+    "text": "A neurologist is reviewing a patient’s EEG. She glances at the screen and says: “I see a lot of theta activity.” How does she know? She’s not counting cycles by hand — the machine computed a power spectrum. The Fourier Transform is doing the work behind the scenes, every time anyone looks at a frequency analysis of any physiological signal.\nYour signal is clean (thanks to filtering). But looking at a wiggly line in the time domain is like listening to an orchestra and trying to identify every instrument by ear. The Fourier Transform is like a prism — it splits the signal into its individual frequency components so you can see exactly what’s inside.\nThis module teaches you the single most important analysis tool in signal processing: the Fast Fourier Transform (FFT). By the end, you’ll be able to look at any signal and answer: what frequencies are in there, and how strong are they?"
+  },
+  {
+    "objectID": "modules/04_fft.html#the-core-idea",
+    "href": "modules/04_fft.html#the-core-idea",
+    "title": "Module 4: FFT",
+    "section": "The Core Idea",
+    "text": "The Core Idea\nAny signal — no matter how messy it looks — is just a sum of simple sine waves at different frequencies. The FFT decomposes a signal into those individual components.\nThink of it this way:\n\nTime domain: you see the signal as voltage changing over time (the wiggly line)\nFrequency domain: you see which frequencies are present and how strong each one is (a bar chart of “ingredients”)\n\nThe FFT converts from the first view to the second. That’s it."
+  },
+  {
+    "objectID": "modules/04_fft.html#interactive-build-a-signal-see-its-fft",
+    "href": "modules/04_fft.html#interactive-build-a-signal-see-its-fft",
+    "title": "Module 4: FFT",
+    "section": "Interactive: Build a Signal, See Its FFT",
+    "text": "Interactive: Build a Signal, See Its FFT\nThis is the key insight. On the left: the time-domain signal (the wiggly line). On the right: the frequency spectrum (the “ingredients list”). Add frequency components and watch both plots update.\n\n\n\n  \n    Add frequency components:\n  \n\n  \n    \n    \n      \n         3 Hz (Delta)\n      \n      Amplitude:\n        1.0\n      \n      \n    \n\n    \n    \n      \n         10 Hz (Alpha)\n      \n      Amplitude:\n        1.5\n      \n      \n    \n\n    \n    \n      \n         25 Hz (Beta)\n      \n      Amplitude:\n        0.8\n      \n      \n    \n\n    \n    \n      \n         60 Hz (Power line noise)\n      \n      Amplitude:\n        0.5\n      \n      \n    \n  \n\n  \n    \n    \n  \n\n\n\n\nExperiment:\n\nStart with just the 3 Hz and 10 Hz components checked. The time-domain signal looks complex, but the spectrum shows exactly two clean peaks.\nNow add 60 Hz. The wiggly line gets much messier — but the spectrum immediately reveals the culprit.\nTurn off everything except 10 Hz. The time domain becomes a clean sine wave, and the spectrum has a single peak. The FFT is just reading the recipe.\n\n\n\nThe FFT doesn’t create information — it reorganizes it. The same signal, viewed two different ways. The time domain shows what happens when. The frequency domain shows what frequencies are present and how strong they are. Both are equally valid descriptions of the same signal."
+  },
+  {
+    "objectID": "modules/04_fft.html#interactive-mystery-signal-challenge",
+    "href": "modules/04_fft.html#interactive-mystery-signal-challenge",
+    "title": "Module 4: FFT",
+    "section": "Interactive: Mystery Signal Challenge",
+    "text": "Interactive: Mystery Signal Challenge\nHere’s a signal that looks like a mess. Can you guess what frequencies are hiding inside? Click “Reveal FFT” to find out.\n\n  \n    Choose a mystery signal:\n    \n      Normal Awake EEG\n    \n    \n      Deep Sleep\n    \n    \n      Noisy Recording\n    \n  \n\n  \n\n  \n    What frequencies do you think are in this signal?\n    \n      Reveal FFT\n    \n  \n\n  \n  \n\n\n\n\nExperiment:\n\nTry the “Deep Sleep” signal. Notice how the time-domain trace is slow and rolling — big, lazy waves. The FFT confirms: almost all the power is at 2 Hz (delta).\nTry “Noisy Recording.” It looks almost like the normal awake EEG, but the FFT instantly reveals the 60 Hz contamination that’s hard to spot by eye."
+  },
+  {
+    "objectID": "modules/04_fft.html#frequency-resolution-why-recording-duration-matters",
+    "href": "modules/04_fft.html#frequency-resolution-why-recording-duration-matters",
+    "title": "Module 4: FFT",
+    "section": "Frequency Resolution: Why Recording Duration Matters",
+    "text": "Frequency Resolution: Why Recording Duration Matters\nHere’s a subtlety that matters in practice. Suppose your signal contains two frequencies that are close together — say 9 Hz and 11 Hz. Can the FFT tell them apart?\nIt depends on how long you record. The frequency resolution of the FFT is:\n\\[\\Delta f = \\frac{1}{T}\\]\nwhere \\(T\\) is the recording duration in seconds. A 1-second recording can resolve frequencies 1 Hz apart. A 0.5-second recording? Only 2 Hz apart — and those two peaks will blur into one.\nDrag the slider and watch the two peaks separate (or merge).\n\n  \n    Recording duration:\n      1.0 s\n    \n    \n    \n      Frequency resolution: 1.00 Hz\n       ($\\Delta f = 1/T$)\n    \n  \n\n  \n    \n    \n  \n\n  \n\n\n\n\nFrequency resolution = \\(1/T\\), where \\(T\\) is the recording duration. Want to distinguish frequencies 1 Hz apart? You need at least 1 second of data. Want 0.5 Hz resolution? Record for 2 seconds. This is a fundamental tradeoff: better frequency resolution requires longer recordings.\nThis matters clinically. A 1-second EEG epoch can tell you whether activity is roughly “alpha-range” or “beta-range.” But to precisely characterize a 9 Hz vs. 11 Hz rhythm, you need several seconds of clean data.\n\n\nExperiment:\n\nSet duration to 0.5 seconds. The two peaks are invisible — just one merged bump.\nSlowly increase to 1 second. Can you start to see a hint of separation?\nAt 2-3 seconds, the two peaks are clearly distinct.\nAt 5 seconds, they’re razor-sharp. More data = more precision."
+  },
+  {
+    "objectID": "modules/04_fft.html#why-this-matters-clinically",
+    "href": "modules/04_fft.html#why-this-matters-clinically",
+    "title": "Module 4: FFT",
+    "section": "Why This Matters Clinically",
+    "text": "Why This Matters Clinically\nThe FFT is behind every frequency analysis in clinical neurophysiology:\n\nEEG interpretation: identifying dominant rhythms (alpha, beta, theta, delta)\nSleep staging: each sleep stage has a characteristic power spectrum\nSeizure detection: abnormal rhythmic activity shows up as unexpected spectral peaks\nMonitoring: brain-computer interfaces and neurofeedback systems use real-time FFT\nArtifact detection: 60 Hz peaks = power line noise; broad spectral bumps = muscle artifact\n\nEvery time a monitor displays a “power spectrum” or “spectral analysis” — whether it’s in the EEG lab, the OR, or the ICU — it’s running an FFT under the hood."
+  },
+  {
+    "objectID": "modules/04_fft.html#quiz-check-your-understanding",
+    "href": "modules/04_fft.html#quiz-check-your-understanding",
+    "title": "Module 4: FFT",
+    "section": "Quiz: Check Your Understanding",
+    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: An EEG signal shows a sharp peak at 10 Hz in the power spectrum. What brain rhythm is this?\n    \n       A. Delta rhythm\n    \n    \n       B. Alpha rhythm\n    \n    \n       C. Beta rhythm\n    \n    \n       D. Gamma rhythm\n    \n    \n  \n\n  \n\n  \n    Q2: Your FFT shows peaks at 10 Hz AND 60 Hz. The 60 Hz peak is most likely:\n    \n       A. Gamma rhythm from active cognition\n    \n    \n       B. Power line noise, not brain activity\n    \n    \n       C. A harmonic of the 10 Hz alpha\n    \n    \n       D. Muscle artifact from jaw clenching\n    \n    \n  \n\n  \n\n  \n    Q3: You have a 2-second EEG recording. Your frequency resolution is:\n    \n       A. 2 Hz\n    \n    \n       B. 1 Hz\n    \n    \n       C. 0.5 Hz\n    \n    \n       D. It depends on the sampling rate"
+  },
+  {
+    "objectID": "modules/04_fft.html#summary",
+    "href": "modules/04_fft.html#summary",
+    "title": "Module 4: FFT",
+    "section": "Summary",
+    "text": "Summary\nYou can now decompose any signal into its frequency components. The FFT takes a confusing time-domain signal and reveals its “ingredients” — which frequencies are present and how strong each one is.\nThree things to remember:\n\nThe FFT is a prism — it splits a mixed signal into individual frequency components\nPeaks in the spectrum = frequencies in the signal — clean peaks mean periodic activity; a sharp 60 Hz peak means noise\nResolution = \\(1/T\\) — longer recordings give you finer frequency detail\n\nBut so far we’ve been working with clean synthetic signals — sums of perfect sine waves. Real brain signals are messier, more interesting, and carry clinical meaning. Time to meet actual EEG.\n\n← Module 3: Filtering Module 5: EEG Basics →"
+  },
+  {
     "objectID": "modules/01_signals.html",
     "href": "modules/01_signals.html",
     "title": "Module 1: Signals",
@@ -96,5 +264,173 @@
     "title": "EEG & Signal Processing",
     "section": "What You’ll Need",
     "text": "What You’ll Need\n\nA web browser (you’re using one right now — good start)\nFor Module 8: Python or MATLAB, and a willingness to ask an AI for help writing code\n\nLet’s begin.\n\nBegin Module 1 →"
+  },
+  {
+    "objectID": "modules/02_sampling.html",
+    "href": "modules/02_sampling.html",
+    "title": "Module 2: Sampling",
+    "section": "",
+    "text": "A technician is setting up an EEG for a patient with suspected temporal lobe epilepsy. The attending neurologist glances at the machine settings and asks: “What sampling rate are you using?” The tech replies: “256 Hz.” The attending nods and moves on. But why 256? Why not 100? Why not 10,000? And what happens if you get it wrong?\nYou now know what signals look like — smooth, continuous waves with amplitude and frequency. But here’s the problem: your body produces continuous signals (voltage that changes every infinitesimal instant), and computers only understand discrete numbers (a list of measurements at specific times). To get that EEG onto a screen, we need to sample it — measure the voltage at regular intervals.\nHow often is often enough? That’s the central question of this module. Get it right, and you faithfully capture the brain’s activity. Get it wrong, and the signal you see on screen is a lie."
+  },
+  {
+    "objectID": "modules/02_sampling.html#from-continuous-to-discrete",
+    "href": "modules/02_sampling.html#from-continuous-to-discrete",
+    "title": "Module 2: Sampling",
+    "section": "From Continuous to Discrete",
+    "text": "From Continuous to Discrete\nImagine someone singing a smooth, continuous note. Now imagine you can only listen for a brief instant once per second. If the note changes slowly, you’d follow along fine. But if the note is wobbling rapidly — faster than you’re checking — you’d miss what’s happening. Worse, you might think you’re hearing something that isn’t there.\nThat’s sampling. The rate at which you “check” the signal is called the sampling rate (or sampling frequency, \\(f_s\\)), measured in Hz — samples per second."
+  },
+  {
+    "objectID": "modules/02_sampling.html#interactive-sampling-visualizer",
+    "href": "modules/02_sampling.html#interactive-sampling-visualizer",
+    "title": "Module 2: Sampling",
+    "section": "Interactive: Sampling Visualizer",
+    "text": "Interactive: Sampling Visualizer\nWatch what happens as you change the sampling rate. The blue curve is the “real” continuous signal. The red dots are the discrete samples your computer would capture. The dashed line connects those dots — that’s what the computer thinks the signal looks like.\n\n\n\n  \n    Signal frequency:\n      5.0 Hz\n    \n    \n  \n  \n    Sampling rate:\n      40 Hz\n    \n    \n  \n  \n  \n\n\n\n\nExperiment:\n\nStart with the signal at 5 Hz and sampling rate at 40 Hz. The dots land right on the wave — no problem.\nNow slowly lower the sampling rate. Watch the dashed reconstruction start to deviate from the blue truth.\nDrop the sampling rate below 10 Hz (twice the signal frequency). The reconstruction becomes completely wrong — it looks like a different signal entirely.\nTry a 10 Hz signal sampled at 11 Hz. The reconstruction is a slow, ghostly wave that doesn’t exist in reality. That ghost is called an alias."
+  },
+  {
+    "objectID": "modules/02_sampling.html#the-nyquist-rule",
+    "href": "modules/02_sampling.html#the-nyquist-rule",
+    "title": "Module 2: Sampling",
+    "section": "The Nyquist Rule",
+    "text": "The Nyquist Rule\nHarry Nyquist figured this out in the 1920s: to faithfully capture a signal of frequency \\(f\\), you must sample at a rate of at least \\(2f\\) — twice the highest frequency present.\n\\[f_s \\geq 2 \\times f_{max}\\]\nBelow that threshold, the signal aliases — it masquerades as a lower frequency. The math is surprisingly clean: a signal at frequency \\(f\\) sampled at rate \\(f_s\\) will appear at the aliased frequency \\(|f - n \\cdot f_s|\\), where \\(n\\) is the nearest integer.\nThe widget below makes this visceral. A fixed 10 Hz signal, and you control the sampling rate.\n\n  \n    Sampling rate:\n      50 Hz\n    \n    \n  \n  \n  \n\n\n\n\nThe Nyquist moment:\n\nStart at 50 Hz. The samples clearly trace the 10 Hz wave.\nSlowly lower the sampling rate toward 20 Hz. It still works, but barely.\nDrop below 20 Hz. A dashed red alias wave appears — the computer now “sees” a completely different frequency.\nTry exactly 20 Hz (the Nyquist limit). Notice the samples land on zero crossings — you get zero amplitude. The Nyquist rate is the theoretical minimum; in practice, you need more than \\(2f\\).\n\n\n\nThe Nyquist-Shannon Sampling Theorem: To capture a signal containing frequencies up to \\(f_{max}\\) Hz, you must sample at \\(f_s &gt; 2 f_{max}\\). Below this rate, high-frequency content folds back as lower-frequency aliases — phantom signals that don’t actually exist in the patient’s body. Clinical systems typically sample at 4–5 times the maximum frequency of interest as a safety margin."
+  },
+  {
+    "objectID": "modules/02_sampling.html#clinical-sampling-rates",
+    "href": "modules/02_sampling.html#clinical-sampling-rates",
+    "title": "Module 2: Sampling",
+    "section": "Clinical Sampling Rates",
+    "text": "Clinical Sampling Rates\nIn practice, nobody samples at exactly \\(2f_{max}\\) — that’s the bare minimum, and any imperfection causes aliasing. Real systems add a generous safety margin. Here’s what you’ll see in clinical settings:\n\n\n\n\n\n\n\n\n\nSignal Type\nFrequencies of Interest\nMinimum Nyquist Rate\nTypical Clinical Rate\n\n\n\n\nEEG\n0.5–100 Hz\n200 Hz\n256–512 Hz\n\n\nECG (Holter)\n0.5–150 Hz\n300 Hz\n128–500 Hz\n\n\nEMG\n20–500 Hz\n1000 Hz\n1000–5000 Hz\n\n\n\nWhy 256 Hz for EEG? Because the highest frequency neurologists typically care about is around 100 Hz (the upper end of gamma activity). \\(2 \\times 100 = 200\\) Hz minimum. 256 gives a comfortable margin and happens to be a power of 2 (which makes the computer math faster — we’ll see why in the FFT module).\nThe widget below lets you explore this logic for any signal type.\n\n  Sampling Rate Calculator\n  \n    Select a signal type:\n    \n      EEG (0.5–100 Hz)\n    \n    \n      ECG (0.5–150 Hz)\n    \n    \n      EMG (20–500 Hz)\n    \n    \n      Custom\n    \n  \n  \n    Maximum frequency of interest (Hz):\n    \n    \n      Calculate\n    \n  \n  \n\n\n\n\nExplore:\n\nClick each signal type. Notice how much higher the practical rate is compared to the bare Nyquist minimum.\nTry “Custom” — enter 500 Hz (upper EMG range). The Nyquist minimum is 1000 Hz, but you’d want 2000+ Hz in practice.\nNow enter 30 Hz (just EEG alpha and beta). The minimum is only 60 Hz — but clinically we’d still use 128 or 256 Hz for safety.\n\n\n\nWhy this matters clinically: If a technician accidentally sets the EEG sampling rate too low — say 100 Hz when trying to capture high gamma activity up to 80 Hz — the system is right at the Nyquist edge. Any frequency above 50 Hz will alias down, potentially creating false patterns in the recording that look like real brain activity but aren’t. Aliasing doesn’t announce itself. The signal looks perfectly normal — just wrong. That’s what makes it dangerous."
+  },
+  {
+    "objectID": "modules/02_sampling.html#what-about-anti-aliasing",
+    "href": "modules/02_sampling.html#what-about-anti-aliasing",
+    "title": "Module 2: Sampling",
+    "section": "What About Anti-Aliasing?",
+    "text": "What About Anti-Aliasing?\nOne more thing. In real clinical systems, there’s a hardware filter before the analog-to-digital converter called an anti-aliasing filter. It’s a low-pass filter (we’ll learn about those in the next module) that removes any frequency above \\(f_s/2\\) before sampling. This guarantees nothing above the Nyquist frequency makes it into the digitized signal.\nYou don’t need to build one — the equipment manufacturer does. But you should know it exists, because it means the sampling rate you choose determines the highest frequency you can ever see in the recording. Set \\(f_s\\) = 256 Hz, and frequencies above 128 Hz are gone forever — the anti-aliasing filter removed them before they were recorded."
+  },
+  {
+    "objectID": "modules/02_sampling.html#quiz-check-your-understanding",
+    "href": "modules/02_sampling.html#quiz-check-your-understanding",
+    "title": "Module 2: Sampling",
+    "section": "Quiz: Check Your Understanding",
+    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: An EEG system samples at 256 Hz. What is the highest frequency it can faithfully capture?\n    \n       A. 256 Hz\n    \n    \n       B. 128 Hz\n    \n    \n       C. 512 Hz\n    \n    \n       D. 64 Hz\n    \n    \n  \n\n  \n\n  \n    Q2: You're recording EMG, which contains frequencies up to 500 Hz. Your system samples at 800 Hz. Is this adequate?\n    \n       A. Yes — 800 Hz is plenty\n    \n    \n       B. No — you need at least 1000 Hz\n    \n    \n       C. It depends on the patient\n    \n    \n       D. No — you need at least 500 Hz\n    \n    \n  \n\n  \n\n  \n    Q3: A 60 Hz signal is sampled at 50 Hz. What frequency does the aliased signal appear to be?\n    \n       A. 60 Hz — aliasing doesn't change the frequency\n    \n    \n       B. 50 Hz\n    \n    \n       C. 10 Hz\n    \n    \n       D. 110 Hz"
+  },
+  {
+    "objectID": "modules/02_sampling.html#summary",
+    "href": "modules/02_sampling.html#summary",
+    "title": "Module 2: Sampling",
+    "section": "Summary",
+    "text": "Summary\nWe captured the signal digitally. The key ideas:\n\nSampling converts a continuous signal into discrete numbers at regular intervals.\nThe Nyquist theorem says: sample at more than \\(2 \\times f_{max}\\) or you’ll get aliasing.\nAliasing creates phantom frequencies in your recording — signals that look real but aren’t.\nClinical systems use generous safety margins (4–5 times the maximum frequency of interest).\nAnti-aliasing filters in the hardware prevent aliasing before it happens.\n\nThe signal is now digital. But look at it — there’s noise everywhere. Power line hum at 60 Hz, slow electrode drift, muscle artifacts. How do we clean it up without throwing away the brain activity? That’s filtering.\n\n← Module 1: Signals Module 3: Filtering →"
+  },
+  {
+    "objectID": "modules/07_spectrograms.html",
+    "href": "modules/07_spectrograms.html",
+    "title": "Module 7: Spectrograms",
+    "section": "",
+    "text": "A patient in the epilepsy monitoring unit has a seizure. The neurologist pulls up the spectrogram on the review station: a sudden burst of color sweeps across the display — low frequencies first, then evolving to faster rhythmic activity, then abruptly stopping. In one image, you can see the seizure’s entire story: onset, evolution, and termination. No other single view gives you this much information this fast.\nSo far you’ve used the FFT to look at which frequencies are present in a signal — averaged over the whole recording. But the brain doesn’t stay in one state. A patient falls asleep, wakes up, has a seizure, recovers. The frequencies change over time. A spectrogram shows you when each frequency appears — it’s like a movie of the brain’s frequency content."
+  },
+  {
+    "objectID": "modules/07_spectrograms.html#the-idea",
+    "href": "modules/07_spectrograms.html#the-idea",
+    "title": "Module 7: Spectrograms",
+    "section": "The Idea",
+    "text": "The Idea\nAn FFT tells you what frequencies are present. A spectrogram tells you what frequencies are present and when.\nThe recipe is straightforward:\n\nChop the signal into short, overlapping time windows\nCompute the FFT of each window\nStack the results side by side: time on the x-axis, frequency on the y-axis, color = power\n\nThat’s it. Each vertical slice of the spectrogram is just an FFT of a short segment. String them together, and you can watch frequencies come and go."
+  },
+  {
+    "objectID": "modules/07_spectrograms.html#interactive-building-a-spectrogram-from-scratch",
+    "href": "modules/07_spectrograms.html#interactive-building-a-spectrogram-from-scratch",
+    "title": "Module 7: Spectrograms",
+    "section": "Interactive: Building a Spectrogram from Scratch",
+    "text": "Interactive: Building a Spectrogram from Scratch\nThis widget walks you through the construction step by step. The signal below changes its dominant frequency over time: 5 Hz for the first 3 seconds, then 15 Hz for 4 seconds, then 8 Hz for the last 3 seconds. A standard FFT would just average all three together. The spectrogram shows them separately.\n\n\n\n  \n    Step 1: The Signal\n    Step 2: Chop into Windows\n    Step 3: FFT Each Window\n    Step 4: Spectrogram!\n  \n  \n  \n  \n\n\n\n\nWalk through all four steps in order:\n\nStep 1 — See the raw signal with its three frequency regimes.\nStep 2 — See how the signal is divided into overlapping windows.\nStep 3 — See the FFT of three representative windows. Each peaks at the expected frequency.\nStep 4 — See the full spectrogram. Each frequency lights up during its time period.\n\nThis is exactly what clinical EEG software does — except it does it on 20+ channels simultaneously.\n\n\nA spectrogram is a stack of FFTs. Each column is the frequency content of one short time window. Together they show you how the brain’s frequency mix changes over time — sleep stages, seizure evolution, drug effects, and more."
+  },
+  {
+    "objectID": "modules/07_spectrograms.html#interactive-design-your-own-signal",
+    "href": "modules/07_spectrograms.html#interactive-design-your-own-signal",
+    "title": "Module 7: Spectrograms",
+    "section": "Interactive: Design Your Own Signal",
+    "text": "Interactive: Design Your Own Signal\nChoose the dominant frequency for three time periods. The widget generates the signal and its spectrogram in real time. Use the “Seizure-like” preset to see what a seizure’s frequency evolution looks like.\n\n  \n    \n      0 – 3 seconds:\n      \n        Delta (2 Hz)\n        Theta (5 Hz)\n        Alpha (10 Hz)\n        Beta (20 Hz)\n      \n    \n    \n      3 – 7 seconds:\n      \n        Delta (2 Hz)\n        Theta (5 Hz)\n        Alpha (10 Hz)\n        Beta (20 Hz)\n      \n    \n    \n      7 – 10 seconds:\n      \n        Delta (2 Hz)\n        Theta (5 Hz)\n        Alpha (10 Hz)\n        Beta (20 Hz)\n      \n    \n    \n      Seizure-like Preset\n    \n  \n  \n  \n\n\n\n\nExperiment with different combinations:\n\nSet all three periods to Alpha (10 Hz) — you’ll see a single bright horizontal band that doesn’t change. Boring brain.\nSet them to Delta → Alpha → Beta — a waking-up sequence. Watch the bright band move upward.\nClick “Seizure-like Preset” — Alpha (normal baseline) transitions to Delta (seizure onset, dominated by slow rhythmic activity) then Beta (post-ictal fast activity). This is a simplified version of what seizure spectrograms look like."
+  },
+  {
+    "objectID": "modules/07_spectrograms.html#the-window-size-tradeoff",
+    "href": "modules/07_spectrograms.html#the-window-size-tradeoff",
+    "title": "Module 7: Spectrograms",
+    "section": "The Window Size Tradeoff",
+    "text": "The Window Size Tradeoff\nHere’s the catch with spectrograms. There’s a fundamental tradeoff — almost like a Heisenberg uncertainty principle for time-frequency analysis:\n\nYou can’t have perfect time resolution and perfect frequency resolution at the same time.\n\n\nSmall window = good time resolution (you know when something changed) but poor frequency resolution (frequencies are blurry)\nLarge window = good frequency resolution (clean, sharp frequency bands) but poor time resolution (changes are smeared over time)\n\nThe math is simple: if your window is \\(T\\) seconds long, your frequency resolution is \\(\\Delta f = 1/T\\) Hz. A 1-second window gives you 1 Hz resolution. A 0.25-second window gives you 4 Hz resolution — you can’t distinguish frequencies closer than 4 Hz apart."
+  },
+  {
+    "objectID": "modules/07_spectrograms.html#interactive-the-window-size-tradeoff",
+    "href": "modules/07_spectrograms.html#interactive-the-window-size-tradeoff",
+    "title": "Module 7: Spectrograms",
+    "section": "Interactive: The Window Size Tradeoff",
+    "text": "Interactive: The Window Size Tradeoff\nThe signal below switches from 10 Hz to 20 Hz at exactly t = 2.5 seconds. Drag the slider to change the window size and watch the spectrogram change. Small windows catch the transition sharply but blur the frequencies. Large windows show clean frequency bands but smear the transition.\n\n  \n    Window size:\n      1.00 seconds\n    \n    \n    \n  \n  \n  \n\n\n\n\nTry these three settings:\n\nWindow = 0.25s — The transition at 2.5s is sharp and crisp. But the frequency bands at 10 Hz and 20 Hz are wide and blurry (frequency resolution = 4 Hz — you can barely tell them apart).\nWindow = 2.0s — The frequency bands are beautifully sharp and narrow. But the transition is smeared over nearly 2 seconds — you’ve lost the ability to say exactly when it happened.\nWindow = 0.75–1.0s — A reasonable compromise. This is roughly what clinical EEG software uses.\n\n\n\nThe time-frequency tradeoff:\n\nFrequency resolution = 1 / window size\nTime resolution = window size\nYou cannot improve both simultaneously. Every spectrogram is a compromise.\n\nIn clinical EEG, a window of 0.5–2 seconds is typical. For seizure detection, you want to see fast changes (shorter window). For sleep staging, you can afford longer windows (better frequency resolution)."
+  },
+  {
+    "objectID": "modules/07_spectrograms.html#clinical-applications",
+    "href": "modules/07_spectrograms.html#clinical-applications",
+    "title": "Module 7: Spectrograms",
+    "section": "Clinical Applications",
+    "text": "Clinical Applications\nSpectrograms are used daily in clinical neuroscience:\n\n\n\n\n\n\n\n\nApplication\nWhat You See\nWindow Size\n\n\n\n\nSeizure detection\nEvolving frequency pattern: onset → spread → termination\n0.5–1s\n\n\nSleep staging\nSlow progression through frequency bands (awake→NREM→REM)\n2–5s\n\n\nAnesthesia monitoring\nFrequency shift as drugs take effect\n1–2s\n\n\nBrain-computer interfaces\nMotor imagery → frequency changes in mu/beta bands\n0.25–0.5s\n\n\nICU monitoring\nLong-term trends: detecting burst suppression or status epilepticus\n1–5s\n\n\n\nIn each case, the spectrogram gives clinicians a rapid visual summary that would take much longer to extract from raw EEG traces."
+  },
+  {
+    "objectID": "modules/07_spectrograms.html#quiz-check-your-understanding",
+    "href": "modules/07_spectrograms.html#quiz-check-your-understanding",
+    "title": "Module 7: Spectrograms",
+    "section": "Quiz: Check Your Understanding",
+    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: A spectrogram shows a bright horizontal band at 10 Hz during the first half of a recording, then it disappears. What most likely happened?\n    \n       A. The patient fell asleep\n    \n    \n       B. The patient likely opened their eyes — alpha blocking\n    \n    \n       C. A seizure began\n    \n    \n       D. An electrode fell off\n    \n    \n  \n\n  \n\n  \n    Q2: You increase the spectrogram window size from 0.5s to 2s. What improves and what gets worse?\n    \n       A. Both time and frequency resolution improve\n    \n    \n       B. Frequency resolution improves (0.5 Hz vs 2 Hz), but time resolution worsens (2s vs 0.5s)\n    \n    \n       C. Time resolution improves, frequency resolution worsens\n    \n    \n       D. Nothing changes — window size doesn't affect resolution\n    \n    \n  \n\n  \n\n  \n    Q3: A seizure spectrogram shows activity starting at low frequencies and gradually moving to higher frequencies over 30 seconds. This pattern is called:\n    \n       A. Alpha blocking\n    \n    \n       B. Sleep spindle activity\n    \n    \n       C. Seizure frequency evolution — a hallmark of electrographic seizures\n    \n    \n       D. Normal background variation"
+  },
+  {
+    "objectID": "modules/07_spectrograms.html#whats-next",
+    "href": "modules/07_spectrograms.html#whats-next",
+    "title": "Module 7: Spectrograms",
+    "section": "What’s Next",
+    "text": "What’s Next\nYou now have every tool in the box: you understand signals, sampling, filtering, frequency decomposition, EEG patterns, artifacts, and time-frequency analysis. One thing remains: use it all on a real patient.\nModule 8 is a real EEG recording from a real patient. Something is happening in that recording. Your job is to find it.\n\n← Module 6: Artifacts Module 8: The Challenge →"
+  },
+  {
+    "objectID": "modules/05_eeg_basics.html",
+    "href": "modules/05_eeg_basics.html",
+    "title": "Module 5: EEG Basics",
+    "section": "",
+    "text": "You’re a junior doctor on your neurology rotation. The EEG tech rolls in the machine and starts placing electrodes on a patient’s scalp. There are 21 of them, in very specific positions. The patient looks nervous. “Does this hurt?” she asks. “Not at all,” you say. But you’re thinking: where exactly are those electrodes going, and what will they pick up?\nYou now have the signal processing toolkit: you know amplitude and frequency, you can sample without aliasing, filter noise, and decompose signals into frequency components. Time to point those tools at the brain.\nEEG — electroencephalography — records the electrical activity of the cerebral cortex through electrodes placed on the scalp. The signal you see is the summed postsynaptic potentials of millions of cortical pyramidal neurons, filtered through cerebrospinal fluid, skull, and skin. It’s small (microvolts), it’s noisy, and it carries clinically vital information.\nThis module covers the three things every doctor needs to know about EEG: where the electrodes go, what the frequency bands mean, and how to recognize basic patterns."
+  },
+  {
+    "objectID": "modules/05_eeg_basics.html#the-10-20-system-where-electrodes-go",
+    "href": "modules/05_eeg_basics.html#the-10-20-system-where-electrodes-go",
+    "title": "Module 5: EEG Basics",
+    "section": "The 10-20 System: Where Electrodes Go",
+    "text": "The 10-20 System: Where Electrodes Go\nThe International 10-20 System is the standard electrode placement scheme used worldwide. The “10-20” refers to the fact that electrodes are spaced at 10% or 20% intervals along the skull from standard landmarks (nasion, inion, preauricular points).\nEvery electrode has a name: a letter indicating the brain region, and a number indicating the hemisphere (odd = left, even = right, z = midline).\nClick on any electrode below to see what it records.\n\n\n\n  \n    \n      \n      \n      \n      \n      Nose (anterior)\n      \n      \n      \n      \n      \n      \n    \n\n    \n  \n\n  \n    Click or hover on an electrode to see what brain region it overlies and what it typically records.\n  \n\n\n\n\nExperiment:\n\nClick O1 or O2 (the red dots at the back). These overlie the visual cortex — the best place to see alpha rhythm.\nClick Fp1 or Fp2 (the blue dots at the front). These are closest to the eyes — they pick up eye blink artifacts.\nClick T3 or T4 (gold dots on the sides). These are critical for detecting temporal lobe seizures — the most common type of epilepsy.\n\n\n\nNaming convention: The letter indicates the region (Fp = frontopolar, F = frontal, C = central, T = temporal, P = parietal, O = occipital). Odd numbers = left hemisphere, even numbers = right hemisphere, z = midline. So C3 is left central, C4 is right central, Cz is midline central. This system is universal — it’s the same in a hospital in Tokyo, Toronto, or Tunis."
+  },
+  {
+    "objectID": "modules/05_eeg_basics.html#eeg-frequency-bands-the-language-of-brain-rhythms",
+    "href": "modules/05_eeg_basics.html#eeg-frequency-bands-the-language-of-brain-rhythms",
+    "title": "Module 5: EEG Basics",
+    "section": "EEG Frequency Bands: The Language of Brain Rhythms",
+    "text": "EEG Frequency Bands: The Language of Brain Rhythms\nEEG activity is categorized into five major frequency bands. Each band has a name, a frequency range, and a clinical meaning. This is the vocabulary that every neurologist uses.\nClick on a band to see its isolated waveform and clinical significance.\n\n  \n\n  \n    \n      Delta (1-4 Hz)\n    \n    \n      Theta (4-8 Hz)\n    \n    \n      Alpha (8-13 Hz)\n    \n    \n      Beta (13-30 Hz)\n    \n    \n      Gamma (&gt;30 Hz)\n    \n  \n\n  \n    \n    \n  \n\n  \n    Click a frequency band above to see its waveform, spectrum, and clinical significance.\n  \n\n\n\n\nExperiment:\n\nClick through each band in order from Delta to Gamma. Notice the inverse relationship: slower rhythms have higher amplitude, faster rhythms are tiny.\nCompare Delta (150 uV, huge slow waves) with Gamma (7 uV, barely visible rapid oscillations). That amplitude difference is why gamma is so hard to record from the scalp.\nRead the clinical notes for Alpha carefully. Alpha blocking will come up again shortly."
+  },
+  {
+    "objectID": "modules/05_eeg_basics.html#alpha-blocking-the-first-clinical-test",
+    "href": "modules/05_eeg_basics.html#alpha-blocking-the-first-clinical-test",
+    "title": "Module 5: EEG Basics",
+    "section": "Alpha Blocking: The First Clinical Test",
+    "text": "Alpha Blocking: The First Clinical Test\nOne of the first things a neurologist checks during an EEG is alpha blocking — whether the alpha rhythm disappears when the patient opens their eyes.\nWhy? Because the alpha rhythm is generated by the thalamo-cortical loop when the visual cortex is “idling.” When the eyes open and visual input floods the cortex, the idle rhythm is disrupted and alpha drops out, replaced by faster beta activity. If alpha doesn’t block, something may be wrong.\nToggle between eyes-closed and eyes-open conditions below.\n\n  \n    \n      Eyes Closed\n    \n    \n      Eyes Open\n    \n  \n\n  \n    \n    \n  \n\n  \n    Eyes Closed: Strong alpha rhythm (10 Hz) dominates the occipital recording. The patient is relaxed, visual cortex is \"idling.\"\n  \n\n\n\n\nAlpha blocking is one of the most reliable and clinically important EEG phenomena. When a patient closes their eyes, alpha appears over the occipital regions. When they open their eyes, it disappears. If alpha fails to block with eye opening, it raises concern for cortical dysfunction. If it’s absent entirely, consider whether the patient is anxious (beta-dominant), encephalopathic (theta/delta-dominant), or whether it’s a technical issue.\n\n\nExperiment:\n\nToggle between Eyes Closed and Eyes Open. Watch the alpha peak (10 Hz) shrink dramatically in the spectrum.\nIn the time domain, notice how the eyes-closed trace has a clear ~10 Hz rhythm, while the eyes-open trace looks faster and more “noisy” — that’s beta activity taking over."
+  },
+  {
+    "objectID": "modules/05_eeg_basics.html#putting-it-together-what-you-see-on-an-eeg-report",
+    "href": "modules/05_eeg_basics.html#putting-it-together-what-you-see-on-an-eeg-report",
+    "title": "Module 5: EEG Basics",
+    "section": "Putting It Together: What You See on an EEG Report",
+    "text": "Putting It Together: What You See on an EEG Report\nWhen you look at a clinical EEG, the report will describe:\n\nBackground activity: Is the dominant posterior rhythm alpha? What’s its frequency and symmetry?\nReactivity: Does it block with eye opening? Does it change with alertness?\nAbnormalities: Any focal slowing (theta/delta in one region)? Any epileptiform discharges (spikes, sharp waves)?\nArtifacts: Eye blinks, muscle, electrode, 60 Hz noise — all the non-brain stuff (covered in Module 6)\n\nYou now have the foundation for understanding all four. You know where the electrodes go, what the frequency bands mean, and what alpha blocking looks like.\n\n\n\n\n\n\n\n\n\n\nBand\nRange\nAmplitude\nBest Location\nClinical Significance\n\n\n\n\nDelta\n1-4 Hz\n100-200 uV\nDiffuse\nNormal in deep sleep. Pathological if awake (encephalopathy).\n\n\nTheta\n4-8 Hz\n50-100 uV\nTemporal\nNormal in drowsiness/children. Focal = possible lesion.\n\n\nAlpha\n8-13 Hz\n30-50 uV\nOccipital\nRelaxed, eyes closed. Blocks with eye opening.\n\n\nBeta\n13-30 Hz\n10-20 uV\nFrontal/Central\nAlert state, anxiety, benzodiazepines.\n\n\nGamma\n&gt;30 Hz\n5-10 uV\nVariable\nCognitive processing. Often contaminated by muscle artifact."
+  },
+  {
+    "objectID": "modules/05_eeg_basics.html#quiz-check-your-understanding",
+    "href": "modules/05_eeg_basics.html#quiz-check-your-understanding",
+    "title": "Module 5: EEG Basics",
+    "section": "Quiz: Check Your Understanding",
+    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: Which electrode would you focus on to evaluate the alpha rhythm?\n    \n       A. Fp1 — left frontopolar\n    \n    \n       B. C3 — left central\n    \n    \n       C. O1 or O2 — occipital electrodes\n    \n    \n       D. T3 — left temporal\n    \n    \n  \n\n  \n\n  \n    Q2: A patient's EEG shows continuous high-amplitude delta activity while they are fully awake. Is this normal?\n    \n       A. Yes — delta is always normal\n    \n    \n       B. No — delta in an awake adult suggests diffuse cerebral dysfunction\n    \n    \n       C. It depends on whether they're anxious\n    \n    \n       D. Yes — it means the patient is very relaxed\n    \n    \n  \n\n  \n\n  \n    Q3: During an EEG recording, you ask the patient to open their eyes. The alpha rhythm disappears. This is:\n    \n       A. Abnormal — the alpha should persist\n    \n    \n       B. A technical artifact from eye movement\n    \n    \n       C. Normal — alpha blocking is a healthy cortical response\n    \n    \n       D. Concerning — you should repeat the recording"
+  },
+  {
+    "objectID": "modules/05_eeg_basics.html#summary",
+    "href": "modules/05_eeg_basics.html#summary",
+    "title": "Module 5: EEG Basics",
+    "section": "Summary",
+    "text": "Summary\nYou can now read an EEG — or at least, you know the basics:\n\nThe 10-20 System places electrodes in standardized positions. Letters = brain region, odd = left, even = right, z = midline.\nFive frequency bands (delta, theta, alpha, beta, gamma) each carry distinct clinical meaning. Slower = bigger amplitude, faster = smaller.\nAlpha blocking (disappearance of the posterior alpha rhythm with eye opening) is a fundamental sign of normal cortical reactivity.\n\nBut there’s a catch. Not everything on that EEG screen comes from the brain. Eye blinks, muscle tension, the patient’s heartbeat, a loose electrode, someone’s cell phone — all of these can contaminate the recording. Next up: how to tell artifacts from actual brain activity, and why it matters more than you might think.\n\n← Module 4: FFT Module 6: Artifacts →"
   }
 ]

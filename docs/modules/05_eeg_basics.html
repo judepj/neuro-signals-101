@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Module 5: EEG Basics – EEG &amp; Signal Processing — Interactive Tutorial</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-29413b01964427e4ecb0fb43b1b88900.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-f426e8d8c371072b6717f744114b4209.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-29413b01964427e4ecb0fb43b1b88900.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../assets/css/tutorial.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">EEG &amp; Signal Processing — Interactive Tutorial</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/01_signals.html"> 
+<span class="menu-text">1. Signals</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/02_sampling.html"> 
+<span class="menu-text">2. Sampling</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/03_filtering.html"> 
+<span class="menu-text">3. Filtering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/04_fft.html"> 
+<span class="menu-text">4. FFT</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../modules/05_eeg_basics.html" aria-current="page"> 
+<span class="menu-text">5. EEG Basics</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/06_artifacts.html"> 
+<span class="menu-text">6. Artifacts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/07_spectrograms.html"> 
+<span class="menu-text">7. Spectrograms</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/08_challenge.qmd"> 
+<span class="menu-text">8. Challenge</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#the-10-20-system-where-electrodes-go" id="toc-the-10-20-system-where-electrodes-go" class="nav-link active" data-scroll-target="#the-10-20-system-where-electrodes-go">The 10-20 System: Where Electrodes Go</a></li>
+  <li><a href="#eeg-frequency-bands-the-language-of-brain-rhythms" id="toc-eeg-frequency-bands-the-language-of-brain-rhythms" class="nav-link" data-scroll-target="#eeg-frequency-bands-the-language-of-brain-rhythms">EEG Frequency Bands: The Language of Brain Rhythms</a></li>
+  <li><a href="#alpha-blocking-the-first-clinical-test" id="toc-alpha-blocking-the-first-clinical-test" class="nav-link" data-scroll-target="#alpha-blocking-the-first-clinical-test">Alpha Blocking: The First Clinical Test</a></li>
+  <li><a href="#putting-it-together-what-you-see-on-an-eeg-report" id="toc-putting-it-together-what-you-see-on-an-eeg-report" class="nav-link" data-scroll-target="#putting-it-together-what-you-see-on-an-eeg-report">Putting It Together: What You See on an EEG Report</a></li>
+  <li><a href="#quiz-check-your-understanding" id="toc-quiz-check-your-understanding" class="nav-link" data-scroll-target="#quiz-check-your-understanding">Quiz: Check Your Understanding</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Module 5: EEG Basics</h1>
+<p class="subtitle lead">Reading the Brain</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="clinical-vignette">
+<p>You’re a junior doctor on your neurology rotation. The EEG tech rolls in the machine and starts placing electrodes on a patient’s scalp. There are 21 of them, in very specific positions. The patient looks nervous. “Does this hurt?” she asks. “Not at all,” you say. But you’re thinking: <em>where exactly are those electrodes going, and what will they pick up?</em></p>
+</div>
+<p>You now have the signal processing toolkit: you know amplitude and frequency, you can sample without aliasing, filter noise, and decompose signals into frequency components. Time to point those tools at the brain.</p>
+<p>EEG — <strong>electroencephalography</strong> — records the electrical activity of the cerebral cortex through electrodes placed on the scalp. The signal you see is the summed postsynaptic potentials of millions of cortical pyramidal neurons, filtered through cerebrospinal fluid, skull, and skin. It’s small (microvolts), it’s noisy, and it carries clinically vital information.</p>
+<p>This module covers the three things every doctor needs to know about EEG: <strong>where the electrodes go</strong>, <strong>what the frequency bands mean</strong>, and <strong>how to recognize basic patterns</strong>.</p>
+<section id="the-10-20-system-where-electrodes-go" class="level2">
+<h2 class="anchored" data-anchor-id="the-10-20-system-where-electrodes-go">The 10-20 System: Where Electrodes Go</h2>
+<p>The <strong>International 10-20 System</strong> is the standard electrode placement scheme used worldwide. The “10-20” refers to the fact that electrodes are spaced at 10% or 20% intervals along the skull from standard landmarks (nasion, inion, preauricular points).</p>
+<p>Every electrode has a name: a letter indicating the brain region, and a number indicating the hemisphere (odd = left, even = right, z = midline).</p>
+<p>Click on any electrode below to see what it records.</p>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<div class="widget-box">
+  <div style="position:relative; width:100%; max-width:500px; margin:0 auto;">
+    <svg id="head_svg" viewbox="0 0 400 440" style="width:100%; height:auto;">
+      <!-- Head outline -->
+      <ellipse cx="200" cy="220" rx="170" ry="190" fill="#fef9e7" stroke="#2c3e50" stroke-width="2"></ellipse>
+      <!-- Nose indicator -->
+      <polygon points="200,25 188,55 212,55" fill="#fef9e7" stroke="#2c3e50" stroke-width="2"></polygon>
+      <text x="200" y="18" text-anchor="middle" font-size="13" fill="#888" font-style="italic">Nose (anterior)</text>
+      <!-- Ears -->
+      <ellipse cx="28" cy="220" rx="12" ry="28" fill="#fef9e7" stroke="#2c3e50" stroke-width="1.5"></ellipse>
+      <ellipse cx="372" cy="220" rx="12" ry="28" fill="#fef9e7" stroke="#2c3e50" stroke-width="1.5"></ellipse>
+      <!-- Midline reference lines (subtle) -->
+      <line x1="200" y1="40" x2="200" y2="400" stroke="#ddd" stroke-width="1" stroke-dasharray="4"></line>
+      <line x1="40" y1="220" x2="360" y2="220" stroke="#ddd" stroke-width="1" stroke-dasharray="4"></line>
+    </svg>
+
+    <div id="electrode_container" style="position:absolute; top:0; left:0; width:100%; height:100%;"></div>
+  </div>
+
+  <div id="electrode_info" style="margin-top:1em; padding:12px; background:#f8f9fa; border-radius:8px; min-height:60px; border:1px solid #ddd;">
+    <em style="color:#888;">Click or hover on an electrode to see what brain region it overlies and what it typically records.</em>
+  </div>
+</div>
+
+<script>
+(function() {
+  var electrodes = [
+    // Frontal (blue)
+    {name:'Fp1', x:38, y:18, region:'frontal', color:'#3498db',
+     desc:'Left prefrontal. Overlies the anterior frontal lobe. Picks up eye movement artifacts (blinks, lateral eye movements) and frontal brain activity.'},
+    {name:'Fp2', x:62, y:18, region:'frontal', color:'#3498db',
+     desc:'Right prefrontal. Same as Fp1 but on the right. Eye blink artifacts appear symmetrically at Fp1 and Fp2.'},
+    {name:'F3', x:33, y:32, region:'frontal', color:'#3498db',
+     desc:'Left frontal. Overlies the lateral frontal cortex. Records frontal beta activity and is relevant for monitoring frontal lobe seizures.'},
+    {name:'F4', x:67, y:32, region:'frontal', color:'#3498db',
+     desc:'Right frontal. Mirror of F3. Frontal beta activity, cognitive processing, and motor planning.'},
+    {name:'F7', x:18, y:32, region:'frontal', color:'#3498db',
+     desc:'Left anterior temporal/inferior frontal. Near the boundary with temporal lobe. Relevant for temporal lobe epilepsy evaluation.'},
+    {name:'F8', x:82, y:32, region:'frontal', color:'#3498db',
+     desc:'Right anterior temporal/inferior frontal. Mirror of F7. Important in temporal lobe seizure localization.'},
+    {name:'Fz', x:50, y:30, region:'frontal', color:'#3498db',
+     desc:'Midline frontal. Overlies the supplementary motor area. Used in motor studies and as a reference point.'},
+
+    // Central (green)
+    {name:'C3', x:30, y:50, region:'central', color:'#27ae60',
+     desc:'Left central. Overlies the left sensorimotor cortex (hand area). Records mu rhythm (8-12 Hz) that suppresses with movement of the right hand.'},
+    {name:'C4', x:70, y:50, region:'central', color:'#27ae60',
+     desc:'Right central. Overlies the right sensorimotor cortex. Mu rhythm here suppresses with left hand movement.'},
+    {name:'Cz', x:50, y:50, region:'central', color:'#27ae60',
+     desc:'Midline central (vertex). Overlies the longitudinal fissure at the top of the head. Vertex sharp waves appear here during drowsiness — a normal finding.'},
+
+    // Temporal (yellow/gold)
+    {name:'T3', x:12, y:50, region:'temporal', color:'#f39c12',
+     desc:'Left mid-temporal. Overlies the left temporal lobe. Critical electrode for detecting left temporal lobe seizures. Theta activity here can indicate temporal pathology.'},
+    {name:'T4', x:88, y:50, region:'temporal', color:'#f39c12',
+     desc:'Right mid-temporal. Mirror of T3. Important for right temporal lobe epilepsy.'},
+    {name:'T5', x:18, y:68, region:'temporal', color:'#f39c12',
+     desc:'Left posterior temporal. Near the junction of temporal and parietal lobes. Relevant for posterior temporal seizures and language-area monitoring (left hemisphere).'},
+    {name:'T6', x:82, y:68, region:'temporal', color:'#f39c12',
+     desc:'Right posterior temporal. Mirror of T5. Posterior temporal/parietal junction.'},
+
+    // Parietal (orange)
+    {name:'P3', x:33, y:68, region:'parietal', color:'#e67e22',
+     desc:'Left parietal. Overlies the left parietal association cortex. Records posterior alpha and is involved in spatial processing and attention.'},
+    {name:'P4', x:67, y:68, region:'parietal', color:'#e67e22',
+     desc:'Right parietal. Mirror of P3. Parietal association cortex activity.'},
+    {name:'Pz', x:50, y:68, region:'parietal', color:'#e67e22',
+     desc:'Midline parietal. Used in cognitive event-related potential studies (e.g., the P300 wave appears prominently here).'},
+
+    // Occipital (red)
+    {name:'O1', x:38, y:84, region:'occipital', color:'#e74c3c',
+     desc:'Left occipital. Overlies the primary visual cortex. THE best place to see the alpha rhythm (8-13 Hz), especially with eyes closed. Alpha blocking (disappearance with eye opening) is most prominent here.'},
+    {name:'O2', x:62, y:84, region:'occipital', color:'#e74c3c',
+     desc:'Right occipital. Mirror of O1. Alpha rhythm and visual processing. Asymmetry between O1 and O2 alpha can indicate unilateral occipital pathology.'}
+  ];
+
+  // Position electrodes as absolute divs overlaid on the SVG
+  var container = document.getElementById('electrode_container');
+  var infoBox = document.getElementById('electrode_info');
+
+  // Region legend
+  var legend = {frontal:'#3498db', central:'#27ae60', temporal:'#f39c12', parietal:'#e67e22', occipital:'#e74c3c'};
+  var regionNames = {frontal:'Frontal', central:'Central', temporal:'Temporal', parietal:'Parietal', occipital:'Occipital'};
+
+  electrodes.forEach(function(e) {
+    var dot = document.createElement('div');
+    dot.style.cssText = 'position:absolute; width:32px; height:32px; border-radius:50%; background:' + e.color +
+      '; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,0.3); cursor:pointer; display:flex; align-items:center; justify-content:center;' +
+      ' left:calc(' + e.x + '% - 16px); top:calc(' + e.y + '% - 16px); transition:transform 0.15s, box-shadow 0.15s;' +
+      ' font-size:9px; font-weight:700; color:white; text-shadow:0 1px 2px rgba(0,0,0,0.5);';
+    dot.textContent = e.name;
+    dot.title = e.name;
+
+    dot.addEventListener('mouseenter', function() {
+      dot.style.transform = 'scale(1.3)';
+      dot.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)';
+      dot.style.zIndex = '10';
+      showInfo(e);
+    });
+    dot.addEventListener('mouseleave', function() {
+      dot.style.transform = 'scale(1)';
+      dot.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
+      dot.style.zIndex = '';
+    });
+    dot.addEventListener('click', function() { showInfo(e); });
+
+    container.appendChild(dot);
+  });
+
+  function showInfo(e) {
+    var regionLabel = regionNames[e.region] || e.region;
+    infoBox.innerHTML = '<div style="margin-bottom:6px;">' +
+      '<span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:' + e.color + '; vertical-align:middle; margin-right:6px;"></span>' +
+      '<strong style="font-size:1.1em;">' + e.name + '</strong>' +
+      '<span style="color:#888; margin-left:8px; font-size:0.9em;">' + regionLabel + ' region</span>' +
+      '</div>' +
+      '<div style="color:#333;">' + e.desc + '</div>';
+  }
+
+  // Add legend
+  var legendDiv = document.createElement('div');
+  legendDiv.style.cssText = 'text-align:center; margin-top:8px; font-size:0.85em;';
+  var legendHTML = '';
+  for (var r in legend) {
+    legendHTML += '<span style="display:inline-block; margin:0 8px;">' +
+      '<span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:' + legend[r] + '; vertical-align:middle;"></span> ' +
+      regionNames[r] + '</span>';
+  }
+  legendDiv.innerHTML = legendHTML;
+  container.parentNode.parentNode.appendChild(legendDiv);
+})();
+</script>
+<div class="try-it">
+<p><strong>Experiment:</strong></p>
+<ul>
+<li>Click <strong>O1</strong> or <strong>O2</strong> (the red dots at the back). These overlie the visual cortex — the best place to see alpha rhythm.</li>
+<li>Click <strong>Fp1</strong> or <strong>Fp2</strong> (the blue dots at the front). These are closest to the eyes — they pick up eye blink artifacts.</li>
+<li>Click <strong>T3</strong> or <strong>T4</strong> (gold dots on the sides). These are critical for detecting temporal lobe seizures — the most common type of epilepsy.</li>
+</ul>
+</div>
+<div class="key-concept">
+<p><strong>Naming convention</strong>: The letter indicates the region (Fp = frontopolar, F = frontal, C = central, T = temporal, P = parietal, O = occipital). <strong>Odd numbers = left hemisphere, even numbers = right hemisphere, z = midline.</strong> So C3 is left central, C4 is right central, Cz is midline central. This system is universal — it’s the same in a hospital in Tokyo, Toronto, or Tunis.</p>
+</div>
+</section>
+<section id="eeg-frequency-bands-the-language-of-brain-rhythms" class="level2">
+<h2 class="anchored" data-anchor-id="eeg-frequency-bands-the-language-of-brain-rhythms">EEG Frequency Bands: The Language of Brain Rhythms</h2>
+<p>EEG activity is categorized into five major frequency bands. Each band has a name, a frequency range, and a clinical meaning. This is the vocabulary that every neurologist uses.</p>
+<p>Click on a band to see its isolated waveform and clinical significance.</p>
+<div class="widget-box">
+  <div id="bands_composite_plot" style="width:100%; height:250px;"></div>
+
+  <div style="margin:1em 0; text-align:center;">
+    <button class="band-btn" onclick="window.showBand('delta')" style="padding:8px 16px; margin:3px; border:2px solid #2c3e50; background:#2c3e50; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
+      Delta (1-4 Hz)
+    </button>
+    <button class="band-btn" onclick="window.showBand('theta')" style="padding:8px 16px; margin:3px; border:2px solid #1abc9c; background:#1abc9c; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
+      Theta (4-8 Hz)
+    </button>
+    <button class="band-btn" onclick="window.showBand('alpha')" style="padding:8px 16px; margin:3px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
+      Alpha (8-13 Hz)
+    </button>
+    <button class="band-btn" onclick="window.showBand('beta')" style="padding:8px 16px; margin:3px; border:2px solid #e67e22; background:#e67e22; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
+      Beta (13-30 Hz)
+    </button>
+    <button class="band-btn" onclick="window.showBand('gamma')" style="padding:8px 16px; margin:3px; border:2px solid #e74c3c; background:#e74c3c; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
+      Gamma (&gt;30 Hz)
+    </button>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+    <div id="band_time_plot" style="width:100%; height:250px;"></div>
+    <div id="band_spectrum_plot" style="width:100%; height:250px;"></div>
+  </div>
+
+  <div id="band_info" style="margin-top:10px; padding:12px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd; font-size:0.92em; min-height:80px;">
+    <em style="color:#888;">Click a frequency band above to see its waveform, spectrum, and clinical significance.</em>
+  </div>
+</div>
+
+<script>
+(function() {
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+
+  var bands = {
+    delta: {
+      name: 'Delta', range: '1-4 Hz', freq: 2.5, amp: 150,
+      ampLabel: '100-200 uV', location: 'Diffuse (widespread)',
+      color: '#2c3e50', fillColor: 'rgba(44,62,80,0.15)',
+      clinical: '<b>Delta (1-4 Hz)</b> &mdash; Amplitude: 100-200 &mu;V. The slowest and largest EEG waves. ' +
+        '<b>Normal:</b> dominant during deep sleep (stages N3). Also seen in infants. ' +
+        '<b>Abnormal:</b> persistent delta activity in a fully awake adult suggests diffuse cerebral dysfunction (encephalopathy, metabolic disturbance, or structural lesion). ' +
+        'Focal delta can indicate a localized structural lesion (tumor, stroke).'
+    },
+    theta: {
+      name: 'Theta', range: '4-8 Hz', freq: 6, amp: 75,
+      ampLabel: '50-100 uV', location: 'Temporal regions',
+      color: '#1abc9c', fillColor: 'rgba(26,188,156,0.15)',
+      clinical: '<b>Theta (4-8 Hz)</b> &mdash; Amplitude: 50-100 &mu;V. ' +
+        '<b>Normal:</b> seen during drowsiness and light sleep. Common in children and adolescents. Temporal theta is normal in the elderly. ' +
+        '<b>Abnormal:</b> prominent focal theta in an alert adult can indicate regional cerebral dysfunction. ' +
+        'Rhythmic temporal theta is sometimes seen at the onset of temporal lobe seizures.'
+    },
+    alpha: {
+      name: 'Alpha', range: '8-13 Hz', freq: 10, amp: 40,
+      ampLabel: '30-50 uV', location: 'Occipital (posterior)',
+      color: '#8e44ad', fillColor: 'rgba(142,68,173,0.15)',
+      clinical: '<b>Alpha (8-13 Hz)</b> &mdash; Amplitude: 30-50 &mu;V. The "default rhythm" of the awake, relaxed brain. ' +
+        '<b>Where:</b> most prominent over occipital electrodes (O1, O2) with eyes closed. ' +
+        '<b>Key feature:</b> alpha blocking &mdash; the rhythm disappears when the patient opens their eyes. This is one of the first things a neurologist checks. ' +
+        '<b>Abnormal:</b> absence of alpha, failure to block with eye opening, or marked asymmetry (>50% amplitude difference) between hemispheres.'
+    },
+    beta: {
+      name: 'Beta', range: '13-30 Hz', freq: 20, amp: 15,
+      ampLabel: '10-20 uV', location: 'Frontal / Central',
+      color: '#e67e22', fillColor: 'rgba(230,126,34,0.15)',
+      clinical: '<b>Beta (13-30 Hz)</b> &mdash; Amplitude: 10-20 &mu;V. Fast, low-amplitude activity. ' +
+        '<b>Normal:</b> seen during alert, active mental states. Prominent over frontal and central regions. ' +
+        '<b>Enhanced by:</b> benzodiazepines (a very common EEG finding in sedated patients), barbiturates, and anxiety. ' +
+        '<b>Clinical pearl:</b> if you see lots of fast beta activity and the patient is on a benzo drip, that is the drug, not pathology.'
+    },
+    gamma: {
+      name: 'Gamma', range: '>30 Hz', freq: 40, amp: 7,
+      ampLabel: '5-10 uV', location: 'Local / variable',
+      color: '#e74c3c', fillColor: 'rgba(231,76,60,0.15)',
+      clinical: '<b>Gamma (>30 Hz)</b> &mdash; Amplitude: 5-10 &mu;V. The fastest brain rhythms. ' +
+        '<b>Normal:</b> associated with higher cognitive processing, perception, and consciousness. Active area of research. ' +
+        '<b>Caveat:</b> gamma is very difficult to record from scalp EEG because the signal is tiny and easily contaminated by muscle artifact (which is also high-frequency). ' +
+        'Most reliable gamma data comes from intracranial recordings.'
+    }
+  };
+
+  var sr = 512, dur = 2, N = sr * dur;
+  var rand = seededRand(77);
+
+  // Build composite signal (all bands summed)
+  var t = [], composite = [];
+  for (var i = 0; i < N; i++) {
+    var ti = i / sr;
+    t.push(ti);
+    var v = 0;
+    v += 80 * Math.sin(2 * Math.PI * 2.5 * ti + 0.3);
+    v += 40 * Math.sin(2 * Math.PI * 6 * ti + 1.1);
+    v += 30 * Math.sin(2 * Math.PI * 10 * ti + 0.7);
+    v += 10 * Math.sin(2 * Math.PI * 20 * ti + 2.3);
+    v += 5 * Math.sin(2 * Math.PI * 40 * ti + 0.5);
+    v += 15 * (rand() - 0.5);
+    composite.push(v);
+  }
+
+  // Plot composite
+  var trComp = {
+    x: t, y: composite, type: 'scatter', mode: 'lines',
+    line: {color: '#555', width: 1.2},
+    hovertemplate: '%{x:.3f} s: %{y:.0f} uV<extra></extra>'
+  };
+  var layComp = {
+    title: {text: 'Composite EEG-like Signal (all bands)', font: {size: 13, color: '#555'}},
+    xaxis: {title: 'Time (s)', range: [0, 1]},
+    yaxis: {title: 'uV'},
+    margin: {t: 30, b: 40, l: 50, r: 15},
+    plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+    hovermode: 'x unified'
+  };
+  Plotly.newPlot('bands_composite_plot', [trComp], layComp, {responsive: true, displayModeBar: false});
+
+  window.showBand = function(bandKey) {
+    var b = bands[bandKey];
+
+    // Generate isolated band signal
+    var tBand = [], yBand = [];
+    for (var i = 0; i < N; i++) {
+      var ti = i / sr;
+      tBand.push(ti);
+      yBand.push(b.amp * Math.sin(2 * Math.PI * b.freq * ti));
+    }
+
+    // Time domain
+    var trT = {
+      x: tBand, y: yBand, type: 'scatter', mode: 'lines',
+      line: {color: b.color, width: 2},
+      hovertemplate: '%{x:.3f} s: %{y:.0f} uV<extra></extra>'
+    };
+    var layT = {
+      title: {text: b.name + ' (' + b.range + ')', font: {size: 13, color: b.color}},
+      xaxis: {title: 'Time (s)', range: [0, 1]},
+      yaxis: {title: 'uV'},
+      margin: {t: 30, b: 40, l: 50, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      hovermode: 'x unified'
+    };
+    Plotly.react('band_time_plot', [trT], layT, {responsive: true, displayModeBar: false});
+
+    // Spectrum: show all bands as background bars, highlight selected
+    var allBands = ['delta','theta','alpha','beta','gamma'];
+    var bandRanges = {delta:[1,4], theta:[4,8], alpha:[8,13], beta:[13,30], gamma:[30,50]};
+    var shapes = [];
+    allBands.forEach(function(bk) {
+      var br = bandRanges[bk];
+      shapes.push({
+        type: 'rect', x0: br[0], x1: br[1], y0: 0, y1: bands[bk].amp,
+        fillcolor: bk === bandKey ? b.fillColor : 'rgba(200,200,200,0.15)',
+        line: {color: bk === bandKey ? b.color : '#ccc', width: bk === bandKey ? 2 : 1}
+      });
+    });
+
+    var annotations = allBands.map(function(bk) {
+      var br = bandRanges[bk];
+      return {
+        x: (br[0] + br[1]) / 2, y: bands[bk].amp + 10,
+        text: bands[bk].name, showarrow: false,
+        font: {size: bk === bandKey ? 12 : 10, color: bk === bandKey ? b.color : '#aaa',
+               weight: bk === bandKey ? 'bold' : 'normal'}
+      };
+    });
+
+    var layS = {
+      title: {text: 'Frequency Bands', font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Frequency (Hz)', range: [0, 55], dtick: 10},
+      yaxis: {title: 'Typical Amplitude (uV)', range: [0, 220]},
+      margin: {t: 30, b: 40, l: 50, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      shapes: shapes, annotations: annotations
+    };
+    Plotly.react('band_spectrum_plot', [], layS, {responsive: true, displayModeBar: false});
+
+    // Info text
+    document.getElementById('band_info').innerHTML =
+      '<div style="border-left:4px solid ' + b.color + '; padding-left:10px;">' + b.clinical + '</div>' +
+      '<div style="margin-top:8px; font-size:0.88em; color:#666;">' +
+      '<b>Typical amplitude:</b> ' + b.ampLabel + ' &nbsp;|&nbsp; <b>Location:</b> ' + b.location + '</div>';
+  };
+})();
+</script>
+<div class="try-it">
+<p><strong>Experiment:</strong></p>
+<ul>
+<li>Click through each band in order from <strong>Delta</strong> to <strong>Gamma</strong>. Notice the inverse relationship: slower rhythms have higher amplitude, faster rhythms are tiny.</li>
+<li>Compare <strong>Delta</strong> (150 uV, huge slow waves) with <strong>Gamma</strong> (7 uV, barely visible rapid oscillations). That amplitude difference is why gamma is so hard to record from the scalp.</li>
+<li>Read the clinical notes for <strong>Alpha</strong> carefully. Alpha blocking will come up again shortly.</li>
+</ul>
+</div>
+</section>
+<section id="alpha-blocking-the-first-clinical-test" class="level2">
+<h2 class="anchored" data-anchor-id="alpha-blocking-the-first-clinical-test">Alpha Blocking: The First Clinical Test</h2>
+<p>One of the first things a neurologist checks during an EEG is <strong>alpha blocking</strong> — whether the alpha rhythm disappears when the patient opens their eyes.</p>
+<p>Why? Because the alpha rhythm is generated by the thalamo-cortical loop when the visual cortex is “idling.” When the eyes open and visual input floods the cortex, the idle rhythm is disrupted and alpha drops out, replaced by faster beta activity. If alpha doesn’t block, something may be wrong.</p>
+<p>Toggle between eyes-closed and eyes-open conditions below.</p>
+<div class="widget-box">
+  <div style="text-align:center; margin-bottom:1em;">
+    <button id="alpha_eyes_closed_btn" onclick="window.setAlphaCondition('closed')" style="padding:8px 20px; margin:3px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:20px; cursor:pointer; font-size:0.95em; font-weight:600;">
+      Eyes Closed
+    </button>
+    <button id="alpha_eyes_open_btn" onclick="window.setAlphaCondition('open')" style="padding:8px 20px; margin:3px; border:2px solid #e67e22; background:white; color:#e67e22; border-radius:20px; cursor:pointer; font-size:0.95em; font-weight:600;">
+      Eyes Open
+    </button>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+    <div id="alpha_time_plot" style="width:100%; height:280px;"></div>
+    <div id="alpha_freq_plot" style="width:100%; height:280px;"></div>
+  </div>
+
+  <div id="alpha_note" style="margin-top:10px; padding:10px; border-radius:8px; font-size:0.92em; background:#f4ecf7; border:1px solid #d2b4de;">
+    <b style="color:#8e44ad;">Eyes Closed:</b> Strong alpha rhythm (10 Hz) dominates the occipital recording. The patient is relaxed, visual cortex is "idling."
+  </div>
+</div>
+
+<script>
+(function() {
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+
+  var sr = 512, dur = 3, N = sr * dur;
+
+  var conditions = {
+    closed: {
+      components: [{f:10, a:40, label:'Alpha (10 Hz)'}, {f:6, a:12, label:'Theta'}, {f:20, a:5, label:'Beta'}],
+      noise: 8,
+      note: '<b style="color:#8e44ad;">Eyes Closed:</b> Strong alpha rhythm (10 Hz) dominates the occipital recording. The patient is relaxed, visual cortex is "idling." This is normal.',
+      noteStyle: 'background:#f4ecf7; border:1px solid #d2b4de;'
+    },
+    open: {
+      components: [{f:10, a:8, label:'Alpha (suppressed)'}, {f:6, a:8, label:'Theta'}, {f:20, a:15, label:'Beta (20 Hz)'}, {f:25, a:10, label:'Beta'}],
+      noise: 10,
+      note: '<b style="color:#e67e22;">Eyes Open:</b> Alpha rhythm is <b>suppressed</b> (barely visible). Beta activity has increased — the cortex is now actively processing visual information. This "alpha blocking" is <b>normal and expected</b>. If alpha persisted unchanged, the neurologist would be concerned.',
+      noteStyle: 'background:#fef5e7; border:1px solid #f0c27a;'
+    }
+  };
+
+  function plotCondition(cond) {
+    var c = conditions[cond];
+    var rand = seededRand(cond === 'closed' ? 42 : 99);
+
+    // Build signal
+    var t = [], y = [];
+    for (var i = 0; i < N; i++) {
+      var ti = i / sr;
+      t.push(ti);
+      var v = 0;
+      c.components.forEach(function(comp) { v += comp.a * Math.sin(2 * Math.PI * comp.f * ti + rand() * 0.5); });
+      v += c.noise * (rand() - 0.5) * 2;
+      y.push(v);
+    }
+
+    // Time domain
+    var trT = {
+      x: t, y: y, type: 'scatter', mode: 'lines',
+      line: {color: cond === 'closed' ? '#8e44ad' : '#e67e22', width: 1.3},
+      hovertemplate: '%{x:.3f} s: %{y:.1f} uV<extra></extra>'
+    };
+    var layT = {
+      title: {text: 'EEG (occipital) — Eyes ' + (cond === 'closed' ? 'Closed' : 'Open'), font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Time (s)', range: [0, 1.5]},
+      yaxis: {title: 'uV', range: [-100, 100]},
+      margin: {t: 30, b: 40, l: 50, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      hovermode: 'x unified'
+    };
+    Plotly.react('alpha_time_plot', [trT], layT, {responsive: true, displayModeBar: false});
+
+    // Spectrum: bar chart of component amplitudes
+    var freqs = c.components.map(function(comp) { return comp.f; });
+    var amps = c.components.map(function(comp) { return comp.a; });
+    var labels = c.components.map(function(comp) { return comp.label; });
+    var colors = freqs.map(function(f) {
+      if (f <= 4) return '#2c3e50';
+      if (f <= 8) return '#1abc9c';
+      if (f <= 13) return '#8e44ad';
+      return '#e67e22';
+    });
+
+    var trF = {
+      x: freqs, y: amps, type: 'bar',
+      marker: {color: colors},
+      text: labels,
+      textposition: 'outside',
+      hovertemplate: '%{text}<br>%{x} Hz: %{y} uV<extra></extra>',
+      width: freqs.map(function() { return 2; })
+    };
+
+    // Highlight the alpha region
+    var layF = {
+      title: {text: 'Power Spectrum', font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Frequency (Hz)', range: [0, 35], dtick: 5},
+      yaxis: {title: 'Amplitude (uV)', range: [0, 50]},
+      margin: {t: 30, b: 40, l: 50, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      shapes: [{
+        type: 'rect', x0: 8, x1: 13, y0: 0, y1: 50,
+        fillcolor: 'rgba(142,68,173,0.08)', line: {width: 0}
+      }],
+      annotations: [{
+        x: 10.5, y: 48, text: 'Alpha band', showarrow: false,
+        font: {size: 10, color: '#8e44ad'}
+      }]
+    };
+    Plotly.react('alpha_freq_plot', [trF], layF, {responsive: true, displayModeBar: false});
+
+    // Update note and button styles
+    var noteDiv = document.getElementById('alpha_note');
+    noteDiv.innerHTML = c.note;
+    noteDiv.style.cssText = 'margin-top:10px; padding:10px; border-radius:8px; font-size:0.92em; ' + c.noteStyle;
+
+    // Button highlighting
+    var closedBtn = document.getElementById('alpha_eyes_closed_btn');
+    var openBtn = document.getElementById('alpha_eyes_open_btn');
+    if (cond === 'closed') {
+      closedBtn.style.background = '#8e44ad'; closedBtn.style.color = 'white';
+      openBtn.style.background = 'white'; openBtn.style.color = '#e67e22';
+    } else {
+      openBtn.style.background = '#e67e22'; openBtn.style.color = 'white';
+      closedBtn.style.background = 'white'; closedBtn.style.color = '#8e44ad';
+    }
+  }
+
+  window.setAlphaCondition = function(cond) { plotCondition(cond); };
+
+  // Initialize
+  plotCondition('closed');
+})();
+</script>
+<div class="key-concept">
+<p><strong>Alpha blocking</strong> is one of the most reliable and clinically important EEG phenomena. When a patient closes their eyes, alpha appears over the occipital regions. When they open their eyes, it disappears. If alpha fails to block with eye opening, it raises concern for cortical dysfunction. If it’s absent entirely, consider whether the patient is anxious (beta-dominant), encephalopathic (theta/delta-dominant), or whether it’s a technical issue.</p>
+</div>
+<div class="try-it">
+<p><strong>Experiment:</strong></p>
+<ul>
+<li>Toggle between Eyes Closed and Eyes Open. Watch the alpha peak (10 Hz) shrink dramatically in the spectrum.</li>
+<li>In the time domain, notice how the eyes-closed trace has a clear ~10 Hz rhythm, while the eyes-open trace looks faster and more “noisy” — that’s beta activity taking over.</li>
+</ul>
+</div>
+</section>
+<section id="putting-it-together-what-you-see-on-an-eeg-report" class="level2">
+<h2 class="anchored" data-anchor-id="putting-it-together-what-you-see-on-an-eeg-report">Putting It Together: What You See on an EEG Report</h2>
+<p>When you look at a clinical EEG, the report will describe:</p>
+<ol type="1">
+<li><strong>Background activity</strong>: Is the dominant posterior rhythm alpha? What’s its frequency and symmetry?</li>
+<li><strong>Reactivity</strong>: Does it block with eye opening? Does it change with alertness?</li>
+<li><strong>Abnormalities</strong>: Any focal slowing (theta/delta in one region)? Any epileptiform discharges (spikes, sharp waves)?</li>
+<li><strong>Artifacts</strong>: Eye blinks, muscle, electrode, 60 Hz noise — all the non-brain stuff (covered in Module 6)</li>
+</ol>
+<p>You now have the foundation for understanding all four. You know where the electrodes go, what the frequency bands mean, and what alpha blocking looks like.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 11%">
+<col style="width: 18%">
+<col style="width: 24%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Band</th>
+<th>Range</th>
+<th>Amplitude</th>
+<th>Best Location</th>
+<th>Clinical Significance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Delta</td>
+<td>1-4 Hz</td>
+<td>100-200 uV</td>
+<td>Diffuse</td>
+<td>Normal in deep sleep. Pathological if awake (encephalopathy).</td>
+</tr>
+<tr class="even">
+<td>Theta</td>
+<td>4-8 Hz</td>
+<td>50-100 uV</td>
+<td>Temporal</td>
+<td>Normal in drowsiness/children. Focal = possible lesion.</td>
+</tr>
+<tr class="odd">
+<td>Alpha</td>
+<td>8-13 Hz</td>
+<td>30-50 uV</td>
+<td>Occipital</td>
+<td>Relaxed, eyes closed. Blocks with eye opening.</td>
+</tr>
+<tr class="even">
+<td>Beta</td>
+<td>13-30 Hz</td>
+<td>10-20 uV</td>
+<td>Frontal/Central</td>
+<td>Alert state, anxiety, benzodiazepines.</td>
+</tr>
+<tr class="odd">
+<td>Gamma</td>
+<td>&gt;30 Hz</td>
+<td>5-10 uV</td>
+<td>Variable</td>
+<td>Cognitive processing. Often contaminated by muscle artifact.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="quiz-check-your-understanding" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-check-your-understanding">Quiz: Check Your Understanding</h2>
+<div class="quiz-container">
+  <h4 class="anchored">Quiz</h4>
+
+  <div style="margin-bottom: 1.5em;" id="eeg_quiz1">
+    <p><strong>Q1:</strong> Which electrode would you focus on to evaluate the alpha rhythm?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq1" value="a"> A. Fp1 — left frontopolar
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq1" value="b"> B. C3 — left central
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq1" value="c"> C. O1 or O2 — occipital electrodes
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq1" value="d"> D. T3 — left temporal
+    </label>
+    <div id="eq1feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1.5em;" id="eeg_quiz2">
+    <p><strong>Q2:</strong> A patient's EEG shows continuous high-amplitude delta activity while they are fully awake. Is this normal?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq2" value="a"> A. Yes — delta is always normal
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq2" value="b"> B. No — delta in an awake adult suggests diffuse cerebral dysfunction
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq2" value="c"> C. It depends on whether they're anxious
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq2" value="d"> D. Yes — it means the patient is very relaxed
+    </label>
+    <div id="eq2feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1em;" id="eeg_quiz3">
+    <p><strong>Q3:</strong> During an EEG recording, you ask the patient to open their eyes. The alpha rhythm disappears. This is:</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq3" value="a"> A. Abnormal — the alpha should persist
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq3" value="b"> B. A technical artifact from eye movement
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq3" value="c"> C. Normal — alpha blocking is a healthy cortical response
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="eq3" value="d"> D. Concerning — you should repeat the recording
+    </label>
+    <div id="eq3feedback"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var answers = {
+    eq1: {correct: 'c', feedback: {
+      a: ['incorrect', 'Fp1 is frontopolar &mdash; it overlies the prefrontal cortex and is most notable for picking up eye blink artifacts, not alpha rhythm.'],
+      b: ['incorrect', 'C3 is over the sensorimotor cortex. You might see mu rhythm there (which is alpha-frequency), but the classic posterior alpha rhythm is best seen occipitally.'],
+      c: ['correct', 'Correct. The posterior dominant (alpha) rhythm is generated by the thalamo-cortical loop involving the visual cortex. O1 and O2 overlie the occipital lobes and show the strongest alpha activity.'],
+      d: ['incorrect', 'T3 overlies the temporal lobe. You would look there for temporal lobe seizure activity, not for alpha rhythm.']
+    }},
+    eq2: {correct: 'b', feedback: {
+      a: ['incorrect', 'Delta is normal in deep sleep and in infants, but continuous delta in a fully awake adult is a red flag for diffuse brain dysfunction.'],
+      b: ['correct', 'Correct. Continuous high-amplitude delta in an alert adult suggests diffuse cerebral dysfunction &mdash; think metabolic encephalopathy, diffuse ischemia, medication effects, or other systemic causes. This finding warrants urgent investigation.'],
+      c: ['incorrect', 'Anxiety typically produces more <em>beta</em> activity, not delta. Delta in an awake adult is pathological regardless of anxiety level.'],
+      d: ['incorrect', 'Relaxation produces <em>alpha</em> rhythm, not delta. Delta waves in an awake adult are never normal.']
+    }},
+    eq3: {correct: 'c', feedback: {
+      a: ['incorrect', 'Actually, the opposite &mdash; alpha <em>should</em> disappear with eye opening. If it persisted, that would be the concerning finding.'],
+      b: ['incorrect', 'While eye opening does produce some artifact at Fp1/Fp2, the disappearance of the alpha rhythm itself is a genuine physiological response, not an artifact.'],
+      c: ['correct', 'Correct. Alpha blocking is a normal, healthy response. The visual cortex was "idling" with eyes closed (producing alpha), and now it is actively processing visual input (alpha suppressed, beta increases). This is one of the standard reactivity tests in clinical EEG.'],
+      d: ['incorrect', 'No need to worry or repeat &mdash; this is exactly what should happen. Alpha blocking is a sign of normal cortical function.']
+    }}
+  };
+
+  ['eq1','eq2','eq3'].forEach(function(qid) {
+    var radios = document.querySelectorAll('input[name="' + qid + '"]');
+    radios.forEach(function(r) {
+      r.addEventListener('change', function() {
+        var fb = answers[qid].feedback[r.value];
+        var div = document.getElementById(qid + 'feedback');
+        div.className = fb[0] === 'correct' ? 'quiz-feedback-correct' : 'quiz-feedback-incorrect';
+        div.innerHTML = (fb[0] === 'correct' ? '&#10003; ' : '&#10007; ') + fb[1];
+      });
+    });
+  });
+})();
+</script>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>You can now read an EEG — or at least, you know the basics:</p>
+<ol type="1">
+<li><strong>The 10-20 System</strong> places electrodes in standardized positions. Letters = brain region, odd = left, even = right, z = midline.</li>
+<li><strong>Five frequency bands</strong> (delta, theta, alpha, beta, gamma) each carry distinct clinical meaning. Slower = bigger amplitude, faster = smaller.</li>
+<li><strong>Alpha blocking</strong> (disappearance of the posterior alpha rhythm with eye opening) is a fundamental sign of normal cortical reactivity.</li>
+</ol>
+<p>But there’s a catch. Not everything on that EEG screen comes from the brain. Eye blinks, muscle tension, the patient’s heartbeat, a loose electrode, someone’s cell phone — all of these can contaminate the recording. Next up: how to tell artifacts from actual brain activity, and why it matters more than you might think.</p>
+<div class="module-nav">
+<p><a href="../modules/04_fft.html">← Module 4: FFT</a> <a href="../modules/06_artifacts.html">Module 6: Artifacts →</a></p>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Interactive Tutorial — EEG &amp; Signal Processing</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

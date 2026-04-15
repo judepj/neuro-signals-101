@@ -1,0 +1,501 @@
+---
+title: "Module 2: Sampling"
+subtitle: "Capturing the Signal — From Continuous Body to Discrete Computer"
+format:
+  html:
+    code-fold: true
+---
+
+::: {.clinical-vignette}
+A technician is setting up an EEG for a patient with suspected temporal lobe epilepsy. The attending neurologist glances at the machine settings and asks: "What sampling rate are you using?" The tech replies: "256 Hz." The attending nods and moves on. But why 256? Why not 100? Why not 10,000? And what happens if you get it wrong?
+:::
+
+You now know what signals look like — smooth, continuous waves with amplitude and frequency. But here's the problem: your body produces **continuous** signals (voltage that changes every infinitesimal instant), and computers only understand **discrete numbers** (a list of measurements at specific times). To get that EEG onto a screen, we need to *sample* it — measure the voltage at regular intervals.
+
+How often is often enough? That's the central question of this module. Get it right, and you faithfully capture the brain's activity. Get it wrong, and the signal you see on screen is a lie.
+
+## From Continuous to Discrete
+
+Imagine someone singing a smooth, continuous note. Now imagine you can only listen for a brief instant once per second. If the note changes slowly, you'd follow along fine. But if the note is wobbling rapidly — faster than you're checking — you'd miss what's happening. Worse, you might *think* you're hearing something that isn't there.
+
+That's sampling. The rate at which you "check" the signal is called the **sampling rate** (or sampling frequency, $f_s$), measured in Hz — samples per second.
+
+## Interactive: Sampling Visualizer
+
+Watch what happens as you change the sampling rate. The blue curve is the "real" continuous signal. The red dots are the discrete samples your computer would capture. The dashed line connects those dots — that's what the computer *thinks* the signal looks like.
+
+```{=html}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<div class="widget-box">
+  <div style="margin-bottom: 1em;">
+    <label for="sigFreqSlider" style="font-weight:600;">Signal frequency:
+      <span id="sigFreqVal" style="color:#2980b9; font-weight:700;">5.0</span> Hz
+    </label><br>
+    <input type="range" id="sigFreqSlider" min="1" max="50" step="0.5" value="5"
+           style="width:100%; accent-color:#2980b9;">
+  </div>
+  <div style="margin-bottom: 1em;">
+    <label for="sampRateSlider" style="font-weight:600;">Sampling rate:
+      <span id="sampRateVal" style="color:#e74c3c; font-weight:700;">40</span> Hz
+    </label><br>
+    <input type="range" id="sampRateSlider" min="2" max="200" step="1" value="40"
+           style="width:100%; accent-color:#e74c3c;">
+  </div>
+  <div id="samplingStatusW1" style="font-size:0.92em; padding:8px 12px; border-radius:6px; margin-bottom:8px; font-weight:600;"></div>
+  <div id="samplingPlot" style="width:100%; height:340px;"></div>
+</div>
+
+<script>
+(function() {
+  const sigFreqSlider = document.getElementById('sigFreqSlider');
+  const sampRateSlider = document.getElementById('sampRateSlider');
+  const sigFreqVal = document.getElementById('sigFreqVal');
+  const sampRateVal = document.getElementById('sampRateVal');
+  const statusDiv = document.getElementById('samplingStatusW1');
+
+  function update() {
+    const fSig = parseFloat(sigFreqSlider.value);
+    const fSamp = parseFloat(sampRateSlider.value);
+    sigFreqVal.textContent = fSig.toFixed(1);
+    sampRateVal.textContent = fSamp;
+
+    // Continuous signal (high resolution)
+    const dur = 1.0;
+    const srHigh = 2000;
+    const tCont = [], yCont = [];
+    for (let i = 0; i <= dur * srHigh; i++) {
+      const ti = i / srHigh;
+      tCont.push(ti);
+      yCont.push(Math.sin(2 * Math.PI * fSig * ti));
+    }
+
+    // Sampled points
+    const nSamples = Math.floor(dur * fSamp) + 1;
+    const tSamp = [], ySamp = [];
+    for (let i = 0; i < nSamples; i++) {
+      const ti = i / fSamp;
+      if (ti > dur) break;
+      tSamp.push(ti);
+      ySamp.push(Math.sin(2 * Math.PI * fSig * ti));
+    }
+
+    // Reconstruction from samples (linear interpolation)
+    const tRecon = [], yRecon = [];
+    for (let i = 0; i <= dur * srHigh; i++) {
+      const ti = i / srHigh;
+      tRecon.push(ti);
+      // Find bracketing samples
+      let idx = Math.floor(ti * fSamp);
+      if (idx >= tSamp.length - 1) idx = tSamp.length - 2;
+      if (idx < 0) idx = 0;
+      const t0 = tSamp[idx], t1 = tSamp[idx + 1] || tSamp[idx];
+      const y0 = ySamp[idx], y1 = ySamp[idx + 1] !== undefined ? ySamp[idx + 1] : ySamp[idx];
+      const frac = t1 > t0 ? (ti - t0) / (t1 - t0) : 0;
+      yRecon.push(y0 + frac * (y1 - y0));
+    }
+
+    const aliased = fSamp < 2 * fSig;
+
+    // Status text
+    if (aliased) {
+      const fAlias = Math.abs(fSig - fSamp * Math.round(fSig / fSamp));
+      statusDiv.style.background = '#fce4e4';
+      statusDiv.style.color = '#c0392b';
+      statusDiv.innerHTML = '\u2717 ALIASED! f<sub>s</sub> = ' + fSamp +
+        ' Hz < 2 \u00d7 ' + fSig.toFixed(1) + ' Hz = ' + (2*fSig).toFixed(0) +
+        ' Hz. The reconstruction is wrong.';
+    } else {
+      statusDiv.style.background = '#e8f8e8';
+      statusDiv.style.color = '#27ae60';
+      statusDiv.innerHTML = '\u2713 Sampling fast enough: f<sub>s</sub> = ' + fSamp +
+        ' Hz \u2265 2 \u00d7 ' + fSig.toFixed(1) + ' Hz = ' + (2*fSig).toFixed(0) + ' Hz';
+    }
+
+    const traces = [
+      { x: tCont, y: yCont, type: 'scatter', mode: 'lines',
+        line: {color: '#2980b9', width: 2.5}, name: 'Continuous signal' },
+      { x: tSamp, y: ySamp, type: 'scatter', mode: 'markers',
+        marker: {color: '#e74c3c', size: 8, symbol: 'circle'},
+        name: 'Samples (dots)' },
+      { x: tRecon, y: yRecon, type: 'scatter', mode: 'lines',
+        line: {color: '#e74c3c', width: 1.5, dash: 'dash'},
+        name: 'Reconstruction' }
+    ];
+
+    const layout = {
+      xaxis: {title: 'Time (seconds)', range: [0, dur]},
+      yaxis: {title: 'Amplitude', range: [-1.5, 1.5]},
+      margin: {t: 10, b: 50, l: 55, r: 15},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      legend: {x: 0.5, y: 1.12, xanchor: 'center', orientation: 'h',
+               bgcolor: 'rgba(255,255,255,0.8)', font: {size: 11}},
+      hovermode: 'x unified'
+    };
+
+    Plotly.react('samplingPlot', traces, layout, {responsive: true, displayModeBar: false});
+  }
+
+  sigFreqSlider.addEventListener('input', update);
+  sampRateSlider.addEventListener('input', update);
+  update();
+})();
+</script>
+```
+
+::: {.try-it}
+**Experiment:**
+
+- Start with the signal at 5 Hz and sampling rate at 40 Hz. The dots land right on the wave — no problem.
+- Now slowly lower the sampling rate. Watch the dashed reconstruction start to deviate from the blue truth.
+- Drop the sampling rate below 10 Hz (twice the signal frequency). The reconstruction becomes *completely wrong* — it looks like a different signal entirely.
+- Try a 10 Hz signal sampled at 11 Hz. The reconstruction is a slow, ghostly wave that doesn't exist in reality. That ghost is called an **alias**.
+:::
+
+## The Nyquist Rule
+
+Harry Nyquist figured this out in the 1920s: to faithfully capture a signal of frequency $f$, you must sample at a rate of *at least* $2f$ — twice the highest frequency present.
+
+$$f_s \geq 2 \times f_{max}$$
+
+Below that threshold, the signal **aliases** — it masquerades as a lower frequency. The math is surprisingly clean: a signal at frequency $f$ sampled at rate $f_s$ will appear at the aliased frequency $|f - n \cdot f_s|$, where $n$ is the nearest integer.
+
+The widget below makes this visceral. A fixed 10 Hz signal, and you control the sampling rate.
+
+```{=html}
+<div class="widget-box">
+  <div style="margin-bottom: 1em;">
+    <label for="nyquistSlider" style="font-weight:600;">Sampling rate:
+      <span id="nyquistVal" style="color:#8e44ad; font-weight:700;">50</span> Hz
+    </label><br>
+    <input type="range" id="nyquistSlider" min="5" max="100" step="1" value="50"
+           style="width:100%; accent-color:#8e44ad;">
+  </div>
+  <div id="nyquistStatus" style="font-size:1em; padding:10px 14px; border-radius:6px; margin-bottom:8px; font-weight:600; text-align:center;"></div>
+  <div id="nyquistPlot" style="width:100%; height:340px;"></div>
+</div>
+
+<script>
+(function() {
+  const slider = document.getElementById('nyquistSlider');
+  const valSpan = document.getElementById('nyquistVal');
+  const statusDiv = document.getElementById('nyquistStatus');
+  const fSig = 10; // Fixed 10 Hz signal
+
+  function update() {
+    const fSamp = parseFloat(slider.value);
+    valSpan.textContent = fSamp;
+
+    const dur = 1.0, srHigh = 2000;
+    const tCont = [], yCont = [];
+    for (let i = 0; i <= dur * srHigh; i++) {
+      const ti = i / srHigh;
+      tCont.push(ti);
+      yCont.push(Math.sin(2 * Math.PI * fSig * ti));
+    }
+
+    // Sampled points
+    const tSamp = [], ySamp = [];
+    for (let i = 0; i <= dur * fSamp; i++) {
+      const ti = i / fSamp;
+      if (ti > dur) break;
+      tSamp.push(ti);
+      ySamp.push(Math.sin(2 * Math.PI * fSig * ti));
+    }
+
+    // Compute alias frequency
+    const nNearest = Math.round(fSig / fSamp);
+    const fAlias = Math.abs(fSig - nNearest * fSamp);
+
+    // Aliased reconstruction (sinusoid at alias frequency fitted to sample points)
+    const tAlias = [], yAlias = [];
+    if (fSamp < 2 * fSig && fAlias > 0.01) {
+      // Find phase that best matches samples
+      // For a simple sine, the alias appears as sin(2*pi*fAlias*t + phi)
+      // The sampled values of sin(2*pi*fSig*t) at t=k/fSamp equal sin(2*pi*fAlias*t) when alias is simple
+      for (let i = 0; i <= dur * srHigh; i++) {
+        const ti = i / srHigh;
+        tAlias.push(ti);
+        yAlias.push(Math.sin(2 * Math.PI * fAlias * ti));
+      }
+    }
+
+    const aliased = fSamp < 2 * fSig;
+
+    if (aliased) {
+      statusDiv.style.background = '#fce4e4';
+      statusDiv.style.color = '#c0392b';
+      statusDiv.style.fontSize = '1.05em';
+      if (fAlias < 0.01) {
+        statusDiv.innerHTML = '\u2717 <b>ALIASED!</b> The 10 Hz signal appears as DC (0 Hz) — it vanishes entirely!';
+      } else {
+        statusDiv.innerHTML = '\u2717 <b>ALIASED!</b> The 10 Hz signal appears as <b>' +
+          fAlias.toFixed(1) + ' Hz</b> — a phantom frequency that doesn\'t exist in reality.';
+      }
+    } else {
+      statusDiv.style.background = '#e8f8e8';
+      statusDiv.style.color = '#27ae60';
+      statusDiv.style.fontSize = '1em';
+      statusDiv.innerHTML = '\u2713 <b>Safe.</b> f<sub>s</sub> = ' + fSamp +
+        ' Hz > 2 \u00d7 10 Hz = 20 Hz. Signal captured faithfully.';
+    }
+
+    const traces = [
+      { x: tCont, y: yCont, type: 'scatter', mode: 'lines',
+        line: {color: '#2980b9', width: 2.5}, name: 'True signal (10 Hz)' },
+      { x: tSamp, y: ySamp, type: 'scatter', mode: 'markers',
+        marker: {color: '#e74c3c', size: 9, symbol: 'circle'},
+        name: 'Samples' }
+    ];
+
+    if (aliased && fAlias > 0.01 && tAlias.length > 0) {
+      traces.push({
+        x: tAlias, y: yAlias, type: 'scatter', mode: 'lines',
+        line: {color: '#c0392b', width: 2, dash: 'dash'},
+        name: 'Alias (' + fAlias.toFixed(1) + ' Hz)'
+      });
+    }
+
+    const layout = {
+      xaxis: {title: 'Time (seconds)', range: [0, dur]},
+      yaxis: {title: 'Amplitude', range: [-1.5, 1.5]},
+      margin: {t: 10, b: 50, l: 55, r: 15},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      legend: {x: 0.5, y: 1.12, xanchor: 'center', orientation: 'h',
+               bgcolor: 'rgba(255,255,255,0.8)', font: {size: 11}},
+      hovermode: 'x unified'
+    };
+
+    Plotly.react('nyquistPlot', traces, layout, {responsive: true, displayModeBar: false});
+  }
+
+  slider.addEventListener('input', update);
+  update();
+})();
+</script>
+```
+
+::: {.try-it}
+**The Nyquist moment:**
+
+- Start at 50 Hz. The samples clearly trace the 10 Hz wave.
+- Slowly lower the sampling rate toward 20 Hz. It still works, but barely.
+- Drop below 20 Hz. A dashed red alias wave appears — the computer now "sees" a completely different frequency.
+- Try exactly 20 Hz (the Nyquist limit). Notice the samples land on zero crossings — you get zero amplitude. The Nyquist rate is the theoretical minimum; in practice, you need **more** than $2f$.
+:::
+
+::: {.key-concept}
+**The Nyquist-Shannon Sampling Theorem:** To capture a signal containing frequencies up to $f_{max}$ Hz, you must sample at $f_s > 2 f_{max}$. Below this rate, high-frequency content folds back as lower-frequency **aliases** — phantom signals that don't actually exist in the patient's body. Clinical systems typically sample at 4--5 times the maximum frequency of interest as a safety margin.
+:::
+
+## Clinical Sampling Rates
+
+In practice, nobody samples at exactly $2f_{max}$ — that's the bare minimum, and any imperfection causes aliasing. Real systems add a generous safety margin. Here's what you'll see in clinical settings:
+
+| Signal Type | Frequencies of Interest | Minimum Nyquist Rate | Typical Clinical Rate |
+|-------------|------------------------|--------------------|--------------------|
+| **EEG** | 0.5--100 Hz | 200 Hz | 256--512 Hz |
+| **ECG (Holter)** | 0.5--150 Hz | 300 Hz | 128--500 Hz |
+| **EMG** | 20--500 Hz | 1000 Hz | 1000--5000 Hz |
+
+Why 256 Hz for EEG? Because the highest frequency neurologists typically care about is around 100 Hz (the upper end of gamma activity). $2 \times 100 = 200$ Hz minimum. 256 gives a comfortable margin and happens to be a power of 2 (which makes the computer math faster — we'll see why in the FFT module).
+
+The widget below lets you explore this logic for any signal type.
+
+```{=html}
+<div class="widget-box">
+  <h4 style="margin-top:0; color:#555;">Sampling Rate Calculator</h4>
+  <div style="margin-bottom: 1em;">
+    <label style="font-weight:600;">Select a signal type:</label><br>
+    <button class="preset-btn" onclick="calcSampling('EEG', 0.5, 100)"
+            style="padding:6px 14px; margin:4px; border:2px solid #2980b9; background:#2980b9; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      EEG (0.5–100 Hz)
+    </button>
+    <button class="preset-btn" onclick="calcSampling('ECG (Holter)', 0.5, 150)"
+            style="padding:6px 14px; margin:4px; border:2px solid #27ae60; background:#27ae60; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      ECG (0.5–150 Hz)
+    </button>
+    <button class="preset-btn" onclick="calcSampling('EMG', 20, 500)"
+            style="padding:6px 14px; margin:4px; border:2px solid #e74c3c; background:#e74c3c; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      EMG (20–500 Hz)
+    </button>
+    <button class="preset-btn" onclick="calcSampling('Custom', null, null)"
+            style="padding:6px 14px; margin:4px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Custom
+    </button>
+  </div>
+  <div id="customInputs" style="display:none; margin-bottom:1em;">
+    <label style="font-weight:600;">Maximum frequency of interest (Hz):</label><br>
+    <input type="number" id="customFmax" min="1" max="10000" value="100"
+           style="width:120px; padding:4px 8px; font-size:1em; border:1px solid #ccc; border-radius:4px;">
+    <button onclick="calcSampling('Custom signal', 0, parseFloat(document.getElementById('customFmax').value))"
+            style="padding:5px 14px; margin-left:8px; background:#8e44ad; color:white; border:none; border-radius:4px; cursor:pointer;">
+      Calculate
+    </button>
+  </div>
+  <div id="samplingResult" style="padding:14px; background:#f0f4f8; border-radius:8px; font-size:0.95em; line-height:1.7; min-height:60px;"></div>
+</div>
+
+<script>
+(function() {
+  window.calcSampling = function(name, fLow, fHigh) {
+    const customDiv = document.getElementById('customInputs');
+    const resultDiv = document.getElementById('samplingResult');
+
+    if (name === 'Custom' && fHigh === null) {
+      customDiv.style.display = 'block';
+      resultDiv.innerHTML = '<span style="color:#888;">Enter your maximum frequency above and click Calculate.</span>';
+      return;
+    }
+    customDiv.style.display = 'none';
+
+    const nyquist = 2 * fHigh;
+    const practical = Math.ceil(4 * fHigh);
+    const powerOf2 = Math.pow(2, Math.ceil(Math.log2(practical)));
+
+    resultDiv.innerHTML =
+      '<b style="color:#2c3e50;">' + name + '</b><br>' +
+      'Frequency range: ' + (fLow !== null && fLow > 0 ? fLow : '~0') + ' – <b>' + fHigh + ' Hz</b><br>' +
+      'Minimum Nyquist rate: 2 \u00d7 ' + fHigh + ' = <b>' + nyquist + ' Hz</b><br>' +
+      'Recommended practical rate (4\u00d7): <b>' + practical + ' Hz</b><br>' +
+      'Nearest power-of-2: <b style="color:#8e44ad;">' + powerOf2 + ' Hz</b> ' +
+      '<span style="color:#888;">(computers like powers of 2 — FFT is faster)</span>';
+  };
+})();
+</script>
+```
+
+::: {.try-it}
+**Explore:**
+
+- Click each signal type. Notice how much higher the practical rate is compared to the bare Nyquist minimum.
+- Try "Custom" — enter 500 Hz (upper EMG range). The Nyquist minimum is 1000 Hz, but you'd want 2000+ Hz in practice.
+- Now enter 30 Hz (just EEG alpha and beta). The minimum is only 60 Hz — but clinically we'd still use 128 or 256 Hz for safety.
+:::
+
+::: {.key-concept}
+**Why this matters clinically:** If a technician accidentally sets the EEG sampling rate too low — say 100 Hz when trying to capture high gamma activity up to 80 Hz — the system is right at the Nyquist edge. Any frequency above 50 Hz will alias down, potentially creating false patterns in the recording that look like real brain activity but aren't. Aliasing doesn't announce itself. The signal looks perfectly normal — just *wrong*. That's what makes it dangerous.
+:::
+
+## What About Anti-Aliasing?
+
+One more thing. In real clinical systems, there's a hardware filter *before* the analog-to-digital converter called an **anti-aliasing filter**. It's a low-pass filter (we'll learn about those in the next module) that removes any frequency above $f_s/2$ *before* sampling. This guarantees nothing above the Nyquist frequency makes it into the digitized signal.
+
+You don't need to build one — the equipment manufacturer does. But you should know it exists, because it means the sampling rate you choose determines the highest frequency you can *ever* see in the recording. Set $f_s$ = 256 Hz, and frequencies above 128 Hz are gone forever — the anti-aliasing filter removed them before they were recorded.
+
+## Quiz: Check Your Understanding
+
+```{=html}
+<div class="quiz-container">
+  <h4>Quiz</h4>
+
+  <div style="margin-bottom: 1.5em;" id="sq1">
+    <p><strong>Q1:</strong> An EEG system samples at 256 Hz. What is the highest frequency it can faithfully capture?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq1" value="a"> A. 256 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq1" value="b"> B. 128 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq1" value="c"> C. 512 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq1" value="d"> D. 64 Hz
+    </label>
+    <div id="sq1feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1.5em;" id="sq2">
+    <p><strong>Q2:</strong> You're recording EMG, which contains frequencies up to 500 Hz. Your system samples at 800 Hz. Is this adequate?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq2" value="a"> A. Yes — 800 Hz is plenty
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq2" value="b"> B. No — you need at least 1000 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq2" value="c"> C. It depends on the patient
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq2" value="d"> D. No — you need at least 500 Hz
+    </label>
+    <div id="sq2feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1em;" id="sq3">
+    <p><strong>Q3:</strong> A 60 Hz signal is sampled at 50 Hz. What frequency does the aliased signal appear to be?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq3" value="a"> A. 60 Hz — aliasing doesn't change the frequency
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq3" value="b"> B. 50 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq3" value="c"> C. 10 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="sq3" value="d"> D. 110 Hz
+    </label>
+    <div id="sq3feedback"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const answers = {
+    sq1: {correct: 'b', feedback: {
+      a: ['incorrect', 'Not quite. The sampling rate is 256 Hz, but the maximum capturable frequency is half of that — the Nyquist frequency.'],
+      b: ['correct', 'Correct. By the Nyquist theorem, the maximum frequency you can capture is f<sub>s</sub>/2 = 256/2 = 128 Hz. This is why 256 Hz is standard for EEG — it captures up to 128 Hz, well above the ~100 Hz upper range of clinical interest.'],
+      c: ['incorrect', 'That would require a sampling rate of at least 1024 Hz. You can\'t capture frequencies higher than your sampling rate.'],
+      d: ['incorrect', 'You can capture up to f<sub>s</sub>/2 = 128 Hz, not just 64 Hz. 64 Hz would be the Nyquist frequency if you were sampling at 128 Hz.']
+    }},
+    sq2: {correct: 'b', feedback: {
+      a: ['incorrect', 'No! The Nyquist theorem requires f<sub>s</sub> > 2 × f<sub>max</sub> = 2 × 500 = 1000 Hz. At 800 Hz, frequencies between 400 and 500 Hz will alias back into your recording as phantom signals.'],
+      b: ['correct', 'Correct. Nyquist requires f<sub>s</sub> > 2 × 500 = 1000 Hz minimum. At 800 Hz, you\'d get aliasing of EMG components above 400 Hz. In practice, you\'d want 2000+ Hz for a comfortable safety margin.'],
+      c: ['incorrect', 'It doesn\'t depend on the patient — it depends on the physics of sampling. Any signal above 400 Hz (half of 800) will alias.'],
+      d: ['incorrect', 'Actually, 500 Hz would be far too low. You need <em>at least</em> 2 × 500 = 1000 Hz. At 500 Hz, your Nyquist frequency is only 250 Hz — you\'d miss half the EMG bandwidth.']
+    }},
+    sq3: {correct: 'c', feedback: {
+      a: ['incorrect', 'Aliasing absolutely changes the apparent frequency. That\'s the whole problem — the signal masquerades as a different frequency.'],
+      b: ['incorrect', 'Close, but no. The alias frequency is |f<sub>signal</sub> - n × f<sub>s</sub>| where n is the nearest integer. |60 - 1 × 50| = 10 Hz.'],
+      c: ['correct', 'Correct. The alias frequency is |f<sub>signal</sub> - f<sub>s</sub>| = |60 - 50| = 10 Hz. A 60 Hz signal (like power line noise) sampled at 50 Hz would appear as a slow 10 Hz oscillation — which could be mistaken for alpha rhythm in EEG. Alarming, right?'],
+      d: ['incorrect', 'Aliasing folds frequencies <em>down</em>, not up. The alias is |60 - 50| = 10 Hz.']
+    }}
+  };
+
+  ['sq1','sq2','sq3'].forEach(function(qid) {
+    const radios = document.querySelectorAll('input[name="' + qid + '"]');
+    radios.forEach(function(r) {
+      r.addEventListener('change', function() {
+        const fb = answers[qid].feedback[r.value];
+        const div = document.getElementById(qid + 'feedback');
+        div.className = fb[0] === 'correct' ? 'quiz-feedback-correct' : 'quiz-feedback-incorrect';
+        div.innerHTML = (fb[0] === 'correct' ? '\u2713 ' : '\u2717 ') + fb[1];
+      });
+    });
+  });
+})();
+</script>
+```
+
+## Summary
+
+We captured the signal digitally. The key ideas:
+
+1. **Sampling** converts a continuous signal into discrete numbers at regular intervals.
+2. **The Nyquist theorem** says: sample at more than $2 \times f_{max}$ or you'll get aliasing.
+3. **Aliasing** creates phantom frequencies in your recording — signals that look real but aren't.
+4. **Clinical systems** use generous safety margins (4--5 times the maximum frequency of interest).
+5. **Anti-aliasing filters** in the hardware prevent aliasing before it happens.
+
+The signal is now digital. But look at it — there's noise everywhere. Power line hum at 60 Hz, slow electrode drift, muscle artifacts. How do we clean it up without throwing away the brain activity? That's filtering.
+
+::: {.module-nav}
+[← Module 1: Signals](01_signals.qmd)
+[Module 3: Filtering →](03_filtering.qmd)
+:::

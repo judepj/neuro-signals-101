@@ -1,0 +1,840 @@
+---
+title: "Module 6: Artifacts"
+subtitle: "Brain or Noise? — Telling Real EEG from Contamination"
+format:
+  html:
+    code-fold: true
+---
+
+::: {.clinical-vignette}
+A medical student is shadowing in the epilepsy monitoring unit. The patient's EEG suddenly shows a massive, sharp deflection. The student's eyes go wide: "Is that a seizure?!" The attending neurologist glances at the screen, then at the patient, and says flatly: "No. She blinked." Knowing the difference between an artifact and a seizure could change a diagnosis — or prevent an unnecessary one.
+:::
+
+You can now read an EEG — electrode positions, frequency bands, basic patterns. But here's the dirty secret: **a lot of what shows up on the EEG screen isn't brain activity at all.** Eye blinks, muscle tension, heartbeats, loose electrodes, power lines — they all contaminate the recording. An experienced neurologist can spot these instantly. By the end of this module, so can you.
+
+## The Five Usual Suspects
+
+Every EEG reader learns to recognize these five artifacts on sight:
+
+| Artifact | Source | Key Feature | Where It's Worst |
+|----------|--------|-------------|------------------|
+| **Eye blink** | Corneoretinal dipole | Large, slow, positive deflection | Fp1, Fp2 (frontal) |
+| **Muscle (EMG)** | Jaw clenching, frowning | High-frequency "fuzz" | Temporal electrodes |
+| **60 Hz line noise** | Power lines | Perfect sinusoidal ripple | All channels equally |
+| **ECG** | Heart's electrical field | Periodic sharp waves at heart rate | Diffuse, ~1 Hz |
+| **Electrode pop** | Loose or faulty electrode | Sudden spike, single channel | Just one electrode |
+
+Let's learn to recognize each one — and then practice.
+
+## Interactive: Artifact Anatomy
+
+Click each tab to see how the artifact looks in the time domain, what it looks like in the frequency domain, and how to deal with it clinically.
+
+```{=html}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<div class="widget-box">
+  <div id="artifactTabs" style="margin-bottom:12px;">
+    <button class="art-tab-btn art-tab-active" onclick="showArtifactTab('blink')" style="padding:8px 16px; margin:3px; border:2px solid #e74c3c; background:#e74c3c; color:white; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">Eye Blink</button>
+    <button class="art-tab-btn" onclick="showArtifactTab('muscle')" style="padding:8px 16px; margin:3px; border:2px solid #e67e22; background:white; color:#e67e22; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">Muscle</button>
+    <button class="art-tab-btn" onclick="showArtifactTab('line')" style="padding:8px 16px; margin:3px; border:2px solid #8e44ad; background:white; color:#8e44ad; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">60 Hz Noise</button>
+    <button class="art-tab-btn" onclick="showArtifactTab('ecg')" style="padding:8px 16px; margin:3px; border:2px solid #27ae60; background:white; color:#27ae60; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">ECG</button>
+    <button class="art-tab-btn" onclick="showArtifactTab('pop')" style="padding:8px 16px; margin:3px; border:2px solid #2980b9; background:white; color:#2980b9; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">Electrode Pop</button>
+  </div>
+  <div id="artInfoBox" style="padding:10px 14px; background:#f9f9f9; border-radius:8px; margin-bottom:12px; font-size:0.92em; line-height:1.6;"></div>
+  <div style="display:flex; flex-wrap:wrap; gap:12px;">
+    <div style="flex:1; min-width:300px;">
+      <div style="font-weight:600; font-size:0.88em; color:#555; margin-bottom:4px;">Time Domain</div>
+      <div id="artTimePlot" style="width:100%; height:260px;"></div>
+    </div>
+    <div style="flex:1; min-width:300px;">
+      <div style="font-weight:600; font-size:0.88em; color:#555; margin-bottom:4px;">Frequency Spectrum</div>
+      <div id="artFreqPlot" style="width:100%; height:260px;"></div>
+    </div>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:10px;">
+    <div style="flex:1; min-width:300px;">
+      <div style="font-weight:600; font-size:0.88em; color:#555; margin-bottom:4px;">Artifact Alone</div>
+      <div id="artAlonePlot" style="width:100%; height:220px;"></div>
+    </div>
+    <div style="flex:1; min-width:300px;">
+      <div style="font-weight:600; font-size:0.88em; color:#555; margin-bottom:4px;">Artifact + Clean EEG</div>
+      <div id="artContamPlot" style="width:100%; height:220px;"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+.art-tab-btn { transition: all 0.2s; }
+.art-tab-btn:hover { opacity: 0.85; }
+</style>
+
+<script>
+(function() {
+  // Seeded random
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+
+  const sr = 500, dur = 3;
+  const t = [];
+  for (let i = 0; i < dur * sr; i++) t.push(i / sr);
+
+  // Generate clean EEG (alpha + theta + noise)
+  function cleanEEG(seed) {
+    const rand = seededRand(seed);
+    return t.map(function(ti) {
+      return 25 * Math.sin(2*Math.PI*10*ti + 0.3)
+           + 10 * Math.sin(2*Math.PI*6*ti + 1.2)
+           + 5 * Math.sin(2*Math.PI*18*ti + 0.7)
+           + 8 * (rand()-0.5);
+    });
+  }
+
+  // Simple DFT for display (only up to 80 Hz)
+  function computeSpectrum(signal, sr) {
+    const N = signal.length;
+    const maxK = Math.min(Math.floor(80 * N / sr), Math.floor(N/2));
+    const freqs = [], power = [];
+    for (let k = 1; k <= maxK; k++) {
+      freqs.push(k * sr / N);
+      let re = 0, im = 0;
+      // Use downsampled DFT for speed
+      const step = Math.max(1, Math.floor(N / 512));
+      let count = 0;
+      for (let n = 0; n < N; n += step) {
+        const angle = 2 * Math.PI * k * n / N;
+        re += signal[n] * Math.cos(angle);
+        im -= signal[n] * Math.sin(angle);
+        count++;
+      }
+      re /= count; im /= count;
+      power.push(10 * Math.log10(re*re + im*im + 1e-10));
+    }
+    return {freqs, power};
+  }
+
+  // Artifact generators
+  function genBlink() {
+    return t.map(function(ti) {
+      let v = 0;
+      // Blink at t=1.0 and t=2.2
+      const blinks = [1.0, 2.2];
+      for (let b = 0; b < blinks.length; b++) {
+        const dt = ti - blinks[b];
+        if (dt > -0.05 && dt < 0.35) {
+          const phase = (dt + 0.05) / 0.4;
+          v += 180 * Math.sin(Math.PI * phase) * Math.exp(-2 * phase);
+        }
+      }
+      return v;
+    });
+  }
+
+  function genMuscle() {
+    const rand = seededRand(77);
+    return t.map(function(ti) {
+      let v = 0;
+      // Muscle burst from 0.8 to 1.8s
+      const env = (ti > 0.8 && ti < 1.8) ? Math.sin(Math.PI * (ti - 0.8) / 1.0) : 0;
+      for (let k = 1; k <= 12; k++) {
+        v += Math.sin(2*Math.PI*(30 + k*15)*ti + k*2.3 + rand()*6.28);
+      }
+      return env * v * 4 + (rand()-0.5) * 2;
+    });
+  }
+
+  function genLineNoise() {
+    return t.map(function(ti) {
+      return 15 * Math.sin(2*Math.PI*60*ti);
+    });
+  }
+
+  function genECG() {
+    return t.map(function(ti) {
+      const hr = 1.25; // ~75 bpm
+      const ph = (ti * hr) % 1;
+      let v = 0;
+      // QRS-like spike
+      if (ph > 0.28 && ph < 0.35) {
+        v = 40 * Math.sin(Math.PI*(ph-0.28)/0.07);
+      }
+      // T-wave-like
+      if (ph > 0.42 && ph < 0.55) {
+        v += 12 * Math.sin(Math.PI*(ph-0.42)/0.13);
+      }
+      return v;
+    });
+  }
+
+  function genPop() {
+    return t.map(function(ti) {
+      let v = 0;
+      // Single electrode pop at t=1.5
+      const dt = ti - 1.5;
+      if (dt > 0 && dt < 0.02) {
+        v = 250 * Math.sin(Math.PI * dt / 0.02);
+      }
+      if (dt >= 0.02 && dt < 0.06) {
+        v = -60 * Math.exp(-80*(dt-0.02));
+      }
+      return v;
+    });
+  }
+
+  const artifacts = {
+    blink: {
+      gen: genBlink,
+      color: '#e74c3c',
+      info: '<b>Eye Blink Artifact</b><br><b>Source:</b> The eye acts as a dipole (cornea positive, retina negative). When you blink, the eyelid slides over this dipole, generating a large voltage change detected by frontal electrodes.<br><b>Key features:</b> Large amplitude (~100-200 &mu;V), slow (&lt;2 Hz envelope), positive polarity, maximum at Fp1/Fp2, duration ~200-400 ms.<br><b>How to spot it:</b> Simultaneous deflection in both frontal channels, no spread to posterior electrodes.<br><b>How to fix it:</b> Ask patient to fixate on a point. Reject contaminated epochs. Independent Component Analysis (ICA) to subtract the blink component.'
+    },
+    muscle: {
+      gen: genMuscle,
+      color: '#e67e22',
+      info: '<b>Muscle (EMG) Artifact</b><br><b>Source:</b> Contraction of scalp, jaw, or facial muscles near electrodes. Common triggers: jaw clenching, teeth grinding, frowning, talking.<br><b>Key features:</b> High-frequency (&gt;20 Hz), broadband "fuzz," often in bursts, predominantly over temporal electrodes (near temporalis muscle).<br><b>How to spot it:</b> Irregular, spiky, high-frequency activity that comes and goes with muscle use.<br><b>How to fix it:</b> Ask patient to relax jaw and face. Apply low-pass filter (may lose real high-frequency brain activity). ICA separation.'
+    },
+    line: {
+      gen: genLineNoise,
+      color: '#8e44ad',
+      info: '<b>60 Hz Line Noise</b><br><b>Source:</b> Electromagnetic interference from AC power lines (60 Hz in North America, 50 Hz in Europe). Affects all channels equally.<br><b>Key features:</b> Perfect sinusoidal oscillation at exactly 60 Hz. Amplitude is constant. Present in all channels simultaneously.<br><b>How to spot it:</b> Perfectly regular sine wave visible in raw trace. Distinctive spike at exactly 60 Hz in the frequency spectrum.<br><b>How to fix it:</b> Notch filter centered at 60 Hz. Check electrode impedances (high impedance makes it worse). Ensure cables are shielded.'
+    },
+    ecg: {
+      gen: genECG,
+      color: '#27ae60',
+      info: '<b>ECG (Cardiac) Artifact</b><br><b>Source:</b> The heart&rsquo;s electrical field is strong enough to be picked up by scalp electrodes. The sharp QRS complex of each heartbeat appears as a periodic spike in the EEG.<br><b>Key features:</b> Sharp periodic deflections at ~1 Hz (matching heart rate). Regular timing. Often best seen in ear (A1/A2) or temporal references.<br><b>How to spot it:</b> Periodic sharp waves with interval matching the pulse. Confirm by checking pulse or simultaneous ECG channel.<br><b>How to fix it:</b> ICA component removal. ECG reference subtraction (record a simultaneous ECG channel and subtract its projection).'
+    },
+    pop: {
+      gen: genPop,
+      color: '#2980b9',
+      info: '<b>Electrode Pop</b><br><b>Source:</b> Sudden change in electrode-scalp impedance due to loose connection, dried gel, patient movement, or a faulty electrode.<br><b>Key features:</b> Abrupt, very fast spike on a single channel only. Often followed by brief settling. The key diagnostic feature: it appears in ONE electrode, not multiple.<br><b>How to spot it:</b> Very sharp, very brief deflection in a single channel. Other channels are unaffected.<br><b>How to fix it:</b> Re-apply electrode paste. Check impedance. Replace electrode if it continues. Mark epoch for rejection.'
+    }
+  };
+
+  const eegClean = cleanEEG(42);
+
+  window.showArtifactTab = function(which) {
+    // Update button styles
+    const btns = document.querySelectorAll('.art-tab-btn');
+    const colors = {blink:'#e74c3c', muscle:'#e67e22', line:'#8e44ad', ecg:'#27ae60', pop:'#2980b9'};
+    const names = ['blink','muscle','line','ecg','pop'];
+    btns.forEach(function(btn, i) {
+      const c = colors[names[i]];
+      if (names[i] === which) {
+        btn.style.background = c;
+        btn.style.color = 'white';
+      } else {
+        btn.style.background = 'white';
+        btn.style.color = c;
+      }
+    });
+
+    const art = artifacts[which];
+    document.getElementById('artInfoBox').innerHTML = art.info;
+
+    const artifactSignal = art.gen();
+    const contaminated = eegClean.map(function(v, i) { return v + artifactSignal[i]; });
+
+    // Time domain: clean + contaminated overlaid
+    const trClean = {
+      x: t, y: eegClean, type:'scatter', mode:'lines',
+      line:{color:'#2980b9', width:1.5}, name:'Clean EEG',
+      hovertemplate:'%{y:.1f} μV<extra>Clean</extra>'
+    };
+    const trContam = {
+      x: t, y: contaminated, type:'scatter', mode:'lines',
+      line:{color:art.color, width:1.5}, name:'Contaminated',
+      hovertemplate:'%{y:.1f} μV<extra>Contaminated</extra>'
+    };
+    Plotly.react('artTimePlot', [trClean, trContam], {
+      xaxis:{title:'Time (s)', range:[0,dur]},
+      yaxis:{title:'μV'},
+      margin:{t:10, b:42, l:50, r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      legend:{x:0.6, y:1, font:{size:10}},
+      hovermode:'x unified'
+    }, {responsive:true, displayModeBar:false});
+
+    // Frequency spectrum: clean vs contaminated
+    const specClean = computeSpectrum(eegClean, sr);
+    const specContam = computeSpectrum(contaminated, sr);
+    Plotly.react('artFreqPlot', [
+      {x:specClean.freqs, y:specClean.power, type:'scatter', mode:'lines',
+       line:{color:'#2980b9', width:1.5}, name:'Clean',
+       hovertemplate:'%{x:.1f} Hz: %{y:.1f} dB<extra>Clean</extra>'},
+      {x:specContam.freqs, y:specContam.power, type:'scatter', mode:'lines',
+       line:{color:art.color, width:1.5}, name:'Contaminated',
+       hovertemplate:'%{x:.1f} Hz: %{y:.1f} dB<extra>Contaminated</extra>'}
+    ], {
+      xaxis:{title:'Frequency (Hz)', range:[0,80]},
+      yaxis:{title:'Power (dB)'},
+      margin:{t:10, b:42, l:50, r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      legend:{x:0.6, y:1, font:{size:10}},
+      hovermode:'x unified'
+    }, {responsive:true, displayModeBar:false});
+
+    // Artifact alone
+    Plotly.react('artAlonePlot', [{
+      x:t, y:artifactSignal, type:'scatter', mode:'lines',
+      line:{color:art.color, width:1.5}, name:'Artifact',
+      hovertemplate:'%{y:.1f} μV<extra>Artifact</extra>'
+    }], {
+      xaxis:{title:'Time (s)', range:[0,dur]},
+      yaxis:{title:'μV'},
+      margin:{t:10, b:42, l:50, r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      showlegend:false, hovermode:'x unified'
+    }, {responsive:true, displayModeBar:false});
+
+    // Artifact contaminating clean EEG
+    Plotly.react('artContamPlot', [
+      {x:t, y:eegClean, type:'scatter', mode:'lines',
+       line:{color:'#bbb', width:1, dash:'dot'}, name:'Original clean EEG',
+       hovertemplate:'%{y:.1f} μV<extra>Clean</extra>'},
+      {x:t, y:contaminated, type:'scatter', mode:'lines',
+       line:{color:art.color, width:1.5}, name:'Contaminated EEG',
+       hovertemplate:'%{y:.1f} μV<extra>Contaminated</extra>'}
+    ], {
+      xaxis:{title:'Time (s)', range:[0,dur]},
+      yaxis:{title:'μV'},
+      margin:{t:10, b:42, l:50, r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      legend:{x:0.55, y:1, font:{size:10}},
+      hovermode:'x unified'
+    }, {responsive:true, displayModeBar:false});
+  };
+
+  // Show blink tab by default
+  showArtifactTab('blink');
+})();
+</script>
+```
+
+::: {.try-it}
+**Explore each artifact type:**
+
+- Click through all five tabs. For each one, compare the **time domain** (left) and **frequency spectrum** (right).
+- Notice how eye blinks add energy at low frequencies, while muscle artifact adds energy at high frequencies.
+- The 60 Hz line noise has the most distinctive frequency signature — a single sharp spike at exactly 60 Hz.
+- For the electrode pop, notice how only ONE channel would be affected (here shown as a single sharp transient).
+:::
+
+## Interactive: "Brain or Noise?" — The Artifact Game
+
+Time to test yourself. Each trial shows a synthetic EEG segment. Is it real brain activity, or is it contaminated by an artifact? Click your answer, get instant feedback, and track your score.
+
+```{=html}
+<div class="widget-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <div style="font-weight:700; font-size:1.05em; color:#2c3e50;" id="gameTitle">Trial 1 of 8</div>
+    <div style="font-weight:600; font-size:0.95em; color:#555;" id="gameScore">Score: 0 / 0</div>
+  </div>
+  <div id="gamePlot" style="width:100%; height:280px;"></div>
+  <div style="text-align:center; margin-top:12px;">
+    <button id="btnBrain" onclick="gameAnswer('brain')"
+      style="padding:10px 28px; margin:5px; border:2px solid #27ae60; background:#27ae60; color:white; border-radius:25px; cursor:pointer; font-size:1em; font-weight:700;">
+      Brain Activity
+    </button>
+    <button id="btnArtifact" onclick="gameAnswer('artifact')"
+      style="padding:10px 28px; margin:5px; border:2px solid #e74c3c; background:#e74c3c; color:white; border-radius:25px; cursor:pointer; font-size:1em; font-weight:700;">
+      Artifact
+    </button>
+  </div>
+  <div id="gameFeedback" style="margin-top:10px; padding:10px 14px; border-radius:8px; font-size:0.95em; min-height:1.5em; text-align:center;"></div>
+  <div style="text-align:center; margin-top:10px;">
+    <button id="btnNext" onclick="gameNext()" style="display:none; padding:8px 24px; border:2px solid #2c3e50; background:#2c3e50; color:white; border-radius:20px; cursor:pointer; font-size:0.95em; font-weight:600;">
+      Next →
+    </button>
+  </div>
+</div>
+
+<script>
+(function() {
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+
+  const sr = 500, dur = 2;
+  const t = [];
+  for (let i = 0; i < dur * sr; i++) t.push(i / sr);
+
+  function makeCleanEEG(seed, desc) {
+    const rand = seededRand(seed);
+    const y = t.map(function(ti) {
+      return 25*Math.sin(2*Math.PI*10*ti+0.3)
+           + 10*Math.sin(2*Math.PI*6*ti+1.2)
+           + 5*Math.sin(2*Math.PI*18*ti+0.7)
+           + 8*(rand()-0.5);
+    });
+    return {y:y, isArtifact:false, label:'Brain Activity — ' + desc};
+  }
+
+  function makeBlinkEEG(seed) {
+    const rand = seededRand(seed);
+    const y = t.map(function(ti) {
+      let v = 20*Math.sin(2*Math.PI*10*ti+0.5) + 8*Math.sin(2*Math.PI*6*ti+1.0) + 6*(rand()-0.5);
+      const dt = ti - 0.9;
+      if (dt > -0.05 && dt < 0.35) {
+        v += 160 * Math.sin(Math.PI * (dt+0.05)/0.4) * Math.exp(-2.5*(dt+0.05)/0.4);
+      }
+      return v;
+    });
+    return {y:y, isArtifact:true, label:'Eye Blink Artifact — Large, slow positive deflection at ~1s. This is the corneoretinal dipole, seen maximally at frontal electrodes (Fp1/Fp2).'};
+  }
+
+  function makeMuscleEEG(seed) {
+    const rand = seededRand(seed);
+    const y = t.map(function(ti) {
+      let v = 20*Math.sin(2*Math.PI*10*ti+0.3) + 8*Math.sin(2*Math.PI*5*ti+0.8) + 5*(rand()-0.5);
+      const env = (ti > 0.5 && ti < 1.4) ? Math.sin(Math.PI*(ti-0.5)/0.9) : 0;
+      for (let k = 1; k <= 10; k++) {
+        v += env * 5 * Math.sin(2*Math.PI*(25+k*18)*ti + k*1.9 + rand()*3);
+      }
+      return v;
+    });
+    return {y:y, isArtifact:true, label:'Muscle (EMG) Artifact — High-frequency "fuzz" between 0.5-1.4s. This broadband burst comes from jaw clenching or scalp muscle contraction.'};
+  }
+
+  function makeLineNoiseEEG(seed) {
+    const rand = seededRand(seed);
+    const y = t.map(function(ti) {
+      return 20*Math.sin(2*Math.PI*10*ti+0.3)
+           + 8*Math.sin(2*Math.PI*6*ti+1.2)
+           + 12*Math.sin(2*Math.PI*60*ti)
+           + 5*(rand()-0.5);
+    });
+    return {y:y, isArtifact:true, label:'60 Hz Line Noise — Notice the fast, regular sinusoidal ripple riding on top of the EEG. This comes from AC power line interference.'};
+  }
+
+  function makeECGEEG(seed) {
+    const rand = seededRand(seed);
+    const y = t.map(function(ti) {
+      let v = 20*Math.sin(2*Math.PI*10*ti+0.3) + 8*Math.sin(2*Math.PI*5*ti+0.8) + 6*(rand()-0.5);
+      const hr = 1.25;
+      const ph = (ti * hr) % 1;
+      if (ph > 0.28 && ph < 0.35) v += 35*Math.sin(Math.PI*(ph-0.28)/0.07);
+      return v;
+    });
+    return {y:y, isArtifact:true, label:'ECG Artifact — Periodic sharp deflections repeating at ~1.25 Hz (75 bpm). These match the patient\'s heartbeat.'};
+  }
+
+  function makePopEEG(seed) {
+    const rand = seededRand(seed);
+    const y = t.map(function(ti) {
+      let v = 20*Math.sin(2*Math.PI*10*ti+0.3) + 8*Math.sin(2*Math.PI*6*ti+1.2) + 6*(rand()-0.5);
+      const dt = ti - 1.0;
+      if (dt > 0 && dt < 0.015) v += 220*Math.sin(Math.PI*dt/0.015);
+      if (dt >= 0.015 && dt < 0.05) v -= 50*Math.exp(-60*(dt-0.015));
+      return v;
+    });
+    return {y:y, isArtifact:true, label:'Electrode Pop — Sudden spike at t=1s on a single channel. This is a loose or faulty electrode causing a momentary impedance change.'};
+  }
+
+  // 8 trials: 3 clean, 5 artifact
+  const trials = [
+    makeBlinkEEG(101),
+    makeCleanEEG(202, 'Normal alpha-dominant EEG. No artifact contamination.'),
+    makeMuscleEEG(303),
+    makeLineNoiseEEG(404),
+    makeCleanEEG(505, 'Normal mixed alpha/theta EEG background. This is real brain activity.'),
+    makeECGEEG(606),
+    makePopEEG(707),
+    makeCleanEEG(808, 'Normal resting EEG with typical background rhythms.')
+  ];
+
+  let current = 0, correct = 0, answered = 0, hasAnswered = false;
+
+  function showTrial(idx) {
+    hasAnswered = false;
+    document.getElementById('gameTitle').textContent = 'Trial ' + (idx+1) + ' of ' + trials.length;
+    document.getElementById('gameFeedback').textContent = '';
+    document.getElementById('gameFeedback').style.background = 'transparent';
+    document.getElementById('btnNext').style.display = 'none';
+    document.getElementById('btnBrain').disabled = false;
+    document.getElementById('btnArtifact').disabled = false;
+
+    const trial = trials[idx];
+    Plotly.react('gamePlot', [{
+      x: t, y: trial.y, type:'scatter', mode:'lines',
+      line:{color:'#2c3e50', width:1.3},
+      hovertemplate:'%{x:.2f}s: %{y:.1f} μV<extra></extra>'
+    }], {
+      xaxis:{title:'Time (s)', range:[0,dur]},
+      yaxis:{title:'μV'},
+      margin:{t:10, b:42, l:50, r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      hovermode:'x unified'
+    }, {responsive:true, displayModeBar:false});
+  }
+
+  window.gameAnswer = function(choice) {
+    if (hasAnswered) return;
+    hasAnswered = true;
+    answered++;
+    document.getElementById('btnBrain').disabled = true;
+    document.getElementById('btnArtifact').disabled = true;
+
+    const trial = trials[current];
+    const userSaidArtifact = (choice === 'artifact');
+    const isCorrect = (userSaidArtifact === trial.isArtifact);
+
+    if (isCorrect) correct++;
+    document.getElementById('gameScore').textContent = 'Score: ' + correct + ' / ' + answered;
+
+    const fb = document.getElementById('gameFeedback');
+    if (isCorrect) {
+      fb.style.background = '#eafaf1';
+      fb.style.color = '#27ae60';
+      fb.innerHTML = '<b>Correct!</b> ' + trial.label;
+    } else {
+      fb.style.background = '#fdedec';
+      fb.style.color = '#c0392b';
+      fb.innerHTML = '<b>Not quite.</b> ' + trial.label;
+    }
+
+    if (current < trials.length - 1) {
+      document.getElementById('btnNext').style.display = 'inline-block';
+    } else {
+      // Final message
+      const pct = Math.round(100 * correct / answered);
+      fb.innerHTML += '<br><br><b>Game over!</b> You scored ' + correct + '/' + answered + ' (' + pct + '%). ' +
+        (pct >= 75 ? 'Solid artifact detection skills.' : 'Keep practicing — pattern recognition improves with repetition.');
+    }
+  };
+
+  window.gameNext = function() {
+    current++;
+    if (current < trials.length) showTrial(current);
+  };
+
+  showTrial(0);
+})();
+</script>
+```
+
+::: {.try-it}
+**Tips for the game:**
+
+- Look for **sudden, large** deflections that don't match the ongoing background — could be a blink or electrode pop.
+- Listen for **high-frequency fuzz** — that's muscle.
+- Look for **perfect regularity** — 60 Hz noise or ECG.
+- Clean EEG has a natural, somewhat irregular rhythm. Artifacts tend to stand out because they don't "fit" the background.
+:::
+
+## Interactive: Before & After — Cleaning an Artifact
+
+Real EEG recordings usually have multiple artifacts. Here's a "dirty" EEG contaminated with both eye blink artifacts and 60 Hz line noise. Use the toggle buttons to remove them and watch what changes — in both the time domain and the frequency spectrum.
+
+```{=html}
+<div class="widget-box">
+  <div style="margin-bottom:12px; text-align:center;">
+    <button id="cleanBlink" onclick="toggleClean('blink')"
+      style="padding:8px 20px; margin:4px; border:2px solid #e74c3c; background:white; color:#e74c3c; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
+      Remove Blinks
+    </button>
+    <button id="cleanLine" onclick="toggleClean('line')"
+      style="padding:8px 20px; margin:4px; border:2px solid #8e44ad; background:white; color:#8e44ad; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
+      Remove 60 Hz
+    </button>
+    <button id="cleanBoth" onclick="toggleClean('both')"
+      style="padding:8px 20px; margin:4px; border:2px solid #2c3e50; background:white; color:#2c3e50; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
+      Remove Both
+    </button>
+    <button id="cleanNone" onclick="toggleClean('none')"
+      style="padding:8px 20px; margin:4px; border:2px solid #95a5a6; background:#95a5a6; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
+      Show Original (Dirty)
+    </button>
+  </div>
+  <div id="cleanStatus" style="text-align:center; font-size:0.9em; color:#555; margin-bottom:8px; font-style:italic;">Showing the original dirty signal — blinks + 60 Hz noise present.</div>
+  <div style="display:flex; flex-wrap:wrap; gap:12px;">
+    <div style="flex:1; min-width:300px;">
+      <div id="cleanTimePlot" style="width:100%; height:300px;"></div>
+    </div>
+    <div style="flex:1; min-width:300px;">
+      <div id="cleanFreqPlot" style="width:100%; height:300px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+  const rand = seededRand(123);
+
+  const sr = 500, dur = 4;
+  const t = [];
+  for (let i = 0; i < dur * sr; i++) t.push(i / sr);
+
+  // Clean EEG (alpha + theta)
+  const clean = t.map(function(ti) {
+    return 25*Math.sin(2*Math.PI*10*ti + 0.3)
+         + 12*Math.sin(2*Math.PI*6*ti + 1.5)
+         + 6*Math.sin(2*Math.PI*15*ti + 0.7)
+         + 7*(rand()-0.5);
+  });
+
+  // Blink artifacts
+  const blinks = t.map(function(ti) {
+    let v = 0;
+    const blinkTimes = [0.8, 1.9, 3.1];
+    for (let b = 0; b < blinkTimes.length; b++) {
+      const dt = ti - blinkTimes[b];
+      if (dt > -0.05 && dt < 0.35) {
+        const phase = (dt + 0.05) / 0.4;
+        v += 150 * Math.sin(Math.PI * phase) * Math.exp(-2 * phase);
+      }
+    }
+    return v;
+  });
+
+  // 60 Hz line noise
+  const lineNoise = t.map(function(ti) {
+    return 12 * Math.sin(2*Math.PI*60*ti);
+  });
+
+  // Dirty = clean + blinks + lineNoise
+  const dirty = clean.map(function(v, i) { return v + blinks[i] + lineNoise[i]; });
+
+  function computeSpectrum(signal) {
+    const N = signal.length;
+    const maxK = Math.min(Math.floor(80 * N / sr), Math.floor(N/2));
+    const freqs = [], power = [];
+    const step = Math.max(1, Math.floor(N / 512));
+    for (let k = 1; k <= maxK; k++) {
+      freqs.push(k * sr / N);
+      let re = 0, im = 0, count = 0;
+      for (let n = 0; n < N; n += step) {
+        const angle = 2*Math.PI*k*n/N;
+        re += signal[n]*Math.cos(angle);
+        im -= signal[n]*Math.sin(angle);
+        count++;
+      }
+      re /= count; im /= count;
+      power.push(10*Math.log10(re*re + im*im + 1e-10));
+    }
+    return {freqs, power};
+  }
+
+  let currentMode = 'none';
+
+  function getCleanedSignal(mode) {
+    if (mode === 'none') return dirty;
+    if (mode === 'blink') return clean.map(function(v, i) { return v + lineNoise[i]; });
+    if (mode === 'line') return clean.map(function(v, i) { return v + blinks[i]; });
+    if (mode === 'both') return clean.slice();
+    return dirty;
+  }
+
+  function updateCleanPlots(mode) {
+    currentMode = mode;
+    const sig = getCleanedSignal(mode);
+    const spec = computeSpectrum(sig);
+    const specDirty = computeSpectrum(dirty);
+
+    // Update button styles
+    ['cleanBlink','cleanLine','cleanBoth','cleanNone'].forEach(function(id) {
+      const btn = document.getElementById(id);
+      const map = {cleanBlink:'blink', cleanLine:'line', cleanBoth:'both', cleanNone:'none'};
+      if (map[id] === mode) {
+        btn.style.color = 'white';
+        // Keep the border color as background
+        btn.style.background = btn.style.borderColor;
+      } else {
+        btn.style.background = 'white';
+        const colors = {cleanBlink:'#e74c3c', cleanLine:'#8e44ad', cleanBoth:'#2c3e50', cleanNone:'#95a5a6'};
+        btn.style.color = colors[id];
+      }
+    });
+
+    const statusMap = {
+      none: 'Showing the original dirty signal — blinks + 60 Hz noise present.',
+      blink: 'Blinks removed. 60 Hz noise still present. Notice the low-frequency transients are gone.',
+      line: '60 Hz removed (notch filter). Blinks still present. The sharp spike at 60 Hz in the spectrum is gone.',
+      both: 'Both artifacts removed. This is close to the original clean EEG.'
+    };
+    document.getElementById('cleanStatus').textContent = statusMap[mode];
+
+    const sigColor = mode === 'both' ? '#27ae60' : mode === 'none' ? '#c0392b' : '#e67e22';
+
+    Plotly.react('cleanTimePlot', [
+      {x:t, y:sig, type:'scatter', mode:'lines',
+       line:{color:sigColor, width:1.5}, name:mode==='none'?'Dirty':'Cleaned',
+       hovertemplate:'%{x:.2f}s: %{y:.1f} μV<extra></extra>'}
+    ], {
+      title:{text:'Time Domain', font:{size:13, color:'#555'}},
+      xaxis:{title:'Time (s)', range:[0,dur]},
+      yaxis:{title:'μV', range:[-120, 180]},
+      margin:{t:30, b:42, l:50, r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      hovermode:'x unified'
+    }, {responsive:true, displayModeBar:false});
+
+    Plotly.react('cleanFreqPlot', [
+      {x:specDirty.freqs, y:specDirty.power, type:'scatter', mode:'lines',
+       line:{color:'#ddd', width:1.5, dash:'dot'}, name:'Original (dirty)',
+       hovertemplate:'%{x:.1f} Hz: %{y:.1f} dB<extra>Dirty</extra>'},
+      {x:spec.freqs, y:spec.power, type:'scatter', mode:'lines',
+       line:{color:sigColor, width:1.5}, name:mode==='none'?'Dirty':'Cleaned',
+       hovertemplate:'%{x:.1f} Hz: %{y:.1f} dB<extra>Current</extra>'}
+    ], {
+      title:{text:'Frequency Spectrum', font:{size:13, color:'#555'}},
+      xaxis:{title:'Frequency (Hz)', range:[0,80]},
+      yaxis:{title:'Power (dB)'},
+      margin:{t:30, b:42, l:50, r:10},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      legend:{x:0.5, y:1, font:{size:10}},
+      hovermode:'x unified'
+    }, {responsive:true, displayModeBar:false});
+  }
+
+  window.toggleClean = function(mode) {
+    updateCleanPlots(mode);
+  };
+
+  // Initial render
+  updateCleanPlots('none');
+})();
+</script>
+```
+
+::: {.try-it}
+**Try each cleaning step:**
+
+1. Click **"Remove Blinks"** — watch the large slow deflections disappear from the time trace. In the spectrum, low-frequency power drops.
+2. Click **"Remove 60 Hz"** — the fast ripple disappears. In the spectrum, the sharp spike at 60 Hz is gone (this is what a **notch filter** does).
+3. Click **"Remove Both"** — now you see clean EEG. Compare with the dotted gray line (original dirty spectrum) to see everything that was removed.
+:::
+
+::: {.key-concept}
+**Artifact rejection is not optional.** If you analyze contaminated EEG, your results are wrong. Garbage in, garbage out. The three main strategies are:
+
+1. **Prevention** — Good electrode application, low impedances, relaxed patient
+2. **Rejection** — Identify and discard contaminated epochs
+3. **Correction** — Use signal processing (notch filters, ICA) to remove the artifact while keeping the brain signal
+
+In clinical practice, you'll use all three. Prevention is always best.
+:::
+
+## Why Artifacts Fool People
+
+Here's the thing that makes artifacts dangerous: **some artifacts look like real brain pathology.**
+
+- An **eye blink** can look like a frontal spike (which could mean epilepsy)
+- A **muscle artifact** can look like high-frequency beta activity (which has clinical significance)
+- An **ECG artifact** can look like periodic discharges (which can indicate serious brain injury)
+
+The difference is in the **distribution** (which channels are affected), the **morphology** (exact shape), and the **context** (what the patient was doing). A skilled EEG reader checks all three before making a call.
+
+::: {.key-concept}
+**The artifact checklist** — Before calling something abnormal, ask:
+
+1. **Is it in only one electrode?** Probably electrode pop or bad contact.
+2. **Is it only in frontal channels?** Could be an eye blink.
+3. **Is it perfectly periodic?** Check if it matches the heart rate (ECG) or a power-line harmonic (60/120 Hz).
+4. **Is it broadband and "fuzzy"?** Likely muscle.
+5. **Does it correlate with patient behavior?** Ask the tech: "Was the patient doing anything when this happened?"
+:::
+
+## Quiz: Check Your Understanding
+
+```{=html}
+<div class="quiz-container">
+  <h4>Quiz</h4>
+
+  <div style="margin-bottom: 1.5em;" id="artQ1">
+    <p><strong>Q1:</strong> A sudden large positive deflection appears simultaneously in Fp1 and Fp2 but not in occipital channels. This is most likely:</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq1" value="a"> A. A seizure — it's a big voltage change
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq1" value="b"> B. Eye blink artifact — frontally distributed, positive polarity
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq1" value="c"> C. 60 Hz line noise
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq1" value="d"> D. ECG artifact
+    </label>
+    <div id="aq1feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1.5em;" id="artQ2">
+    <p><strong>Q2:</strong> An EEG recording shows high-frequency "fuzz" predominantly over temporal electrodes. The patient was chewing gum. This is:</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq2" value="a"> A. Beta rhythm from concentration
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq2" value="b"> B. 60 Hz interference
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq2" value="c"> C. Muscle (EMG) artifact from jaw muscles
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq2" value="d"> D. Electrode malfunction
+    </label>
+    <div id="aq2feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1em;" id="artQ3">
+    <p><strong>Q3:</strong> You notice a sharp deflection repeating exactly every 0.8 seconds in the EEG. This interval matches the patient's pulse. This is:</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq3" value="a"> A. Epileptiform discharges
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq3" value="b"> B. Eye blink artifact
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq3" value="c"> C. ECG artifact — cardiac electrical contamination
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="aq3" value="d"> D. Normal alpha rhythm
+    </label>
+    <div id="aq3feedback"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const answers = {
+    aq1: {correct:'b', feedback:{
+      a:['incorrect','A seizure would typically involve multiple channels and evolve over time. This is localized to frontal electrodes only — classic eye blink.'],
+      b:['correct','Correct! Eye blinks produce large positive deflections maximally at Fp1 and Fp2 due to the corneoretinal dipole. The key clue: frontal-only distribution.'],
+      c:['incorrect','60 Hz noise affects all channels equally and looks like a regular sinusoid — not a single large deflection.'],
+      d:['incorrect','ECG artifact is periodic (matching heart rate) and typically seen in ear or temporal references. A single deflection in frontal channels points to a blink.']
+    }},
+    aq2: {correct:'c', feedback:{
+      a:['incorrect','Beta rhythm wouldn\'t be localized to temporal electrodes and wouldn\'t correlate with chewing. The gum-chewing is the giveaway.'],
+      b:['incorrect','60 Hz noise is a clean sinusoid, not "fuzz." And it affects all channels equally.'],
+      c:['correct','Correct! Chewing activates the temporalis and masseter muscles right next to the temporal electrodes. The result: broadband, high-frequency EMG artifact. The clinical context (gum chewing) seals the diagnosis.'],
+      d:['incorrect','Electrode malfunction affects a single channel and produces pops or drift — not broadband high-frequency activity.']
+    }},
+    aq3: {correct:'c', feedback:{
+      a:['incorrect','Epileptiform discharges don\'t have clock-like regularity matching the pulse. Always check periodicity against heart rate.'],
+      b:['incorrect','Eye blinks aren\'t periodic at a fixed interval — people blink irregularly.'],
+      c:['correct','Correct! The 0.8-second period = 75 bpm. When periodic sharp waves match the pulse, it\'s ECG contamination until proven otherwise. Always confirm with a simultaneous ECG channel or pulse check.'],
+      d:['incorrect','Alpha rhythm is 8-13 Hz (period ~0.08-0.12 s), not 0.8 s. Also, alpha doesn\'t produce sharp deflections.']
+    }}
+  };
+
+  ['aq1','aq2','aq3'].forEach(function(qid) {
+    document.querySelectorAll('input[name="'+qid+'"]').forEach(function(r) {
+      r.addEventListener('change', function() {
+        const fb = answers[qid].feedback[r.value];
+        const div = document.getElementById(qid+'feedback');
+        div.className = fb[0]==='correct' ? 'quiz-feedback-correct' : 'quiz-feedback-incorrect';
+        div.innerHTML = (fb[0]==='correct' ? '&#10003; ' : '&#10007; ') + fb[1];
+      });
+    });
+  });
+})();
+</script>
+```
+
+## What's Next
+
+You can now tell brain from noise. With clean EEG in hand, there's one more power tool to learn: instead of looking at frequencies averaged over the whole recording, what if you could watch them *change* in real time? That's the **spectrogram** — and it's how neurologists track brain dynamics as they unfold.
+
+::: {.module-nav}
+[← Module 5: EEG Basics](05_eeg_basics.qmd)
+[Module 7: Spectrograms →](07_spectrograms.qmd)
+:::

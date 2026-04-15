@@ -1,0 +1,637 @@
+---
+title: "Module 3: Filtering"
+subtitle: "Cleaning the Signal — Separating Brain Waves from Noise"
+format:
+  html:
+    code-fold: true
+---
+
+::: {.clinical-vignette}
+A neurology resident is reviewing an EEG recording. The tracing is a mess — every channel shows a fast, jittery oscillation riding on top of the brain waves. It's 60 Hz power line noise, picked up from the hospital's electrical wiring. The attending says: "Apply a notch filter at 60 Hz." The resident clicks a button. The noise vanishes. The underlying alpha rhythm is now clearly visible. But what just happened? Did the filter remove *only* the noise? Could it have removed something important from the brain signal too?
+:::
+
+Your EEG recording is full of stuff you don't want. 60 Hz power line noise. Slow electrode drift (the baseline wanders up and down over seconds). Muscle artifact from the patient clenching their jaw. Filtering is how you separate what matters from what doesn't — like adjusting the bass and treble on a stereo, but for brain waves.
+
+The idea is simple: every signal is a mixture of different frequencies. A filter lets certain frequencies through and blocks others. The question is always: *which frequencies do you keep?*
+
+## The Anatomy of a Dirty Signal
+
+Before we filter anything, let's see what we're dealing with. The signal below is synthetic, but it's a realistic mix of what you'd see in a real EEG recording:
+
+- A **2 Hz drift** (slow baseline wander from electrode impedance changes)
+- A **10 Hz alpha rhythm** (the brain signal you actually want)
+- A **60 Hz line noise** (power line interference)
+- Some **random noise** (thermal noise from electronics)
+
+```{=html}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<div class="widget-box">
+  <div style="margin-bottom: 0.8em;">
+    <label style="font-weight:600; font-size:0.95em;">Choose a filter:</label><br>
+    <button id="btnRaw" onclick="applyFilter('raw')"
+            style="padding:7px 16px; margin:4px; border:2px solid #2c3e50; background:#2c3e50; color:white; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">
+      Raw Signal
+    </button>
+    <button id="btnHP" onclick="applyFilter('highpass')"
+            style="padding:7px 16px; margin:4px; border:2px solid #e67e22; background:white; color:#e67e22; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">
+      High-pass (1 Hz)
+    </button>
+    <button id="btnLP" onclick="applyFilter('lowpass')"
+            style="padding:7px 16px; margin:4px; border:2px solid #2980b9; background:white; color:#2980b9; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">
+      Low-pass (40 Hz)
+    </button>
+    <button id="btnBP" onclick="applyFilter('bandpass')"
+            style="padding:7px 16px; margin:4px; border:2px solid #27ae60; background:white; color:#27ae60; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">
+      Band-pass (1–40 Hz)
+    </button>
+  </div>
+  <div id="filterTypeLabel" style="font-size:0.92em; padding:8px 12px; border-radius:6px; margin-bottom:8px; background:#f0f4f8; font-weight:600; color:#2c3e50;">
+    Showing: Raw signal — all components present.
+  </div>
+  <div id="filterTypePlot" style="width:100%; height:320px;"></div>
+  <div id="filterComponents" style="padding:10px 14px; background:#f8f8f8; border-radius:6px; margin-top:8px; font-size:0.88em; line-height:1.7;"></div>
+</div>
+
+<script>
+(function() {
+  // Generate signal components
+  const dur = 2.0, sr = 1000;
+  const t = [];
+  for (let i = 0; i < dur * sr; i++) t.push(i / sr);
+
+  // Seeded random
+  let seed = 42;
+  function rand() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+
+  // Individual components
+  const drift = t.map(function(ti) { return 30 * Math.sin(2 * Math.PI * 2 * ti); });
+  const alpha = t.map(function(ti) { return 20 * Math.sin(2 * Math.PI * 10 * ti); });
+  const line60 = t.map(function(ti) { return 12 * Math.sin(2 * Math.PI * 60 * ti); });
+  const noise = t.map(function() { return 5 * (rand() - 0.5); });
+
+  // Composite
+  const raw = t.map(function(_, i) { return drift[i] + alpha[i] + line60[i] + noise[i]; });
+
+  function filterSignal(mode) {
+    return t.map(function(_, i) {
+      switch(mode) {
+        case 'raw': return raw[i];
+        case 'highpass': return alpha[i] + line60[i] + noise[i]; // Remove drift (< 1 Hz component)
+        case 'lowpass': return drift[i] + alpha[i] + noise[i]; // Remove > 40 Hz (60 Hz gone)
+        case 'bandpass': return alpha[i] + noise[i]; // Keep only 1–40 Hz
+        default: return raw[i];
+      }
+    });
+  }
+
+  const filterColors = {
+    raw: '#2c3e50', highpass: '#e67e22', lowpass: '#2980b9', bandpass: '#27ae60'
+  };
+  const filterLabels = {
+    raw: 'Showing: <b>Raw signal</b> — all components present. The 60 Hz noise makes it "hairy," and the 2 Hz drift makes it roll up and down.',
+    highpass: 'Showing: <b>High-pass filter (cutoff: 1 Hz)</b> — the slow 2 Hz drift is removed. The 60 Hz noise and alpha rhythm both remain.',
+    lowpass: 'Showing: <b>Low-pass filter (cutoff: 40 Hz)</b> — the 60 Hz noise is removed. The slow drift and alpha rhythm both remain.',
+    bandpass: 'Showing: <b>Band-pass filter (1–40 Hz)</b> — only the 10 Hz alpha rhythm survives (plus residual random noise). This is the standard EEG filter setting.'
+  };
+  const componentLabels = {
+    raw: '<b>Components present:</b> <span style="color:#c0392b;">2 Hz drift \u2713</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22;">60 Hz line noise \u2713</span> &nbsp; <span style="color:#888;">Random noise \u2713</span>',
+    highpass: '<b>Components present:</b> <span style="color:#c0392b; text-decoration:line-through;">2 Hz drift \u2717</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22;">60 Hz line noise \u2713</span> &nbsp; <span style="color:#888;">Random noise \u2713</span>',
+    lowpass: '<b>Components present:</b> <span style="color:#c0392b;">2 Hz drift \u2713</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22; text-decoration:line-through;">60 Hz line noise \u2717</span> &nbsp; <span style="color:#888;">Random noise \u2713</span>',
+    bandpass: '<b>Components present:</b> <span style="color:#c0392b; text-decoration:line-through;">2 Hz drift \u2717</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22; text-decoration:line-through;">60 Hz line noise \u2717</span> &nbsp; <span style="color:#888;">Random noise (partial) ~</span>'
+  };
+
+  const btnIds = {raw: 'btnRaw', highpass: 'btnHP', lowpass: 'btnLP', bandpass: 'btnBP'};
+
+  window.applyFilter = function(mode) {
+    const y = filterSignal(mode);
+    const color = filterColors[mode];
+
+    // Update button styles
+    Object.keys(btnIds).forEach(function(m) {
+      const btn = document.getElementById(btnIds[m]);
+      if (m === mode) {
+        btn.style.background = filterColors[m];
+        btn.style.color = 'white';
+      } else {
+        btn.style.background = 'white';
+        btn.style.color = filterColors[m];
+      }
+    });
+
+    document.getElementById('filterTypeLabel').innerHTML = filterLabels[mode];
+    document.getElementById('filterComponents').innerHTML = componentLabels[mode];
+
+    const trace = {
+      x: t, y: y, type: 'scatter', mode: 'lines',
+      line: {color: color, width: 1.5},
+      hovertemplate: 'Time: %{x:.3f} s<br>%{y:.1f} \u00b5V<extra></extra>'
+    };
+
+    const layout = {
+      xaxis: {title: 'Time (seconds)', range: [0, dur]},
+      yaxis: {title: '\u00b5V', range: [-80, 80]},
+      margin: {t: 10, b: 50, l: 55, r: 15},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      hovermode: 'x unified'
+    };
+
+    Plotly.react('filterTypePlot', [trace], layout, {responsive: true, displayModeBar: false});
+  };
+
+  // Initial render
+  window.applyFilter('raw');
+})();
+</script>
+```
+
+::: {.try-it}
+**Experiment:**
+
+- Click **Raw** — this is what the technician sees before any filtering. Hard to read, right?
+- Click **High-pass (1 Hz)** — the slow drift disappears, but the 60 Hz fuzz is still there.
+- Click **Low-pass (40 Hz)** — the 60 Hz noise vanishes, but now the slow drift is back.
+- Click **Band-pass (1--40 Hz)** — both the drift and line noise are gone. This is the standard clinical EEG filter. The 10 Hz alpha wave is clearly visible.
+:::
+
+::: {.key-concept}
+**The three basic filter types:**
+
+- **High-pass filter**: Removes frequencies *below* the cutoff. Lets high frequencies through. Removes slow drift.
+- **Low-pass filter**: Removes frequencies *above* the cutoff. Lets low frequencies through. Removes fast noise.
+- **Band-pass filter**: Combination of high-pass and low-pass. Only lets frequencies *between* two cutoffs through. This is what you'll use most in clinical EEG.
+
+The standard clinical EEG display filter is **1--40 Hz band-pass** (sometimes 0.5--70 Hz for more detail).
+:::
+
+## Interactive: Adjustable Band-Pass Filter
+
+Now you control the filter cutoffs. Drag the sliders and watch the signal change in real time. The small plot on the right shows the filter's **frequency response** — which frequencies it lets through (green) and which it blocks (red).
+
+```{=html}
+<div class="widget-box">
+  <div style="margin-bottom: 1em;">
+    <label for="lowCutSlider" style="font-weight:600;">Low cutoff (high-pass):
+      <span id="lowCutVal" style="color:#e67e22; font-weight:700;">1.0</span> Hz
+    </label><br>
+    <input type="range" id="lowCutSlider" min="0.1" max="10" step="0.1" value="1.0"
+           style="width:100%; accent-color:#e67e22;">
+  </div>
+  <div style="margin-bottom: 1em;">
+    <label for="highCutSlider" style="font-weight:600;">High cutoff (low-pass):
+      <span id="highCutVal" style="color:#2980b9; font-weight:700;">40</span> Hz
+    </label><br>
+    <input type="range" id="highCutSlider" min="10" max="100" step="1" value="40"
+           style="width:100%; accent-color:#2980b9;">
+  </div>
+  <div id="bandpassLabel" style="font-size:0.95em; padding:8px 12px; border-radius:6px; margin-bottom:8px; background:#e8f8e8; font-weight:600; color:#27ae60; text-align:center;"></div>
+  <div style="display:flex; gap:12px; flex-wrap:wrap;">
+    <div id="bpSignalPlot" style="flex:2; min-width:300px; height:320px;"></div>
+    <div id="bpFreqResp" style="flex:1; min-width:200px; height:320px;"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const lowSlider = document.getElementById('lowCutSlider');
+  const highSlider = document.getElementById('highCutSlider');
+  const lowVal = document.getElementById('lowCutVal');
+  const highVal = document.getElementById('highCutVal');
+  const bandLabel = document.getElementById('bandpassLabel');
+
+  // Signal components
+  const dur = 2.0, sr = 1000;
+  const t = [];
+  for (let i = 0; i < dur * sr; i++) t.push(i / sr);
+
+  let seed = 42;
+  function rand() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+
+  // Pre-generate noise
+  const noiseArr = t.map(function() { return 5 * (rand() - 0.5); });
+
+  // Frequency components: freq, amplitude pairs
+  const components = [
+    {freq: 0.5, amp: 15, label: 'Very slow drift'},
+    {freq: 2, amp: 30, label: 'Drift'},
+    {freq: 5, amp: 12, label: 'Theta'},
+    {freq: 10, amp: 20, label: 'Alpha'},
+    {freq: 22, amp: 8, label: 'Beta'},
+    {freq: 40, amp: 5, label: 'Low gamma'},
+    {freq: 60, amp: 12, label: 'Line noise'},
+    {freq: 80, amp: 4, label: 'High gamma'}
+  ];
+
+  function update() {
+    const fLow = parseFloat(lowSlider.value);
+    const fHigh = parseFloat(highSlider.value);
+    lowVal.textContent = fLow.toFixed(1);
+    highVal.textContent = fHigh;
+
+    bandLabel.innerHTML = 'Passing frequencies from <b>' + fLow.toFixed(1) + ' Hz</b> to <b>' + fHigh + ' Hz</b>';
+
+    // Reset seed for consistent noise
+    seed = 42;
+
+    // Build filtered signal
+    const y = t.map(function(ti, idx) {
+      let v = 0;
+      components.forEach(function(c) {
+        if (c.freq >= fLow && c.freq <= fHigh) {
+          v += c.amp * Math.sin(2 * Math.PI * c.freq * ti);
+        }
+      });
+      // Add some noise (attenuated)
+      v += noiseArr[idx] * 0.5;
+      return v;
+    });
+
+    // Signal plot
+    const sigTrace = {
+      x: t, y: y, type: 'scatter', mode: 'lines',
+      line: {color: '#27ae60', width: 1.5},
+      hovertemplate: 'Time: %{x:.3f} s<br>%{y:.1f} \u00b5V<extra></extra>'
+    };
+
+    const sigLayout = {
+      xaxis: {title: 'Time (seconds)', range: [0, dur]},
+      yaxis: {title: '\u00b5V', range: [-80, 80]},
+      margin: {t: 10, b: 50, l: 55, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      hovermode: 'x unified'
+    };
+
+    Plotly.react('bpSignalPlot', [sigTrace], sigLayout, {responsive: true, displayModeBar: false});
+
+    // Frequency response plot
+    const freqs = [];
+    const gain = [];
+    for (let f = 0; f <= 100; f += 0.5) {
+      freqs.push(f);
+      gain.push(f >= fLow && f <= fHigh ? 1 : 0);
+    }
+
+    // Passband fill
+    const freqsPass = [], gainPass = [];
+    const freqsBlock = [], gainBlock = [];
+    for (let i = 0; i < freqs.length; i++) {
+      if (gain[i] > 0) {
+        freqsPass.push(freqs[i]);
+        gainPass.push(1);
+      }
+    }
+
+    const frTrace = {
+      x: freqs, y: gain, type: 'scatter', mode: 'lines',
+      line: {color: '#27ae60', width: 2.5},
+      fill: 'tozeroy', fillcolor: 'rgba(39,174,96,0.2)',
+      hovertemplate: '%{x:.1f} Hz: %{y}<extra></extra>'
+    };
+
+    // Mark component frequencies
+    const compMarkers = {
+      x: components.map(function(c) { return c.freq; }),
+      y: components.map(function(c) { return c.freq >= fLow && c.freq <= fHigh ? 1.1 : -0.1; }),
+      type: 'scatter', mode: 'markers+text',
+      marker: {
+        color: components.map(function(c) { return c.freq >= fLow && c.freq <= fHigh ? '#27ae60' : '#e74c3c'; }),
+        size: 10, symbol: components.map(function(c) { return c.freq >= fLow && c.freq <= fHigh ? 'circle' : 'x'; })
+      },
+      text: components.map(function(c) { return c.freq + ' Hz'; }),
+      textposition: 'top center',
+      textfont: {size: 9, color: '#555'},
+      showlegend: false,
+      hovertemplate: '%{text}<extra></extra>'
+    };
+
+    const frLayout = {
+      title: {text: 'Filter Response', font: {size: 12, color: '#888'}},
+      xaxis: {title: 'Frequency (Hz)', range: [0, 100]},
+      yaxis: {title: 'Gain', range: [-0.3, 1.5], showticklabels: false},
+      margin: {t: 30, b: 50, l: 20, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      showlegend: false,
+      shapes: [
+        {type: 'line', x0: fLow, x1: fLow, y0: 0, y1: 1.3,
+         line: {color: '#e67e22', width: 2, dash: 'dash'}},
+        {type: 'line', x0: fHigh, x1: fHigh, y0: 0, y1: 1.3,
+         line: {color: '#2980b9', width: 2, dash: 'dash'}}
+      ],
+      annotations: [
+        {x: fLow, y: 1.35, text: fLow.toFixed(1), showarrow: false,
+         font: {size: 10, color: '#e67e22'}},
+        {x: fHigh, y: 1.35, text: fHigh, showarrow: false,
+         font: {size: 10, color: '#2980b9'}}
+      ]
+    };
+
+    Plotly.react('bpFreqResp', [frTrace, compMarkers], frLayout, {responsive: true, displayModeBar: false});
+  }
+
+  lowSlider.addEventListener('input', update);
+  highSlider.addEventListener('input', update);
+  update();
+})();
+</script>
+```
+
+::: {.try-it}
+**Experiment:**
+
+- Set the low cutoff to **1 Hz** and high cutoff to **40 Hz**. This is the standard clinical EEG filter. The signal should look clean.
+- Now lower the high cutoff to **15 Hz**. You'll lose the beta rhythm. Lower it to **8 Hz** — now even alpha disappears. You're over-filtering.
+- Set the high cutoff back to **40 Hz** and raise the low cutoff to **8 Hz**. Now you're only seeing alpha and above — the theta and delta rhythms are gone. Good for highlighting alpha, bad if you need to see sleep slow waves.
+- Watch the frequency response plot on the right. The green circles are components that survive the filter; the red Xs are blocked.
+:::
+
+## The Notch Filter: Surgical Noise Removal
+
+Sometimes you don't want to block a *range* of frequencies — you want to remove a single, specific frequency. The classic example: **60 Hz power line noise** (50 Hz in Europe). A **notch filter** cuts out a narrow band around one frequency and leaves everything else untouched.
+
+The widget below shows a signal with clear 10 Hz brain activity contaminated by 60 Hz line noise. Toggle the notch filter and watch it disappear — both in the time domain (left) and the frequency domain (right).
+
+```{=html}
+<div class="widget-box">
+  <div style="margin-bottom: 1em; text-align:center;">
+    <button id="notchToggle" onclick="toggleNotch()"
+            style="padding:10px 24px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:25px; cursor:pointer; font-size:0.95em; font-weight:600;">
+      Notch Filter: OFF
+    </button>
+  </div>
+  <div id="notchStatusLabel" style="font-size:0.92em; padding:8px 12px; border-radius:6px; margin-bottom:8px; background:#fce4e4; font-weight:600; color:#c0392b; text-align:center;">
+    60 Hz line noise is contaminating the signal.
+  </div>
+  <div style="display:flex; gap:12px; flex-wrap:wrap;">
+    <div id="notchTimePlot" style="flex:1; min-width:280px; height:320px;"></div>
+    <div id="notchFreqPlot" style="flex:1; min-width:280px; height:320px;"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let notchOn = false;
+
+  const dur = 1.0, sr = 1000;
+  const t = [];
+  for (let i = 0; i < dur * sr; i++) t.push(i / sr);
+
+  // Signal: 10 Hz alpha + 60 Hz line noise
+  const alpha10 = t.map(function(ti) { return 25 * Math.sin(2 * Math.PI * 10 * ti); });
+  const noise60 = t.map(function(ti) { return 15 * Math.sin(2 * Math.PI * 60 * ti); });
+  const raw = t.map(function(_, i) { return alpha10[i] + noise60[i]; });
+  const filtered = alpha10.slice(); // Notch removes only 60 Hz
+
+  // Compute simple power spectrum (sum of sinusoid amplitudes at known frequencies)
+  function getSpectrum(includeNotch) {
+    const freqs = [];
+    const powers = [];
+    for (let f = 0; f <= 100; f += 0.5) {
+      freqs.push(f);
+      let p = 0;
+      // Alpha peak at 10 Hz
+      p += 25 * Math.exp(-0.5 * Math.pow((f - 10) / 1.5, 2));
+      // 60 Hz peak (only if notch is off)
+      if (includeNotch) {
+        p += 15 * Math.exp(-0.5 * Math.pow((f - 60) / 1.5, 2));
+      }
+      // Noise floor
+      p += 1;
+      powers.push(p);
+    }
+    return {freqs: freqs, powers: powers};
+  }
+
+  function render() {
+    const btn = document.getElementById('notchToggle');
+    const statusLabel = document.getElementById('notchStatusLabel');
+    const y = notchOn ? filtered : raw;
+    const spec = getSpectrum(!notchOn);
+
+    if (notchOn) {
+      btn.textContent = 'Notch Filter: ON (60 Hz)';
+      btn.style.background = '#27ae60';
+      btn.style.borderColor = '#27ae60';
+      statusLabel.style.background = '#e8f8e8';
+      statusLabel.style.color = '#27ae60';
+      statusLabel.innerHTML = '\u2713 Notch filter active — 60 Hz removed. Only the 10 Hz alpha rhythm remains.';
+    } else {
+      btn.textContent = 'Notch Filter: OFF';
+      btn.style.background = '#8e44ad';
+      btn.style.borderColor = '#8e44ad';
+      statusLabel.style.background = '#fce4e4';
+      statusLabel.style.color = '#c0392b';
+      statusLabel.innerHTML = '\u2717 60 Hz line noise is contaminating the signal. Look at the "hairiness" of the waveform.';
+    }
+
+    // Time domain plot
+    const timeTrace = {
+      x: t, y: y, type: 'scatter', mode: 'lines',
+      line: {color: notchOn ? '#27ae60' : '#c0392b', width: 1.5},
+      hovertemplate: 'Time: %{x:.3f} s<br>%{y:.1f} \u00b5V<extra></extra>'
+    };
+
+    const timeLayout = {
+      title: {text: 'Time Domain', font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Time (seconds)', range: [0, dur]},
+      yaxis: {title: '\u00b5V', range: [-50, 50]},
+      margin: {t: 30, b: 50, l: 55, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      hovermode: 'x unified'
+    };
+
+    Plotly.react('notchTimePlot', [timeTrace], timeLayout, {responsive: true, displayModeBar: false});
+
+    // Frequency domain plot
+    const freqTrace = {
+      x: spec.freqs, y: spec.powers, type: 'scatter', mode: 'lines',
+      fill: 'tozeroy',
+      line: {color: notchOn ? '#27ae60' : '#c0392b', width: 2},
+      fillcolor: notchOn ? 'rgba(39,174,96,0.15)' : 'rgba(192,57,43,0.15)',
+      hovertemplate: '%{x:.1f} Hz: %{y:.1f}<extra></extra>'
+    };
+
+    const freqLayout = {
+      title: {text: 'Power Spectrum', font: {size: 13, color: '#555'}},
+      xaxis: {title: 'Frequency (Hz)', range: [0, 100]},
+      yaxis: {title: 'Power', range: [0, 30]},
+      margin: {t: 30, b: 50, l: 45, r: 10},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      annotations: notchOn ? [
+        {x: 10, y: 26, text: '10 Hz<br>alpha', showarrow: true, ay: -20,
+         font: {size: 11, color: '#27ae60'}},
+        {x: 60, y: 3, text: '60 Hz<br>removed', showarrow: true, ay: -30,
+         font: {size: 11, color: '#888'}}
+      ] : [
+        {x: 10, y: 26, text: '10 Hz<br>alpha', showarrow: true, ay: -20,
+         font: {size: 11, color: '#2980b9'}},
+        {x: 60, y: 17, text: '60 Hz<br>noise!', showarrow: true, ay: -25,
+         font: {size: 11, color: '#c0392b'}}
+      ],
+      hovermode: 'x unified'
+    };
+
+    Plotly.react('notchFreqPlot', [freqTrace], freqLayout, {responsive: true, displayModeBar: false});
+  }
+
+  window.toggleNotch = function() {
+    notchOn = !notchOn;
+    render();
+  };
+
+  render();
+})();
+</script>
+```
+
+::: {.try-it}
+**Watch carefully:**
+
+- With the notch OFF, look at the time domain signal — the fast 60 Hz oscillation rides on top of the slower alpha wave, making it look "hairy."
+- Toggle the notch ON. The signal instantly smooths out, and in the power spectrum, the 60 Hz peak disappears while the 10 Hz peak stays perfectly intact.
+- Toggle back and forth a few times. This is exactly what happens in the clinic when you apply a notch filter.
+:::
+
+::: {.key-concept}
+**The notch filter tradeoff:** A notch filter at 60 Hz removes power line noise beautifully. But it also removes any *brain activity* that happens to be at 60 Hz — specifically, **gamma oscillations**, which are involved in attention, perception, and binding of sensory information. In most clinical settings, this is an acceptable tradeoff (gamma is hard to see on scalp EEG anyway). But in research settings where gamma activity matters, alternatives like shielded rooms and careful grounding are used instead.
+:::
+
+## Filter Rules of Thumb for Clinical EEG
+
+Here's what you'll see on most EEG machines:
+
+| Setting | Typical Value | What It Does |
+|---------|--------------|--------------|
+| **High-pass filter** | 0.5--1 Hz | Removes electrode drift and DC offset |
+| **Low-pass filter** | 35--70 Hz | Removes muscle artifact and high-frequency noise |
+| **Notch filter** | 60 Hz (US) / 50 Hz (EU) | Removes power line interference |
+| **Standard display** | 1--40 Hz band-pass | The "default view" — clean enough for most clinical reads |
+
+These are **display filters** — they change what you *see*, not what's stored. Modern digital EEG systems record the raw data and let you adjust the filters afterward. This is one of the great advantages of digital over analog: you can always go back and re-filter.
+
+## Why Would a Doctor Care About This?
+
+Because filter settings change what you see, and what you see changes your diagnosis.
+
+- **Too aggressive high-pass** (e.g., 5 Hz): You'll miss slow waves — including the hallmark of absence seizures (3 Hz spike-and-wave from Module 1) if they have slow components.
+- **Too aggressive low-pass** (e.g., 15 Hz): You'll miss fast activity — including spikes, which have high-frequency content.
+- **No notch filter**: The 60 Hz noise may obscure subtle seizure patterns.
+- **Notch filter always on**: You might miss gamma-frequency abnormalities (rare, but it happens).
+
+The attending doesn't just "read" an EEG — they adjust the filters, re-read, adjust again. It's an interactive process.
+
+## Quiz: Check Your Understanding
+
+```{=html}
+<div class="quiz-container">
+  <h4>Quiz</h4>
+
+  <div style="margin-bottom: 1.5em;" id="fq1">
+    <p><strong>Q1:</strong> An EEG recording shows slow undulations with a period of about 5 seconds (0.2 Hz). Which filter type removes this artifact?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq1" value="a"> A. Low-pass filter
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq1" value="b"> B. High-pass filter with cutoff above 0.2 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq1" value="c"> C. Notch filter at 0.2 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq1" value="d"> D. Band-pass filter centered at 0.2 Hz
+    </label>
+    <div id="fq1feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1.5em;" id="fq2">
+    <p><strong>Q2:</strong> You apply a band-pass filter of 1–40 Hz to an EEG recording. A 50 Hz muscle artifact is present. Does it survive the filter?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq2" value="a"> A. Yes — the filter only removes frequencies below 1 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq2" value="b"> B. No — 50 Hz is above the 40 Hz high cutoff, so it's removed
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq2" value="c"> C. Partially — the filter attenuates it but doesn't remove it completely
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq2" value="d"> D. You need a notch filter for muscle artifacts
+    </label>
+    <div id="fq2feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1em;" id="fq3">
+    <p><strong>Q3:</strong> A notch filter at 60 Hz removes power line noise. Could it also remove brain activity at 60 Hz?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq3" value="a"> A. No — the filter can distinguish between noise and brain signals
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq3" value="b"> B. Yes — gamma oscillations near 60 Hz would be attenuated too
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq3" value="c"> C. No — brain activity doesn't occur at 60 Hz
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="fq3" value="d"> D. Only if the brain signal is stronger than the noise
+    </label>
+    <div id="fq3feedback"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const answers = {
+    fq1: {correct: 'b', feedback: {
+      a: ['incorrect', 'A low-pass filter removes <em>high</em> frequencies. You want to remove a <em>low</em> frequency (0.2 Hz), so you need a high-pass filter.'],
+      b: ['correct', 'Correct. A high-pass filter with a cutoff above 0.2 Hz (say, 0.5 or 1 Hz) will remove the slow drift while preserving the faster brain rhythms you care about. This is exactly what the standard 0.5–1 Hz high-pass setting does in clinical EEG.'],
+      c: ['incorrect', 'While a notch filter could theoretically remove 0.2 Hz, notch filters are designed for narrow-band interference like power line noise. For broad slow drift, a high-pass filter is the right tool.'],
+      d: ['incorrect', 'A band-pass filter <em>centered</em> at 0.2 Hz would <em>keep</em> the artifact and remove everything else — the opposite of what you want.']
+    }},
+    fq2: {correct: 'b', feedback: {
+      a: ['incorrect', 'A band-pass filter removes frequencies outside <em>both</em> cutoffs — below 1 Hz AND above 40 Hz.'],
+      b: ['correct', 'Correct. A band-pass filter of 1–40 Hz blocks everything below 1 Hz and above 40 Hz. A 50 Hz muscle artifact is above the 40 Hz cutoff, so it gets removed. This is one reason the standard clinical display filter works well — it removes most muscle artifact automatically.'],
+      c: ['incorrect', 'In an ideal filter, 50 Hz would be fully blocked. Real filters have a transition zone, but 50 Hz is far enough above 40 Hz that attenuation would be very strong.'],
+      d: ['incorrect', 'Notch filters target a specific single frequency (like 60 Hz). Muscle artifacts are broadband (spread across many frequencies), so a low-pass filter is more appropriate.']
+    }},
+    fq3: {correct: 'b', feedback: {
+      a: ['incorrect', 'A filter has no idea where a signal comes from — it only knows frequency. If brain activity and noise are at the same frequency, the filter removes both.'],
+      b: ['correct', 'Correct. This is a real clinical tradeoff. Gamma oscillations (30–100 Hz) include activity near 60 Hz. A notch filter at 60 Hz will attenuate any signal at that frequency, regardless of its source — brain or power line. In most clinical settings this is acceptable because scalp EEG rarely captures meaningful gamma. But in research, it matters.'],
+      c: ['incorrect', 'Brain activity absolutely occurs at 60 Hz. Gamma oscillations (30–100 Hz) are involved in attention, perception, and cognitive binding. They\'re just hard to detect with scalp electrodes.'],
+      d: ['incorrect', 'The filter doesn\'t compare signal strengths. It removes ALL energy at 60 Hz — noise and brain activity alike.']
+    }}
+  };
+
+  ['fq1','fq2','fq3'].forEach(function(qid) {
+    const radios = document.querySelectorAll('input[name="' + qid + '"]');
+    radios.forEach(function(r) {
+      r.addEventListener('change', function() {
+        const fb = answers[qid].feedback[r.value];
+        const div = document.getElementById(qid + 'feedback');
+        div.className = fb[0] === 'correct' ? 'quiz-feedback-correct' : 'quiz-feedback-incorrect';
+        div.innerHTML = (fb[0] === 'correct' ? '\u2713 ' : '\u2717 ') + fb[1];
+      });
+    });
+  });
+})();
+</script>
+```
+
+## Summary
+
+Filtering is your first line of defense against noise. The key ideas:
+
+1. **High-pass filters** remove slow drift (low frequencies). Standard EEG: 0.5--1 Hz cutoff.
+2. **Low-pass filters** remove fast noise and muscle artifact (high frequencies). Standard EEG: 35--70 Hz cutoff.
+3. **Band-pass filters** combine both — they define the window of frequencies you care about.
+4. **Notch filters** surgically remove a single frequency (typically 60 Hz power line noise).
+5. **Every filter is a tradeoff** — removing noise always risks removing signal. Clinical judgment determines the right balance.
+
+The signal is clean. But right now we're looking at wiggly lines in the time domain. What if we could peek inside and see exactly which frequencies are present, and how strong each one is? That's the Fourier Transform — and it's the single most important tool in signal processing.
+
+::: {.module-nav}
+[← Module 2: Sampling](02_sampling.qmd)
+[Module 4: FFT →](04_fft.qmd)
+:::
