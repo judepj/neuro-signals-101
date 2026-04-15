@@ -1,0 +1,40 @@
+---
+title: "EEG & Signal Processing"
+subtitle: "An Interactive Tutorial for Future Physicians"
+---
+
+## Welcome
+
+You're training to become a doctor. At some point — maybe in neurology, maybe in the ICU, maybe in the OR — you will look at a screen showing electrical signals from a patient's brain, heart, or muscles.
+
+This tutorial will teach you to **read those signals**. Not just glance at them — actually understand what you're seeing.
+
+## How This Works
+
+Each module is **interactive**. You'll drag sliders, change parameters, and watch signals respond in real time. There are short quiz questions along the way — these are **not graded**. They're just checkpoints to make sure the concepts are landing.
+
+**Module 8 is graded.** That's where you'll get real EEG data and find out what's going on with the patient.
+
+## Modules
+
+| # | Module | What You'll Learn |
+|---|--------|-------------------|
+| 1 | [Signals](modules/01_signals.qmd) | What electrical signals from the body look like and how to describe them |
+| 2 | [Sampling](modules/02_sampling.qmd) | How we capture continuous biological signals with a digital machine |
+| 3 | [Filtering](modules/03_filtering.qmd) | How to clean up a noisy recording to see what matters |
+| 4 | [FFT](modules/04_fft.qmd) | How to reveal the hidden frequencies in a signal |
+| 5 | [EEG Basics](modules/05_eeg_basics.qmd) | What the EEG measures, where electrodes go, and what the bands mean |
+| 6 | [Artifacts](modules/06_artifacts.qmd) | Telling brain activity apart from eye blinks, muscle, and noise |
+| 7 | [Spectrograms](modules/07_spectrograms.qmd) | Watching brain rhythms change over time |
+| 8 | [**The Challenge**](modules/08_challenge.qmd) | A real EEG recording. A real clinical question. Your job to figure it out. |
+
+## What You'll Need
+
+- A web browser (you're using one right now — good start)
+- For Module 8: Python or MATLAB, and a willingness to ask an AI for help writing code
+
+Let's begin.
+
+::: {.module-nav}
+[Begin Module 1 →](modules/01_signals.qmd)
+:::

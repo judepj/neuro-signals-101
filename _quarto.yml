@@ -1,0 +1,46 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "EEG & Signal Processing — Interactive Tutorial"
+  navbar:
+    background: "#2c3e50"
+    foreground: "#ecf0f1"
+    left:
+      - text: "Home"
+        href: index.qmd
+      # ── MODULE REGISTRY ──────────────────────────────────
+      # To remove a module: comment out or delete the line.
+      # Your friend removes a module = one line change.
+      - text: "1. Signals"
+        href: modules/01_signals.qmd
+      - text: "2. Sampling"
+        href: modules/02_sampling.qmd
+      - text: "3. Filtering"
+        href: modules/03_filtering.qmd
+      - text: "4. FFT"
+        href: modules/04_fft.qmd
+      - text: "5. EEG Basics"
+        href: modules/05_eeg_basics.qmd
+      - text: "6. Artifacts"
+        href: modules/06_artifacts.qmd
+      - text: "7. Spectrograms"
+        href: modules/07_spectrograms.qmd
+      - text: "8. Challenge"
+        href: modules/08_challenge.qmd
+
+  page-footer:
+    center: "Interactive Tutorial — EEG & Signal Processing"
+
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    css: assets/css/tutorial.css
+    toc: true
+    toc-depth: 2
+    code-fold: true
+    smooth-scroll: true
+    fontsize: 1.05em

@@ -1,0 +1,646 @@
+---
+title: "Module 1: Signals"
+subtitle: "What Electrical Signals from the Body Look Like"
+format:
+  html:
+    code-fold: true
+---
+
+::: {.clinical-vignette}
+A 28-year-old woman comes to your clinic with episodes of "staring off" lasting 10–15 seconds,
+happening several times a day. Her partner says she doesn't respond during these episodes.
+You order an EEG. The technician hands you a tracing. It looks like this:
+:::
+
+```{=html}
+<div class="widget-box" style="background:#f8f9fa;">
+  <div id="clinicalEEG" style="width:100%; height:250px;"></div>
+  <div style="font-size:0.85em; color:#777; text-align:center; margin-top:4px;">
+    Simulated EEG showing rhythmic 3 Hz spike-and-wave discharges — the hallmark of an absence seizure.
+  </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script>
+(function() {
+  // 3 Hz spike-and-wave: the classic absence seizure pattern
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+  const rand = seededRand(99);
+  const sr = 1000, dur = 5;
+  const t = [], y = [];
+  for (let i = 0; i < dur * sr; i++) {
+    const ti = i / sr;
+    t.push(ti);
+    const phase = (ti * 3) % 1; // 3 Hz cycle
+    let v = 0;
+
+    // Normal background (first 1s and last 0.5s)
+    if (ti < 1.0 || ti > 4.5) {
+      v = 25 * Math.sin(2*Math.PI*10*ti) + 10 * Math.sin(2*Math.PI*7*ti)
+        + 8 * (rand()-0.5);
+    } else {
+      // Spike-and-wave pattern
+      // Sharp spike (~30ms)
+      if (phase < 0.09) {
+        v = 120 * Math.sin(Math.PI * phase / 0.09);
+      }
+      // Slow wave
+      else if (phase < 0.7) {
+        v = -60 * Math.sin(Math.PI * (phase - 0.09) / 0.61);
+      }
+      // Return to baseline
+      else {
+        v = 10 * Math.sin(2*Math.PI*10*ti);
+      }
+      v += 6 * (rand()-0.5);
+    }
+    y.push(v);
+  }
+
+  const trace = {
+    x: t, y: y, type: 'scatter', mode: 'lines',
+    line: {color: '#2c3e50', width: 1.3},
+    hovertemplate: 'Time: %{x:.2f} s<br>%{y:.0f} μV<extra></extra>'
+  };
+
+  // Shade the seizure region
+  const layout = {
+    xaxis: {title: 'Time (seconds)', range: [0, dur]},
+    yaxis: {title: 'μV', range: [-100, 160]},
+    margin: {t: 10, b: 45, l: 50, r: 15},
+    plot_bgcolor: '#f8f9fa', paper_bgcolor: '#f8f9fa',
+    shapes: [{
+      type: 'rect', x0: 1.0, x1: 4.5, y0: -100, y1: 160,
+      fillcolor: 'rgba(231,76,60,0.08)', line: {width: 0}
+    }],
+    annotations: [
+      {x: 0.5, y: 150, text: 'Normal', showarrow: false,
+       font: {size: 11, color: '#27ae60'}},
+      {x: 2.75, y: 150, text: 'Seizure (3 Hz spike-and-wave)', showarrow: false,
+       font: {size: 11, color: '#c0392b'}},
+      {x: 4.75, y: 150, text: 'Normal', showarrow: false,
+       font: {size: 11, color: '#27ae60'}}
+    ],
+    hovermode: 'x unified'
+  };
+
+  Plotly.newPlot('clinicalEEG', [trace], layout, {responsive: true, displayModeBar: false});
+})();
+</script>
+```
+
+Can you tell what's happening? When does the abnormal activity start? What's different about it?
+
+By the end of this tutorial, you'll be able to answer those questions — and understand *why* the signal looks the way it does. But first, we need to learn the language that describes any electrical signal from the body.
+
+## The Basics
+
+Every cell in your body produces tiny electrical signals. Neurons fire. Heart muscle contracts. Skeletal muscle twitches. These are not abstract physics — these are **your patient's physiology**, translated into voltage over time.
+
+A signal is just a measurement that changes over time. When we record an EEG, ECG, or EMG, we're measuring **voltage** (in microvolts or millivolts) at each moment.
+
+The simplest signal you can imagine is a smooth, repeating wave. It has two properties that matter right now:
+
+- **Amplitude**: How tall the wave is. Bigger amplitude = stronger signal.
+- **Frequency**: How fast the wave repeats. Higher frequency = more cycles per second.
+
+That's it. Two knobs. Let's play with them.
+
+## Interactive: Build a Signal
+
+Drag the sliders. Watch the wave change in real time.
+
+```{=html}
+<div class="widget-box">
+  <div style="margin-bottom: 0.8em;">
+    <label style="font-weight:600; font-size:0.9em; color:#555;">Try a clinical preset:</label><br>
+    <button class="preset-btn" onclick="setPreset(10, 5, 'Alpha rhythm — eyes closed, relaxed')"
+            style="padding:6px 14px; margin:3px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Alpha (10 Hz)
+    </button>
+    <button class="preset-btn" onclick="setPreset(2, 8, 'Delta rhythm — deep sleep (real amplitude ~150 μV)')"
+            style="padding:6px 14px; margin:3px; border:2px solid #2c3e50; background:#2c3e50; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Delta (2 Hz)
+    </button>
+    <button class="preset-btn" onclick="setPreset(20, 3, 'Beta rhythm — focused attention')"
+            style="padding:6px 14px; margin:3px; border:2px solid #e67e22; background:#e67e22; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Beta (20 Hz)
+    </button>
+    <button class="preset-btn" onclick="showECGPreset()"
+            style="padding:6px 14px; margin:3px; border:2px solid #27ae60; background:#27ae60; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Heart (~72 bpm)
+    </button>
+  </div>
+  <div id="presetLabel" style="font-size:0.88em; color:#8e44ad; font-style:italic; margin-bottom:0.6em; min-height:1.2em;"></div>
+  <div style="margin-bottom: 1em;">
+    <label for="ampSlider" style="font-weight:600;">Amplitude (μV):
+      <span id="ampValue" style="color:#e74c3c; font-weight:700;">5.0</span>
+    </label><br>
+    <input type="range" id="ampSlider" min="0.5" max="10" step="0.1" value="5"
+           style="width:100%; accent-color:#2980b9;">
+  </div>
+  <div style="margin-bottom: 1em;">
+    <label for="freqSlider" style="font-weight:600;">Frequency (Hz):
+      <span id="freqValue" style="color:#27ae60; font-weight:700;">10.0</span>
+    </label><br>
+    <input type="range" id="freqSlider" min="0.5" max="30" step="0.5" value="10"
+           style="width:100%; accent-color:#2980b9;">
+  </div>
+  <div id="signalPlot" style="width:100%; height:320px;"></div>
+</div>
+
+<script>
+(function() {
+  const ampSlider = document.getElementById('ampSlider');
+  const freqSlider = document.getElementById('freqSlider');
+  const ampValue = document.getElementById('ampValue');
+  const freqValue = document.getElementById('freqValue');
+
+  let ecgMode = false;
+
+  function generateSignal(amp, freq) {
+    const duration = 2, sr = 1000;
+    const t = [], y = [];
+    for (let i = 0; i < duration * sr; i++) {
+      const ti = i / sr;
+      t.push(ti);
+      y.push(amp * Math.sin(2 * Math.PI * freq * ti));
+    }
+    return {t, y};
+  }
+
+  function generateECG() {
+    const duration = 4, sr = 1000, hr = 1.2;
+    const t = [], y = [];
+    for (let i = 0; i < duration * sr; i++) {
+      const ti = i / sr;
+      t.push(ti);
+      const ph = (ti * hr) % 1;
+      let v = 0;
+      // P wave
+      if (ph > 0.10 && ph < 0.20) v += 0.15 * Math.sin(Math.PI*(ph-0.10)/0.10);
+      // QRS complex
+      if (ph > 0.25 && ph < 0.28) v -= 0.20 * Math.sin(Math.PI*(ph-0.25)/0.03);
+      if (ph > 0.28 && ph < 0.32) v += 1.20 * Math.sin(Math.PI*(ph-0.28)/0.04);
+      if (ph > 0.32 && ph < 0.35) v -= 0.30 * Math.sin(Math.PI*(ph-0.32)/0.03);
+      // T wave
+      if (ph > 0.40 && ph < 0.55) v += 0.30 * Math.sin(Math.PI*(ph-0.40)/0.15);
+      y.push(v);
+    }
+    return {t, y};
+  }
+
+  function updatePlot() {
+    if (ecgMode) {
+      const sig = generateECG();
+      const period = 1 / 1.2;
+      const trace = {
+        x: sig.t, y: sig.y, type: 'scatter', mode: 'lines',
+        line: {color: '#27ae60', width: 2},
+        hovertemplate: 'Time: %{x:.3f} s<br>%{y:.2f} mV<extra></extra>'
+      };
+      const layout = {
+        title: {text: 'ECG — ~72 bpm (~1.2 Hz) — P-QRS-T complex', font: {size: 14, color: '#555'}},
+        xaxis: {title: 'Time (seconds)', range: [0, 4], dtick: 0.5},
+        yaxis: {title: 'Voltage (mV)', range: [-0.6, 1.5]},
+        shapes: [{
+          type: 'line', x0: 0, x1: period, y0: -0.45, y1: -0.45,
+          line: {color: '#27ae60', width: 2}
+        },{
+          type: 'line', x0: 0, x1: 0, y0: -0.4, y1: -0.5,
+          line: {color: '#27ae60', width: 2}
+        },{
+          type: 'line', x0: period, x1: period, y0: -0.4, y1: -0.5,
+          line: {color: '#27ae60', width: 2}
+        }],
+        annotations: [
+          {x: period/2, y: -0.55, text: '1 heartbeat = ' + (period*1000).toFixed(0) + ' ms',
+           showarrow: false, font: {color: '#27ae60', size: 12}},
+          {x: 0.15/1.2, y: 0.2, text: 'P', showarrow: true, ay: -25,
+           font: {size: 11, color: '#888'}},
+          {x: 0.30/1.2, y: 1.25, text: 'QRS', showarrow: true, ay: -20,
+           font: {size: 11, color: '#888'}},
+          {x: 0.47/1.2, y: 0.35, text: 'T', showarrow: true, ay: -25,
+           font: {size: 11, color: '#888'}}
+        ],
+        margin: {t: 40, b: 50, l: 60, r: 20},
+        plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+        hovermode: 'x unified'
+      };
+      Plotly.react('signalPlot', [trace], layout, {responsive: true, displayModeBar: false});
+      return;
+    }
+
+    const amp = parseFloat(ampSlider.value);
+    const freq = parseFloat(freqSlider.value);
+    ampValue.textContent = amp.toFixed(1);
+    freqValue.textContent = freq.toFixed(1);
+
+    const sig = generateSignal(amp, freq);
+    const period = 1 / freq;
+
+    const trace = {
+      x: sig.t, y: sig.y, type: 'scatter', mode: 'lines',
+      line: {color: '#2980b9', width: 2.5}, name: 'Signal',
+      hovertemplate: 'Time: %{x:.3f} s<br>Voltage: %{y:.1f} μV<extra></extra>'
+    };
+
+    const annotations = [], shapes = [];
+    const peakT = 1 / (4 * freq);
+
+    if (peakT < 2) {
+      shapes.push({type:'line', x0:peakT, x1:peakT, y0:0, y1:amp,
+        line:{color:'#e74c3c', width:2, dash:'dash'}});
+      annotations.push({x:peakT, y:amp/2, xanchor:'left', yanchor:'middle',
+        text:'  '+amp.toFixed(1)+' μV', showarrow:false,
+        font:{color:'#e74c3c', size:13}});
+    }
+
+    if (freq <= 15 && period < 1.8) {
+      shapes.push({type:'line', x0:0, x1:period, y0:-amp-1.2, y1:-amp-1.2,
+        line:{color:'#27ae60', width:2}});
+      shapes.push({type:'line', x0:0, x1:0, y0:-amp-0.8, y1:-amp-1.6,
+        line:{color:'#27ae60', width:2}});
+      shapes.push({type:'line', x0:period, x1:period, y0:-amp-0.8, y1:-amp-1.6,
+        line:{color:'#27ae60', width:2}});
+      annotations.push({x:period/2, y:-amp-2, xanchor:'center', yanchor:'top',
+        text:'1 cycle = '+(period*1000).toFixed(0)+' ms', showarrow:false,
+        font:{color:'#27ae60', size:12}});
+    }
+
+    const layout = {
+      title: {text: freq.toFixed(1)+' Hz signal — '+amp.toFixed(1)+' μV amplitude',
+        font:{size:14, color:'#555'}},
+      xaxis: {title:'Time (seconds)', range:[0,2], dtick:0.5},
+      yaxis: {title:'Voltage (μV)', range:[-12,12]},
+      shapes: shapes, annotations: annotations,
+      margin: {t:40, b:50, l:60, r:20},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      hovermode: 'x unified'
+    };
+
+    Plotly.react('signalPlot', [trace], layout, {responsive: true, displayModeBar: false});
+  }
+
+  window.showECGPreset = function() {
+    ecgMode = true;
+    document.getElementById('presetLabel').innerHTML =
+      'ECG — ~72 bpm. Note: the y-axis switched to <b>millivolts</b> (1000× larger than EEG). Labels show the P wave, QRS complex, and T wave.';
+    updatePlot();
+  };
+
+  window.setPreset = function(freq, amp, label) {
+    ecgMode = false;
+    freqSlider.value = freq;
+    ampSlider.value = amp;
+    document.getElementById('presetLabel').textContent = label;
+    updatePlot();
+  };
+
+  ampSlider.addEventListener('input', function() {
+    ecgMode = false;
+    document.getElementById('presetLabel').textContent = '';
+    updatePlot();
+  });
+  freqSlider.addEventListener('input', function() {
+    ecgMode = false;
+    document.getElementById('presetLabel').textContent = '';
+    updatePlot();
+  });
+
+  // Initial render
+  updatePlot();
+})();
+</script>
+```
+
+::: {.try-it}
+**Experiment:**
+
+- Set the frequency to **10 Hz**. This is roughly the speed of the **alpha rhythm** — the dominant EEG wave when you close your eyes.
+- Now crank it to **1 Hz**. This is the **delta range** — slow waves you see in deep sleep.
+- Set amplitude to **2 μV** — that's a weak EEG signal. Now set it to **10 μV** — stronger. In real EEG, amplitudes are typically 10–100 μV.
+:::
+
+## One More Thing: Phase
+
+You now know amplitude (how tall) and frequency (how fast). There's one more property worth seeing — **phase**.
+
+Phase tells you *where in the cycle* the wave is at a given moment. Two signals can have the same frequency and amplitude but be **offset** from each other — like two runners on the same track, one slightly ahead of the other.
+
+Drag the slider below. Both waves have the same frequency and amplitude — only the phase changes.
+
+```{=html}
+<div class="widget-box">
+  <div style="margin-bottom: 1em;">
+    <label for="phaseSlider" style="font-weight:600;">Phase offset:
+      <span id="phaseVal" style="color:#8e44ad; font-weight:700;">0°</span>
+    </label><br>
+    <input type="range" id="phaseSlider" min="0" max="360" step="5" value="0"
+           style="width:100%; accent-color:#8e44ad;">
+  </div>
+  <div id="phasePlot" style="width:100%; height:280px;"></div>
+  <div id="phaseCaption" style="font-size:0.88em; color:#555; margin-top:6px; font-style:italic;">
+    Both waves are identical. Try shifting the purple wave by 180° — now they're perfectly out of sync.
+  </div>
+</div>
+
+<script>
+(function() {
+  const sl = document.getElementById('phaseSlider');
+  const valSpan = document.getElementById('phaseVal');
+
+  function updatePhase() {
+    const deg = parseFloat(sl.value);
+    const rad = deg * Math.PI / 180;
+    valSpan.textContent = deg + '°';
+
+    const dur = 1.5, sr = 500, freq = 5, amp = 5;
+    const t = [], y1 = [], y2 = [];
+    for (let i = 0; i < dur * sr; i++) {
+      const ti = i / sr;
+      t.push(ti);
+      y1.push(amp * Math.sin(2 * Math.PI * freq * ti));
+      y2.push(amp * Math.sin(2 * Math.PI * freq * ti + rad));
+    }
+
+    const tr1 = {
+      x: t, y: y1, type: 'scatter', mode: 'lines',
+      line: {color: '#2980b9', width: 2.5}, name: 'Electrode A'
+    };
+    const tr2 = {
+      x: t, y: y2, type: 'scatter', mode: 'lines',
+      line: {color: '#8e44ad', width: 2.5, dash: 'dot'}, name: 'Electrode B (shifted)'
+    };
+
+    const layout = {
+      xaxis: {title: 'Time (seconds)', range: [0, dur]},
+      yaxis: {title: 'Voltage (μV)', range: [-7, 7]},
+      margin: {t: 10, b: 45, l: 55, r: 15},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      legend: {x: 0.55, y: 1, bgcolor: 'rgba(255,255,255,0.8)', font: {size: 11}},
+      hovermode: 'x unified'
+    };
+
+    Plotly.react('phasePlot', [tr1, tr2], layout, {responsive: true, displayModeBar: false});
+
+    // Dynamic caption
+    const cap = document.getElementById('phaseCaption');
+    if (deg === 0) cap.textContent = 'Both waves are identical — they are "in phase."';
+    else if (deg === 180) cap.textContent = 'Perfectly out of phase — when one goes up, the other goes down. If you added them, they\'d cancel out.';
+    else if (deg === 90) cap.textContent = 'Quarter-cycle offset. One wave peaks exactly when the other crosses zero.';
+    else if (deg === 360) cap.textContent = 'Full cycle shift — back to identical. 360° = 0°.';
+    else cap.textContent = 'The purple wave is shifted by ' + deg + '° relative to the blue wave.';
+  }
+
+  sl.addEventListener('input', updatePhase);
+  updatePhase();
+})();
+</script>
+```
+
+::: {.key-concept}
+Phase won't come up much in this tutorial — but remember this slider. When we get to EEG localization later, neurologists use **phase reversal** (where one electrode's signal flips relative to its neighbor) to pinpoint exactly where a seizure starts. Same concept, real clinical stakes.
+:::
+
+## Why Does This Matter Clinically?
+
+Different brain states produce different frequencies and amplitudes:
+
+| Brain State | Dominant Frequency | Typical Amplitude | What's Happening |
+|-------------|-------------------|-------------------|------------------|
+| Deep sleep | 1–4 Hz (delta) | 100–200 μV | Large populations of neurons firing in sync |
+| Relaxed, eyes closed | 8–13 Hz (alpha) | 30–50 μV | Thalamo-cortical idle rhythm |
+| Focused attention | 13–30 Hz (beta) | 10–20 μV | Cortical neurons busy with different tasks |
+| Active thinking | >30 Hz (gamma) | 5–10 μV | Local, fast processing |
+
+Notice the pattern: **slower rhythms tend to be bigger, faster rhythms tend to be smaller.** This isn't a coincidence — slow rhythms reflect more neurons firing together (synchrony), which sums to a larger voltage at the scalp.
+
+::: {.key-concept}
+**Amplitude** tells you how much electrical activity is reaching the electrode.
+**Frequency** tells you how fast that activity is oscillating.
+Together, they are the first two things you assess when you look at any physiological recording — EEG, ECG, or EMG.
+:::
+
+## It's Not Just the Brain
+
+The same two properties — amplitude and frequency — describe signals from other parts of the body:
+
+| Signal | Typical Amplitude | Typical Frequency | Source |
+|--------|------------------|-------------------|--------|
+| **EEG** (brain) | 10–100 μV | 1–100 Hz | Cortical pyramidal neurons |
+| **ECG** (heart) | 0.5–3 mV | ~1 Hz (60 bpm) | Cardiac muscle depolarization |
+| **EMG** (muscle) | 0.1–5 mV | 20–500 Hz | Motor unit action potentials |
+
+The ECG is about **1,000× larger** than the EEG. The EMG has **much higher frequencies** than either. These differences aren't trivia — they determine what equipment you need, what filters you set, and what artifacts you worry about. (More on artifacts in Module 6.)
+
+## Compare: EEG vs ECG vs EMG
+
+What do these three signals actually look like side by side? Same 2 seconds of time, three different parts of the body. Notice the **amplitude scales** — they're wildly different.
+
+```{=html}
+<div class="widget-box">
+  <div id="stackedPlot" style="width:100%; height:600px;"></div>
+  <div style="padding:10px 12px; background:#f0f0f0; border-radius:6px; margin-top:8px; font-size:0.9em; line-height:1.6;">
+    <b style="color:#2980b9;">EEG</b> (top) — ~50 μV. Alpha rhythm at 10 Hz. This is what you see over the occipital cortex, eyes closed. Tiny signal.<br>
+    <b style="color:#27ae60;">ECG</b> (middle) — ~1 mV. The tall spike is the QRS complex — ventricular depolarization. That's <b>1000× larger</b> than EEG.<br>
+    <b style="color:#e74c3c;">EMG</b> (bottom) — bursts during contraction, quiet at rest. Much faster oscillations — motor units firing asynchronously.
+  </div>
+</div>
+
+<script>
+(function() {
+  // Use seeded random for consistent display
+  function seededRandom(seed) {
+    let s = seed;
+    return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+  }
+
+  const rand = seededRandom(42);
+  const duration = 2, sr = 2000;
+  const t = [];
+  for (let i = 0; i < duration * sr; i++) t.push(i / sr);
+
+  // EEG — alpha-dominant with some theta and beta
+  const eeg = t.map(function(ti) {
+    return 40 * Math.sin(2*Math.PI*10*ti + 0.3)
+         + 12 * Math.sin(2*Math.PI*3.5*ti + 1.1)
+         + 6 * Math.sin(2*Math.PI*21*ti + 0.7)
+         + 10 * (rand() - 0.5);
+  });
+
+  // ECG — stylized but recognizable P-QRS-T
+  const ecg = t.map(function(ti) {
+    const hr = 1.2;
+    const ph = (ti * hr) % 1;
+    let v = 0;
+    if (ph > 0.10 && ph < 0.20) v += 0.15 * Math.sin(Math.PI*(ph-0.10)/0.10);
+    if (ph > 0.25 && ph < 0.28) v -= 0.20 * Math.sin(Math.PI*(ph-0.25)/0.03);
+    if (ph > 0.28 && ph < 0.32) v += 1.20 * Math.sin(Math.PI*(ph-0.28)/0.04);
+    if (ph > 0.32 && ph < 0.35) v -= 0.30 * Math.sin(Math.PI*(ph-0.32)/0.03);
+    if (ph > 0.40 && ph < 0.55) v += 0.30 * Math.sin(Math.PI*(ph-0.40)/0.15);
+    return v + 0.015 * (rand() - 0.5);
+  });
+
+  // EMG — burst in the middle
+  const emg = t.map(function(ti) {
+    const env = (ti > 0.5 && ti < 1.5) ? 1.5 * Math.sin(Math.PI*(ti-0.5)/1.0) : 0.03;
+    let v = 0;
+    for (let k = 1; k <= 8; k++) v += Math.sin(2*Math.PI*(40+k*35)*ti + k*1.7);
+    return env * v / 5 + 0.03 * (rand() - 0.5);
+  });
+
+  const traceEEG = {
+    x: t, y: eeg, type: 'scatter', mode: 'lines',
+    line: {color: '#2980b9', width: 1.2}, name: 'EEG',
+    xaxis: 'x', yaxis: 'y',
+    hovertemplate: '%{y:.1f} μV<extra>EEG</extra>'
+  };
+  const traceECG = {
+    x: t, y: ecg, type: 'scatter', mode: 'lines',
+    line: {color: '#27ae60', width: 1.2}, name: 'ECG',
+    xaxis: 'x2', yaxis: 'y2',
+    hovertemplate: '%{y:.2f} mV<extra>ECG</extra>'
+  };
+  const traceEMG = {
+    x: t, y: emg, type: 'scatter', mode: 'lines',
+    line: {color: '#e74c3c', width: 1}, name: 'EMG',
+    xaxis: 'x3', yaxis: 'y3',
+    hovertemplate: '%{y:.2f} mV<extra>EMG</extra>'
+  };
+
+  const layout = {
+    grid: {rows: 3, columns: 1, subplots: [['xy'],['x2y2'],['x3y3']], roworder: 'top to bottom'},
+    xaxis:  {title: '', showticklabels: false, range: [0, 2]},
+    xaxis2: {title: '', showticklabels: false, range: [0, 2]},
+    xaxis3: {title: 'Time (seconds)', range: [0, 2]},
+    yaxis:  {title: 'EEG (μV)', titlefont: {color: '#2980b9', size: 12}, range: [-80, 80]},
+    yaxis2: {title: 'ECG (mV)', titlefont: {color: '#27ae60', size: 12}, range: [-0.8, 1.6]},
+    yaxis3: {title: 'EMG (mV)', titlefont: {color: '#e74c3c', size: 12}, range: [-2.5, 2.5]},
+    margin: {t: 15, b: 45, l: 65, r: 15},
+    plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+    showlegend: false,
+    hovermode: 'x unified'
+  };
+
+  Plotly.newPlot('stackedPlot', [traceEEG, traceECG, traceEMG], layout, {responsive: true, displayModeBar: false});
+})();
+</script>
+```
+
+
+## Quiz: Check Your Understanding
+
+```{=html}
+<div class="quiz-container">
+  <h4>Quiz</h4>
+
+  <div style="margin-bottom: 1.5em;" id="quiz1">
+    <p><strong>Q1:</strong> A signal has a larger amplitude. What does that tell you?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q1" value="a"> A. It means the signal is faster
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q1" value="b"> B. The voltage is higher — more electrical activity is reaching the electrode
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q1" value="c"> C. The electrode is closer to the source
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q1" value="d"> D. The patient is awake
+    </label>
+    <div id="q1feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1.5em;" id="quiz2">
+    <p><strong>Q2:</strong> A healthy resting heart rate is about 70 beats per minute. What is the frequency of the ECG signal?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q2" value="a"> A. 0.5 Hz — about one beat every two seconds
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q2" value="b"> B. About 1.2 Hz — roughly 70 beats per minute
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q2" value="c"> C. 10 Hz — same as EEG alpha rhythm
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q2" value="d"> D. 60 Hz — one beat per second
+    </label>
+    <div id="q2feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1em;" id="quiz3">
+    <p><strong>Q3:</strong> Slow EEG rhythms (delta, during sleep) have much larger amplitude than fast rhythms (gamma). Why?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q3" value="a"> A. More neurons are firing at higher frequency
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q3" value="b"> B. More neurons are firing in synchrony, so their voltages add up
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q3" value="c"> C. The electrodes are more sensitive to slow signals
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q3" value="d"> D. The skull filters out fast signals more than slow ones
+    </label>
+    <div id="q3feedback"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const answers = {
+    q1: {correct: 'b', feedback: {
+      a: ['incorrect', 'That would be frequency, not amplitude. Try again.'],
+      b: ['correct', 'Correct. Amplitude = voltage magnitude. A bigger wave means more electrical activity is being picked up.'],
+      c: ['incorrect', 'Electrode distance affects amplitude, but amplitude itself is a property of the signal — it tells you the voltage, not the distance.'],
+      d: ['incorrect', 'Wakefulness can affect amplitude, but amplitude itself just describes how tall the wave is.']
+    }},
+    q2: {correct: 'b', feedback: {
+      a: ['incorrect', 'Too slow — 0.5 Hz would mean 30 bpm. That\'s severe bradycardia.'],
+      b: ['correct', 'Correct. 70 bpm ÷ 60 seconds = ~1.17 Hz. Each cardiac cycle takes about 0.85 seconds.'],
+      c: ['incorrect', '10 Hz = 600 bpm. The patient would not be doing well.'],
+      d: ['incorrect', 'Careful — 60 bpm would be 1 Hz, not 60 Hz. Hz = beats per <em>second</em>.']
+    }},
+    q3: {correct: 'b', feedback: {
+      a: ['incorrect', 'It\'s not about individual neurons firing faster — it\'s about how many fire <em>together</em>.'],
+      b: ['correct', 'Correct. Slow rhythms reflect large populations of neurons firing together. Like a stadium crowd doing a synchronized wave vs. everyone clapping at different times.'],
+      c: ['incorrect', 'Electrodes don\'t have a frequency preference. The voltage difference comes from the brain itself.'],
+      d: ['incorrect', 'The skull does attenuate signals, but that\'s not the main reason. Think about what the neurons are doing.']
+    }}
+  };
+
+  ['q1','q2','q3'].forEach(function(qid) {
+    const radios = document.querySelectorAll('input[name="' + qid + '"]');
+    radios.forEach(function(r) {
+      r.addEventListener('change', function() {
+        const fb = answers[qid].feedback[r.value];
+        const div = document.getElementById(qid + 'feedback');
+        div.className = fb[0] === 'correct' ? 'quiz-feedback-correct' : 'quiz-feedback-incorrect';
+        div.innerHTML = (fb[0] === 'correct' ? '✓ ' : '✗ ') + fb[1];
+      });
+    });
+  });
+})();
+</script>
+```
+
+## Summary
+
+You now know two things about any physiological signal:
+
+1. **Amplitude** — how tall the wave is (measured in μV for EEG, mV for ECG/EMG)
+2. **Frequency** — how many cycles per second (measured in Hz)
+
+In the next module, we'll tackle a fundamental question: *how does a machine capture a continuously changing biological signal and turn it into numbers a computer can work with?*
+
+(Spoiler: it can go wrong in interesting ways.)
+
+::: {.module-nav}
+[← Home](../index.qmd)
+[Module 2: Sampling →](02_sampling.qmd)
+:::

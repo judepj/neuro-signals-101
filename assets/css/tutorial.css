@@ -1,0 +1,135 @@
+/* Tutorial custom styles */
+
+/* Clinical vignette callouts */
+.clinical-vignette {
+  background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 100%);
+  border-left: 4px solid #2980b9;
+  padding: 1em 1.2em;
+  margin: 1.2em 0;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+}
+
+.clinical-vignette::before {
+  content: "🏥 Clinical Scenario";
+  display: block;
+  font-weight: 700;
+  font-style: normal;
+  margin-bottom: 0.4em;
+  color: #2980b9;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Key concept boxes */
+.key-concept {
+  background: #fef9e7;
+  border-left: 4px solid #f39c12;
+  padding: 1em 1.2em;
+  margin: 1.2em 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.key-concept::before {
+  content: "💡 Key Concept";
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.4em;
+  color: #f39c12;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Quiz containers */
+.quiz-container {
+  background: #f4ecf7;
+  border: 2px solid #8e44ad;
+  border-radius: 10px;
+  padding: 1.2em;
+  margin: 1.5em 0;
+}
+
+.quiz-container h4 {
+  color: #8e44ad;
+  margin-top: 0;
+}
+
+/* Correct/incorrect feedback */
+.quiz-feedback-correct {
+  color: #27ae60;
+  font-weight: 700;
+  padding: 0.5em;
+  background: #eafaf1;
+  border-radius: 6px;
+  margin-top: 0.5em;
+}
+
+.quiz-feedback-incorrect {
+  color: #c0392b;
+  font-weight: 700;
+  padding: 0.5em;
+  background: #fdedec;
+  border-radius: 6px;
+  margin-top: 0.5em;
+}
+
+.quiz-feedback-hint {
+  color: #7f8c8d;
+  font-style: italic;
+  margin-top: 0.3em;
+  font-size: 0.92em;
+}
+
+/* Widget containers */
+.widget-box {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1.2em;
+  margin: 1.2em 0;
+  background: #fdfdfd;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Try-it prompt */
+.try-it {
+  background: #e8f8f5;
+  border-left: 4px solid #1abc9c;
+  padding: 1em 1.2em;
+  margin: 1.2em 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.try-it::before {
+  content: "🔧 Try It";
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.4em;
+  color: #1abc9c;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Module navigation footer */
+.module-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3em;
+  padding-top: 1.5em;
+  border-top: 2px solid #eee;
+}
+
+.module-nav a {
+  padding: 0.6em 1.2em;
+  background: #2c3e50;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.module-nav a:hover {
+  background: #34495e;
+}
