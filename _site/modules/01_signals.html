@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Module 1: Signals – EEG &amp; Signal Processing — Interactive Tutorial</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-29413b01964427e4ecb0fb43b1b88900.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-f426e8d8c371072b6717f744114b4209.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-29413b01964427e4ecb0fb43b1b88900.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../assets/css/tutorial.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">EEG &amp; Signal Processing — Interactive Tutorial</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../modules/01_signals.html" aria-current="page"> 
+<span class="menu-text">1. Signals</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/02_sampling.qmd"> 
+<span class="menu-text">2. Sampling</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/03_filtering.qmd"> 
+<span class="menu-text">3. Filtering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/04_fft.qmd"> 
+<span class="menu-text">4. FFT</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/05_eeg_basics.qmd"> 
+<span class="menu-text">5. EEG Basics</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/06_artifacts.qmd"> 
+<span class="menu-text">6. Artifacts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/07_spectrograms.qmd"> 
+<span class="menu-text">7. Spectrograms</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../modules/08_challenge.qmd"> 
+<span class="menu-text">8. Challenge</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#the-basics" id="toc-the-basics" class="nav-link active" data-scroll-target="#the-basics">The Basics</a></li>
+  <li><a href="#interactive-build-a-signal" id="toc-interactive-build-a-signal" class="nav-link" data-scroll-target="#interactive-build-a-signal">Interactive: Build a Signal</a></li>
+  <li><a href="#one-more-thing-phase" id="toc-one-more-thing-phase" class="nav-link" data-scroll-target="#one-more-thing-phase">One More Thing: Phase</a></li>
+  <li><a href="#why-does-this-matter-clinically" id="toc-why-does-this-matter-clinically" class="nav-link" data-scroll-target="#why-does-this-matter-clinically">Why Does This Matter Clinically?</a></li>
+  <li><a href="#its-not-just-the-brain" id="toc-its-not-just-the-brain" class="nav-link" data-scroll-target="#its-not-just-the-brain">It’s Not Just the Brain</a></li>
+  <li><a href="#compare-eeg-vs-ecg-vs-emg" id="toc-compare-eeg-vs-ecg-vs-emg" class="nav-link" data-scroll-target="#compare-eeg-vs-ecg-vs-emg">Compare: EEG vs ECG vs EMG</a></li>
+  <li><a href="#quiz-check-your-understanding" id="toc-quiz-check-your-understanding" class="nav-link" data-scroll-target="#quiz-check-your-understanding">Quiz: Check Your Understanding</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Module 1: Signals</h1>
+<p class="subtitle lead">What Electrical Signals from the Body Look Like</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="clinical-vignette">
+<p>A 28-year-old woman comes to your clinic with episodes of “staring off” lasting 10–15 seconds, happening several times a day. Her partner says she doesn’t respond during these episodes. You order an EEG. The technician hands you a tracing. It looks like this:</p>
+</div>
+<div class="widget-box" style="background:#f8f9fa;">
+  <div id="clinicalEEG" style="width:100%; height:250px;"></div>
+  <div style="font-size:0.85em; color:#777; text-align:center; margin-top:4px;">
+    Simulated EEG showing rhythmic 3 Hz spike-and-wave discharges — the hallmark of an absence seizure.
+  </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script>
+(function() {
+  // 3 Hz spike-and-wave: the classic absence seizure pattern
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+  const rand = seededRand(99);
+  const sr = 1000, dur = 5;
+  const t = [], y = [];
+  for (let i = 0; i < dur * sr; i++) {
+    const ti = i / sr;
+    t.push(ti);
+    const phase = (ti * 3) % 1; // 3 Hz cycle
+    let v = 0;
+
+    // Normal background (first 1s and last 0.5s)
+    if (ti < 1.0 || ti > 4.5) {
+      v = 25 * Math.sin(2*Math.PI*10*ti) + 10 * Math.sin(2*Math.PI*7*ti)
+        + 8 * (rand()-0.5);
+    } else {
+      // Spike-and-wave pattern
+      // Sharp spike (~30ms)
+      if (phase < 0.09) {
+        v = 120 * Math.sin(Math.PI * phase / 0.09);
+      }
+      // Slow wave
+      else if (phase < 0.7) {
+        v = -60 * Math.sin(Math.PI * (phase - 0.09) / 0.61);
+      }
+      // Return to baseline
+      else {
+        v = 10 * Math.sin(2*Math.PI*10*ti);
+      }
+      v += 6 * (rand()-0.5);
+    }
+    y.push(v);
+  }
+
+  const trace = {
+    x: t, y: y, type: 'scatter', mode: 'lines',
+    line: {color: '#2c3e50', width: 1.3},
+    hovertemplate: 'Time: %{x:.2f} s<br>%{y:.0f} μV<extra></extra>'
+  };
+
+  // Shade the seizure region
+  const layout = {
+    xaxis: {title: 'Time (seconds)', range: [0, dur]},
+    yaxis: {title: 'μV', range: [-100, 160]},
+    margin: {t: 10, b: 45, l: 50, r: 15},
+    plot_bgcolor: '#f8f9fa', paper_bgcolor: '#f8f9fa',
+    shapes: [{
+      type: 'rect', x0: 1.0, x1: 4.5, y0: -100, y1: 160,
+      fillcolor: 'rgba(231,76,60,0.08)', line: {width: 0}
+    }],
+    annotations: [
+      {x: 0.5, y: 150, text: 'Normal', showarrow: false,
+       font: {size: 11, color: '#27ae60'}},
+      {x: 2.75, y: 150, text: 'Seizure (3 Hz spike-and-wave)', showarrow: false,
+       font: {size: 11, color: '#c0392b'}},
+      {x: 4.75, y: 150, text: 'Normal', showarrow: false,
+       font: {size: 11, color: '#27ae60'}}
+    ],
+    hovermode: 'x unified'
+  };
+
+  Plotly.newPlot('clinicalEEG', [trace], layout, {responsive: true, displayModeBar: false});
+})();
+</script>
+<p>Can you tell what’s happening? When does the abnormal activity start? What’s different about it?</p>
+<p>By the end of this tutorial, you’ll be able to answer those questions — and understand <em>why</em> the signal looks the way it does. But first, we need to learn the language that describes any electrical signal from the body.</p>
+<section id="the-basics" class="level2">
+<h2 class="anchored" data-anchor-id="the-basics">The Basics</h2>
+<p>Every cell in your body produces tiny electrical signals. Neurons fire. Heart muscle contracts. Skeletal muscle twitches. These are not abstract physics — these are <strong>your patient’s physiology</strong>, translated into voltage over time.</p>
+<p>A signal is just a measurement that changes over time. When we record an EEG, ECG, or EMG, we’re measuring <strong>voltage</strong> (in microvolts or millivolts) at each moment.</p>
+<p>The simplest signal you can imagine is a smooth, repeating wave. It has two properties that matter right now:</p>
+<ul>
+<li><strong>Amplitude</strong>: How tall the wave is. Bigger amplitude = stronger signal.</li>
+<li><strong>Frequency</strong>: How fast the wave repeats. Higher frequency = more cycles per second.</li>
+</ul>
+<p>That’s it. Two knobs. Let’s play with them.</p>
+</section>
+<section id="interactive-build-a-signal" class="level2">
+<h2 class="anchored" data-anchor-id="interactive-build-a-signal">Interactive: Build a Signal</h2>
+<p>Drag the sliders. Watch the wave change in real time.</p>
+<div class="widget-box">
+  <div style="margin-bottom: 0.8em;">
+    <label style="font-weight:600; font-size:0.9em; color:#555;">Try a clinical preset:</label><br>
+    <button class="preset-btn" onclick="setPreset(10, 5, 'Alpha rhythm — eyes closed, relaxed')" style="padding:6px 14px; margin:3px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Alpha (10 Hz)
+    </button>
+    <button class="preset-btn" onclick="setPreset(2, 8, 'Delta rhythm — deep sleep (real amplitude ~150 μV)')" style="padding:6px 14px; margin:3px; border:2px solid #2c3e50; background:#2c3e50; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Delta (2 Hz)
+    </button>
+    <button class="preset-btn" onclick="setPreset(20, 3, 'Beta rhythm — focused attention')" style="padding:6px 14px; margin:3px; border:2px solid #e67e22; background:#e67e22; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Beta (20 Hz)
+    </button>
+    <button class="preset-btn" onclick="showECGPreset()" style="padding:6px 14px; margin:3px; border:2px solid #27ae60; background:#27ae60; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+      Heart (~72 bpm)
+    </button>
+  </div>
+  <div id="presetLabel" style="font-size:0.88em; color:#8e44ad; font-style:italic; margin-bottom:0.6em; min-height:1.2em;"></div>
+  <div style="margin-bottom: 1em;">
+    <label for="ampSlider" style="font-weight:600;">Amplitude (μV):
+      <span id="ampValue" style="color:#e74c3c; font-weight:700;">5.0</span>
+    </label><br>
+    <input type="range" id="ampSlider" min="0.5" max="10" step="0.1" value="5" style="width:100%; accent-color:#2980b9;">
+  </div>
+  <div style="margin-bottom: 1em;">
+    <label for="freqSlider" style="font-weight:600;">Frequency (Hz):
+      <span id="freqValue" style="color:#27ae60; font-weight:700;">10.0</span>
+    </label><br>
+    <input type="range" id="freqSlider" min="0.5" max="30" step="0.5" value="10" style="width:100%; accent-color:#2980b9;">
+  </div>
+  <div id="signalPlot" style="width:100%; height:320px;"></div>
+</div>
+
+<script>
+(function() {
+  const ampSlider = document.getElementById('ampSlider');
+  const freqSlider = document.getElementById('freqSlider');
+  const ampValue = document.getElementById('ampValue');
+  const freqValue = document.getElementById('freqValue');
+
+  let ecgMode = false;
+
+  function generateSignal(amp, freq) {
+    const duration = 2, sr = 1000;
+    const t = [], y = [];
+    for (let i = 0; i < duration * sr; i++) {
+      const ti = i / sr;
+      t.push(ti);
+      y.push(amp * Math.sin(2 * Math.PI * freq * ti));
+    }
+    return {t, y};
+  }
+
+  function generateECG() {
+    const duration = 4, sr = 1000, hr = 1.2;
+    const t = [], y = [];
+    for (let i = 0; i < duration * sr; i++) {
+      const ti = i / sr;
+      t.push(ti);
+      const ph = (ti * hr) % 1;
+      let v = 0;
+      // P wave
+      if (ph > 0.10 && ph < 0.20) v += 0.15 * Math.sin(Math.PI*(ph-0.10)/0.10);
+      // QRS complex
+      if (ph > 0.25 && ph < 0.28) v -= 0.20 * Math.sin(Math.PI*(ph-0.25)/0.03);
+      if (ph > 0.28 && ph < 0.32) v += 1.20 * Math.sin(Math.PI*(ph-0.28)/0.04);
+      if (ph > 0.32 && ph < 0.35) v -= 0.30 * Math.sin(Math.PI*(ph-0.32)/0.03);
+      // T wave
+      if (ph > 0.40 && ph < 0.55) v += 0.30 * Math.sin(Math.PI*(ph-0.40)/0.15);
+      y.push(v);
+    }
+    return {t, y};
+  }
+
+  function updatePlot() {
+    if (ecgMode) {
+      const sig = generateECG();
+      const period = 1 / 1.2;
+      const trace = {
+        x: sig.t, y: sig.y, type: 'scatter', mode: 'lines',
+        line: {color: '#27ae60', width: 2},
+        hovertemplate: 'Time: %{x:.3f} s<br>%{y:.2f} mV<extra></extra>'
+      };
+      const layout = {
+        title: {text: 'ECG — ~72 bpm (~1.2 Hz) — P-QRS-T complex', font: {size: 14, color: '#555'}},
+        xaxis: {title: 'Time (seconds)', range: [0, 4], dtick: 0.5},
+        yaxis: {title: 'Voltage (mV)', range: [-0.6, 1.5]},
+        shapes: [{
+          type: 'line', x0: 0, x1: period, y0: -0.45, y1: -0.45,
+          line: {color: '#27ae60', width: 2}
+        },{
+          type: 'line', x0: 0, x1: 0, y0: -0.4, y1: -0.5,
+          line: {color: '#27ae60', width: 2}
+        },{
+          type: 'line', x0: period, x1: period, y0: -0.4, y1: -0.5,
+          line: {color: '#27ae60', width: 2}
+        }],
+        annotations: [
+          {x: period/2, y: -0.55, text: '1 heartbeat = ' + (period*1000).toFixed(0) + ' ms',
+           showarrow: false, font: {color: '#27ae60', size: 12}},
+          {x: 0.15/1.2, y: 0.2, text: 'P', showarrow: true, ay: -25,
+           font: {size: 11, color: '#888'}},
+          {x: 0.30/1.2, y: 1.25, text: 'QRS', showarrow: true, ay: -20,
+           font: {size: 11, color: '#888'}},
+          {x: 0.47/1.2, y: 0.35, text: 'T', showarrow: true, ay: -25,
+           font: {size: 11, color: '#888'}}
+        ],
+        margin: {t: 40, b: 50, l: 60, r: 20},
+        plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+        hovermode: 'x unified'
+      };
+      Plotly.react('signalPlot', [trace], layout, {responsive: true, displayModeBar: false});
+      return;
+    }
+
+    const amp = parseFloat(ampSlider.value);
+    const freq = parseFloat(freqSlider.value);
+    ampValue.textContent = amp.toFixed(1);
+    freqValue.textContent = freq.toFixed(1);
+
+    const sig = generateSignal(amp, freq);
+    const period = 1 / freq;
+
+    const trace = {
+      x: sig.t, y: sig.y, type: 'scatter', mode: 'lines',
+      line: {color: '#2980b9', width: 2.5}, name: 'Signal',
+      hovertemplate: 'Time: %{x:.3f} s<br>Voltage: %{y:.1f} μV<extra></extra>'
+    };
+
+    const annotations = [], shapes = [];
+    const peakT = 1 / (4 * freq);
+
+    if (peakT < 2) {
+      shapes.push({type:'line', x0:peakT, x1:peakT, y0:0, y1:amp,
+        line:{color:'#e74c3c', width:2, dash:'dash'}});
+      annotations.push({x:peakT, y:amp/2, xanchor:'left', yanchor:'middle',
+        text:'  '+amp.toFixed(1)+' μV', showarrow:false,
+        font:{color:'#e74c3c', size:13}});
+    }
+
+    if (freq <= 15 && period < 1.8) {
+      shapes.push({type:'line', x0:0, x1:period, y0:-amp-1.2, y1:-amp-1.2,
+        line:{color:'#27ae60', width:2}});
+      shapes.push({type:'line', x0:0, x1:0, y0:-amp-0.8, y1:-amp-1.6,
+        line:{color:'#27ae60', width:2}});
+      shapes.push({type:'line', x0:period, x1:period, y0:-amp-0.8, y1:-amp-1.6,
+        line:{color:'#27ae60', width:2}});
+      annotations.push({x:period/2, y:-amp-2, xanchor:'center', yanchor:'top',
+        text:'1 cycle = '+(period*1000).toFixed(0)+' ms', showarrow:false,
+        font:{color:'#27ae60', size:12}});
+    }
+
+    const layout = {
+      title: {text: freq.toFixed(1)+' Hz signal — '+amp.toFixed(1)+' μV amplitude',
+        font:{size:14, color:'#555'}},
+      xaxis: {title:'Time (seconds)', range:[0,2], dtick:0.5},
+      yaxis: {title:'Voltage (μV)', range:[-12,12]},
+      shapes: shapes, annotations: annotations,
+      margin: {t:40, b:50, l:60, r:20},
+      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      hovermode: 'x unified'
+    };
+
+    Plotly.react('signalPlot', [trace], layout, {responsive: true, displayModeBar: false});
+  }
+
+  window.showECGPreset = function() {
+    ecgMode = true;
+    document.getElementById('presetLabel').innerHTML =
+      'ECG — ~72 bpm. Note: the y-axis switched to <b>millivolts</b> (1000× larger than EEG). Labels show the P wave, QRS complex, and T wave.';
+    updatePlot();
+  };
+
+  window.setPreset = function(freq, amp, label) {
+    ecgMode = false;
+    freqSlider.value = freq;
+    ampSlider.value = amp;
+    document.getElementById('presetLabel').textContent = label;
+    updatePlot();
+  };
+
+  ampSlider.addEventListener('input', function() {
+    ecgMode = false;
+    document.getElementById('presetLabel').textContent = '';
+    updatePlot();
+  });
+  freqSlider.addEventListener('input', function() {
+    ecgMode = false;
+    document.getElementById('presetLabel').textContent = '';
+    updatePlot();
+  });
+
+  // Initial render
+  updatePlot();
+})();
+</script>
+<div class="try-it">
+<p><strong>Experiment:</strong></p>
+<ul>
+<li>Set the frequency to <strong>10 Hz</strong>. This is roughly the speed of the <strong>alpha rhythm</strong> — the dominant EEG wave when you close your eyes.</li>
+<li>Now crank it to <strong>1 Hz</strong>. This is the <strong>delta range</strong> — slow waves you see in deep sleep.</li>
+<li>Set amplitude to <strong>2 μV</strong> — that’s a weak EEG signal. Now set it to <strong>10 μV</strong> — stronger. In real EEG, amplitudes are typically 10–100 μV.</li>
+</ul>
+</div>
+</section>
+<section id="one-more-thing-phase" class="level2">
+<h2 class="anchored" data-anchor-id="one-more-thing-phase">One More Thing: Phase</h2>
+<p>You now know amplitude (how tall) and frequency (how fast). There’s one more property worth seeing — <strong>phase</strong>.</p>
+<p>Phase tells you <em>where in the cycle</em> the wave is at a given moment. Two signals can have the same frequency and amplitude but be <strong>offset</strong> from each other — like two runners on the same track, one slightly ahead of the other.</p>
+<p>Drag the slider below. Both waves have the same frequency and amplitude — only the phase changes.</p>
+<div class="widget-box">
+  <div style="margin-bottom: 1em;">
+    <label for="phaseSlider" style="font-weight:600;">Phase offset:
+      <span id="phaseVal" style="color:#8e44ad; font-weight:700;">0°</span>
+    </label><br>
+    <input type="range" id="phaseSlider" min="0" max="360" step="5" value="0" style="width:100%; accent-color:#8e44ad;">
+  </div>
+  <div id="phasePlot" style="width:100%; height:280px;"></div>
+  <div id="phaseCaption" style="font-size:0.88em; color:#555; margin-top:6px; font-style:italic;">
+    Both waves are identical. Try shifting the purple wave by 180° — now they're perfectly out of sync.
+  </div>
+</div>
+
+<script>
+(function() {
+  const sl = document.getElementById('phaseSlider');
+  const valSpan = document.getElementById('phaseVal');
+
+  function updatePhase() {
+    const deg = parseFloat(sl.value);
+    const rad = deg * Math.PI / 180;
+    valSpan.textContent = deg + '°';
+
+    const dur = 1.5, sr = 500, freq = 5, amp = 5;
+    const t = [], y1 = [], y2 = [];
+    for (let i = 0; i < dur * sr; i++) {
+      const ti = i / sr;
+      t.push(ti);
+      y1.push(amp * Math.sin(2 * Math.PI * freq * ti));
+      y2.push(amp * Math.sin(2 * Math.PI * freq * ti + rad));
+    }
+
+    const tr1 = {
+      x: t, y: y1, type: 'scatter', mode: 'lines',
+      line: {color: '#2980b9', width: 2.5}, name: 'Electrode A'
+    };
+    const tr2 = {
+      x: t, y: y2, type: 'scatter', mode: 'lines',
+      line: {color: '#8e44ad', width: 2.5, dash: 'dot'}, name: 'Electrode B (shifted)'
+    };
+
+    const layout = {
+      xaxis: {title: 'Time (seconds)', range: [0, dur]},
+      yaxis: {title: 'Voltage (μV)', range: [-7, 7]},
+      margin: {t: 10, b: 45, l: 55, r: 15},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      legend: {x: 0.55, y: 1, bgcolor: 'rgba(255,255,255,0.8)', font: {size: 11}},
+      hovermode: 'x unified'
+    };
+
+    Plotly.react('phasePlot', [tr1, tr2], layout, {responsive: true, displayModeBar: false});
+
+    // Dynamic caption
+    const cap = document.getElementById('phaseCaption');
+    if (deg === 0) cap.textContent = 'Both waves are identical — they are "in phase."';
+    else if (deg === 180) cap.textContent = 'Perfectly out of phase — when one goes up, the other goes down. If you added them, they\'d cancel out.';
+    else if (deg === 90) cap.textContent = 'Quarter-cycle offset. One wave peaks exactly when the other crosses zero.';
+    else if (deg === 360) cap.textContent = 'Full cycle shift — back to identical. 360° = 0°.';
+    else cap.textContent = 'The purple wave is shifted by ' + deg + '° relative to the blue wave.';
+  }
+
+  sl.addEventListener('input', updatePhase);
+  updatePhase();
+})();
+</script>
+<div class="key-concept">
+<p>Phase won’t come up much in this tutorial — but remember this slider. When we get to EEG localization later, neurologists use <strong>phase reversal</strong> (where one electrode’s signal flips relative to its neighbor) to pinpoint exactly where a seizure starts. Same concept, real clinical stakes.</p>
+</div>
+</section>
+<section id="why-does-this-matter-clinically" class="level2">
+<h2 class="anchored" data-anchor-id="why-does-this-matter-clinically">Why Does This Matter Clinically?</h2>
+<p>Different brain states produce different frequencies and amplitudes:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 27%">
+<col style="width: 27%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Brain State</th>
+<th>Dominant Frequency</th>
+<th>Typical Amplitude</th>
+<th>What’s Happening</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Deep sleep</td>
+<td>1–4 Hz (delta)</td>
+<td>100–200 μV</td>
+<td>Large populations of neurons firing in sync</td>
+</tr>
+<tr class="even">
+<td>Relaxed, eyes closed</td>
+<td>8–13 Hz (alpha)</td>
+<td>30–50 μV</td>
+<td>Thalamo-cortical idle rhythm</td>
+</tr>
+<tr class="odd">
+<td>Focused attention</td>
+<td>13–30 Hz (beta)</td>
+<td>10–20 μV</td>
+<td>Cortical neurons busy with different tasks</td>
+</tr>
+<tr class="even">
+<td>Active thinking</td>
+<td>&gt;30 Hz (gamma)</td>
+<td>5–10 μV</td>
+<td>Local, fast processing</td>
+</tr>
+</tbody>
+</table>
+<p>Notice the pattern: <strong>slower rhythms tend to be bigger, faster rhythms tend to be smaller.</strong> This isn’t a coincidence — slow rhythms reflect more neurons firing together (synchrony), which sums to a larger voltage at the scalp.</p>
+<div class="key-concept">
+<p><strong>Amplitude</strong> tells you how much electrical activity is reaching the electrode. <strong>Frequency</strong> tells you how fast that activity is oscillating. Together, they are the first two things you assess when you look at any physiological recording — EEG, ECG, or EMG.</p>
+</div>
+</section>
+<section id="its-not-just-the-brain" class="level2">
+<h2 class="anchored" data-anchor-id="its-not-just-the-brain">It’s Not Just the Brain</h2>
+<p>The same two properties — amplitude and frequency — describe signals from other parts of the body:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 33%">
+<col style="width: 35%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Signal</th>
+<th>Typical Amplitude</th>
+<th>Typical Frequency</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>EEG</strong> (brain)</td>
+<td>10–100 μV</td>
+<td>1–100 Hz</td>
+<td>Cortical pyramidal neurons</td>
+</tr>
+<tr class="even">
+<td><strong>ECG</strong> (heart)</td>
+<td>0.5–3 mV</td>
+<td>~1 Hz (60 bpm)</td>
+<td>Cardiac muscle depolarization</td>
+</tr>
+<tr class="odd">
+<td><strong>EMG</strong> (muscle)</td>
+<td>0.1–5 mV</td>
+<td>20–500 Hz</td>
+<td>Motor unit action potentials</td>
+</tr>
+</tbody>
+</table>
+<p>The ECG is about <strong>1,000× larger</strong> than the EEG. The EMG has <strong>much higher frequencies</strong> than either. These differences aren’t trivia — they determine what equipment you need, what filters you set, and what artifacts you worry about. (More on artifacts in Module 6.)</p>
+</section>
+<section id="compare-eeg-vs-ecg-vs-emg" class="level2">
+<h2 class="anchored" data-anchor-id="compare-eeg-vs-ecg-vs-emg">Compare: EEG vs ECG vs EMG</h2>
+<p>What do these three signals actually look like side by side? Same 2 seconds of time, three different parts of the body. Notice the <strong>amplitude scales</strong> — they’re wildly different.</p>
+<div class="widget-box">
+  <div id="stackedPlot" style="width:100%; height:600px;"></div>
+  <div style="padding:10px 12px; background:#f0f0f0; border-radius:6px; margin-top:8px; font-size:0.9em; line-height:1.6;">
+    <b style="color:#2980b9;">EEG</b> (top) — ~50 μV. Alpha rhythm at 10 Hz. This is what you see over the occipital cortex, eyes closed. Tiny signal.<br>
+    <b style="color:#27ae60;">ECG</b> (middle) — ~1 mV. The tall spike is the QRS complex — ventricular depolarization. That's <b>1000× larger</b> than EEG.<br>
+    <b style="color:#e74c3c;">EMG</b> (bottom) — bursts during contraction, quiet at rest. Much faster oscillations — motor units firing asynchronously.
+  </div>
+</div>
+
+<script>
+(function() {
+  // Use seeded random for consistent display
+  function seededRandom(seed) {
+    let s = seed;
+    return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+  }
+
+  const rand = seededRandom(42);
+  const duration = 2, sr = 2000;
+  const t = [];
+  for (let i = 0; i < duration * sr; i++) t.push(i / sr);
+
+  // EEG — alpha-dominant with some theta and beta
+  const eeg = t.map(function(ti) {
+    return 40 * Math.sin(2*Math.PI*10*ti + 0.3)
+         + 12 * Math.sin(2*Math.PI*3.5*ti + 1.1)
+         + 6 * Math.sin(2*Math.PI*21*ti + 0.7)
+         + 10 * (rand() - 0.5);
+  });
+
+  // ECG — stylized but recognizable P-QRS-T
+  const ecg = t.map(function(ti) {
+    const hr = 1.2;
+    const ph = (ti * hr) % 1;
+    let v = 0;
+    if (ph > 0.10 && ph < 0.20) v += 0.15 * Math.sin(Math.PI*(ph-0.10)/0.10);
+    if (ph > 0.25 && ph < 0.28) v -= 0.20 * Math.sin(Math.PI*(ph-0.25)/0.03);
+    if (ph > 0.28 && ph < 0.32) v += 1.20 * Math.sin(Math.PI*(ph-0.28)/0.04);
+    if (ph > 0.32 && ph < 0.35) v -= 0.30 * Math.sin(Math.PI*(ph-0.32)/0.03);
+    if (ph > 0.40 && ph < 0.55) v += 0.30 * Math.sin(Math.PI*(ph-0.40)/0.15);
+    return v + 0.015 * (rand() - 0.5);
+  });
+
+  // EMG — burst in the middle
+  const emg = t.map(function(ti) {
+    const env = (ti > 0.5 && ti < 1.5) ? 1.5 * Math.sin(Math.PI*(ti-0.5)/1.0) : 0.03;
+    let v = 0;
+    for (let k = 1; k <= 8; k++) v += Math.sin(2*Math.PI*(40+k*35)*ti + k*1.7);
+    return env * v / 5 + 0.03 * (rand() - 0.5);
+  });
+
+  const traceEEG = {
+    x: t, y: eeg, type: 'scatter', mode: 'lines',
+    line: {color: '#2980b9', width: 1.2}, name: 'EEG',
+    xaxis: 'x', yaxis: 'y',
+    hovertemplate: '%{y:.1f} μV<extra>EEG</extra>'
+  };
+  const traceECG = {
+    x: t, y: ecg, type: 'scatter', mode: 'lines',
+    line: {color: '#27ae60', width: 1.2}, name: 'ECG',
+    xaxis: 'x2', yaxis: 'y2',
+    hovertemplate: '%{y:.2f} mV<extra>ECG</extra>'
+  };
+  const traceEMG = {
+    x: t, y: emg, type: 'scatter', mode: 'lines',
+    line: {color: '#e74c3c', width: 1}, name: 'EMG',
+    xaxis: 'x3', yaxis: 'y3',
+    hovertemplate: '%{y:.2f} mV<extra>EMG</extra>'
+  };
+
+  const layout = {
+    grid: {rows: 3, columns: 1, subplots: [['xy'],['x2y2'],['x3y3']], roworder: 'top to bottom'},
+    xaxis:  {title: '', showticklabels: false, range: [0, 2]},
+    xaxis2: {title: '', showticklabels: false, range: [0, 2]},
+    xaxis3: {title: 'Time (seconds)', range: [0, 2]},
+    yaxis:  {title: 'EEG (μV)', titlefont: {color: '#2980b9', size: 12}, range: [-80, 80]},
+    yaxis2: {title: 'ECG (mV)', titlefont: {color: '#27ae60', size: 12}, range: [-0.8, 1.6]},
+    yaxis3: {title: 'EMG (mV)', titlefont: {color: '#e74c3c', size: 12}, range: [-2.5, 2.5]},
+    margin: {t: 15, b: 45, l: 65, r: 15},
+    plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+    showlegend: false,
+    hovermode: 'x unified'
+  };
+
+  Plotly.newPlot('stackedPlot', [traceEEG, traceECG, traceEMG], layout, {responsive: true, displayModeBar: false});
+})();
+</script>
+</section>
+<section id="quiz-check-your-understanding" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-check-your-understanding">Quiz: Check Your Understanding</h2>
+<div class="quiz-container">
+  <h4 class="anchored">Quiz</h4>
+
+  <div style="margin-bottom: 1.5em;" id="quiz1">
+    <p><strong>Q1:</strong> A signal has a larger amplitude. What does that tell you?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q1" value="a"> A. It means the signal is faster
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q1" value="b"> B. The voltage is higher — more electrical activity is reaching the electrode
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q1" value="c"> C. The electrode is closer to the source
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q1" value="d"> D. The patient is awake
+    </label>
+    <div id="q1feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1.5em;" id="quiz2">
+    <p><strong>Q2:</strong> A healthy resting heart rate is about 70 beats per minute. What is the frequency of the ECG signal?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q2" value="a"> A. 0.5 Hz — about one beat every two seconds
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q2" value="b"> B. About 1.2 Hz — roughly 70 beats per minute
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q2" value="c"> C. 10 Hz — same as EEG alpha rhythm
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q2" value="d"> D. 60 Hz — one beat per second
+    </label>
+    <div id="q2feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1em;" id="quiz3">
+    <p><strong>Q3:</strong> Slow EEG rhythms (delta, during sleep) have much larger amplitude than fast rhythms (gamma). Why?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q3" value="a"> A. More neurons are firing at higher frequency
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q3" value="b"> B. More neurons are firing in synchrony, so their voltages add up
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q3" value="c"> C. The electrodes are more sensitive to slow signals
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="q3" value="d"> D. The skull filters out fast signals more than slow ones
+    </label>
+    <div id="q3feedback"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const answers = {
+    q1: {correct: 'b', feedback: {
+      a: ['incorrect', 'That would be frequency, not amplitude. Try again.'],
+      b: ['correct', 'Correct. Amplitude = voltage magnitude. A bigger wave means more electrical activity is being picked up.'],
+      c: ['incorrect', 'Electrode distance affects amplitude, but amplitude itself is a property of the signal — it tells you the voltage, not the distance.'],
+      d: ['incorrect', 'Wakefulness can affect amplitude, but amplitude itself just describes how tall the wave is.']
+    }},
+    q2: {correct: 'b', feedback: {
+      a: ['incorrect', 'Too slow — 0.5 Hz would mean 30 bpm. That\'s severe bradycardia.'],
+      b: ['correct', 'Correct. 70 bpm ÷ 60 seconds = ~1.17 Hz. Each cardiac cycle takes about 0.85 seconds.'],
+      c: ['incorrect', '10 Hz = 600 bpm. The patient would not be doing well.'],
+      d: ['incorrect', 'Careful — 60 bpm would be 1 Hz, not 60 Hz. Hz = beats per <em>second</em>.']
+    }},
+    q3: {correct: 'b', feedback: {
+      a: ['incorrect', 'It\'s not about individual neurons firing faster — it\'s about how many fire <em>together</em>.'],
+      b: ['correct', 'Correct. Slow rhythms reflect large populations of neurons firing together. Like a stadium crowd doing a synchronized wave vs. everyone clapping at different times.'],
+      c: ['incorrect', 'Electrodes don\'t have a frequency preference. The voltage difference comes from the brain itself.'],
+      d: ['incorrect', 'The skull does attenuate signals, but that\'s not the main reason. Think about what the neurons are doing.']
+    }}
+  };
+
+  ['q1','q2','q3'].forEach(function(qid) {
+    const radios = document.querySelectorAll('input[name="' + qid + '"]');
+    radios.forEach(function(r) {
+      r.addEventListener('change', function() {
+        const fb = answers[qid].feedback[r.value];
+        const div = document.getElementById(qid + 'feedback');
+        div.className = fb[0] === 'correct' ? 'quiz-feedback-correct' : 'quiz-feedback-incorrect';
+        div.innerHTML = (fb[0] === 'correct' ? '✓ ' : '✗ ') + fb[1];
+      });
+    });
+  });
+})();
+</script>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>You now know two things about any physiological signal:</p>
+<ol type="1">
+<li><strong>Amplitude</strong> — how tall the wave is (measured in μV for EEG, mV for ECG/EMG)</li>
+<li><strong>Frequency</strong> — how many cycles per second (measured in Hz)</li>
+</ol>
+<p>In the next module, we’ll tackle a fundamental question: <em>how does a machine capture a continuously changing biological signal and turn it into numbers a computer can work with?</em></p>
+<p>(Spoiler: it can go wrong in interesting ways.)</p>
+<div class="module-nav">
+<p><a href="../index.html">← Home</a> <a href="02_sampling.qmd">Module 2: Sampling →</a></p>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Interactive Tutorial — EEG &amp; Signal Processing</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
