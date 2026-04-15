@@ -25,6 +25,22 @@ Think of it this way:
 
 The FFT converts from the first view to the second. That's it.
 
+## Watch: How FFT Decomposes a Signal
+
+Before diving into the interactive tools below, watch this short animation showing how FFT works — a complex signal gets separated into its individual frequency components.
+
+```{=html}
+<div class="widget-box" style="text-align: center;">
+<video width="100%" controls style="max-width: 800px; border-radius: 8px;">
+  <source src="../assets/videos/fft_decomposition.mp4" type="video/mp4">
+  Your browser does not support video playback.
+</video>
+<p style="font-size: 0.9em; color: #7f8c8d; margin-top: 0.5em;">
+  A complex EEG-like signal decomposed into theta (4 Hz), alpha (10 Hz), and beta (30 Hz) components.
+</p>
+</div>
+```
+
 ## Interactive: Build a Signal, See Its FFT
 
 This is the key insight. On the left: the time-domain signal (the wiggly line). On the right: the frequency spectrum (the "ingredients list"). Add frequency components and watch both plots update.

@@ -20,6 +20,22 @@ Imagine someone singing a smooth, continuous note. Now imagine you can only list
 
 That's sampling. The rate at which you "check" the signal is called the **sampling rate** (or sampling frequency, $f_s$), measured in Hz — samples per second.
 
+## Watch: Sampling & Aliasing in Action
+
+Before you experiment with the interactive widgets, watch this 15-second animation. It shows a 10 Hz signal sampled at three different rates — fast enough (50 Hz), barely enough (12 Hz), and too slow (8 Hz, causing aliasing). Notice how undersampling creates a phantom 2 Hz wave that doesn't exist in the original signal.
+
+```{=html}
+<div class="widget-box" style="text-align:center; padding:1em;">
+  <video width="100%" controls style="border-radius:8px; max-width:720px;">
+    <source src="../assets/videos/sampling_aliasing.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <p style="font-size:0.85em; color:#888; margin-top:0.5em;">
+    Blue = true 10 Hz signal &nbsp;|&nbsp; Green = good samples &nbsp;|&nbsp; Red = aliased reconstruction
+  </p>
+</div>
+```
+
 ## Interactive: Sampling Visualizer
 
 Watch what happens as you change the sampling rate. The blue curve is the "real" continuous signal. The red dots are the discrete samples your computer would capture. The dashed line connects those dots — that's what the computer *thinks* the signal looks like.

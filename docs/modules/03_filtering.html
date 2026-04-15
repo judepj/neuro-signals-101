@@ -45,6 +45,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/bootstrap/bootstrap-29413b01964427e4ecb0fb43b1b88900.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
 <link href="../site_libs/bootstrap/bootstrap-dark-f426e8d8c371072b6717f744114b4209.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <link href="../site_libs/bootstrap/bootstrap-29413b01964427e4ecb0fb43b1b88900.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/live-runtime/live-runtime.js" type="module"></script>
+<link href="../site_libs/quarto-contrib/live-runtime/live-runtime.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -316,18 +318,20 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#the-anatomy-of-a-dirty-signal" id="toc-the-anatomy-of-a-dirty-signal" class="nav-link active" data-scroll-target="#the-anatomy-of-a-dirty-signal">The Anatomy of a Dirty Signal</a></li>
+  <li><a href="#filtering-in-action" id="toc-filtering-in-action" class="nav-link active" data-scroll-target="#filtering-in-action">Filtering in Action</a></li>
+  <li><a href="#the-anatomy-of-a-dirty-signal" id="toc-the-anatomy-of-a-dirty-signal" class="nav-link" data-scroll-target="#the-anatomy-of-a-dirty-signal">The Anatomy of a Dirty Signal</a></li>
   <li><a href="#interactive-adjustable-band-pass-filter" id="toc-interactive-adjustable-band-pass-filter" class="nav-link" data-scroll-target="#interactive-adjustable-band-pass-filter">Interactive: Adjustable Band-Pass Filter</a></li>
   <li><a href="#the-notch-filter-surgical-noise-removal" id="toc-the-notch-filter-surgical-noise-removal" class="nav-link" data-scroll-target="#the-notch-filter-surgical-noise-removal">The Notch Filter: Surgical Noise Removal</a></li>
   <li><a href="#filter-rules-of-thumb-for-clinical-eeg" id="toc-filter-rules-of-thumb-for-clinical-eeg" class="nav-link" data-scroll-target="#filter-rules-of-thumb-for-clinical-eeg">Filter Rules of Thumb for Clinical EEG</a></li>
   <li><a href="#why-would-a-doctor-care-about-this" id="toc-why-would-a-doctor-care-about-this" class="nav-link" data-scroll-target="#why-would-a-doctor-care-about-this">Why Would a Doctor Care About This?</a></li>
+  <li><a href="#try-it-yourself-filter-a-signal-in-python" id="toc-try-it-yourself-filter-a-signal-in-python" class="nav-link" data-scroll-target="#try-it-yourself-filter-a-signal-in-python">Try It Yourself: Filter a Signal in Python</a></li>
   <li><a href="#quiz-check-your-understanding" id="toc-quiz-check-your-understanding" class="nav-link" data-scroll-target="#quiz-check-your-understanding">Quiz: Check Your Understanding</a></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -355,6 +359,21 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <p>Your EEG recording is full of stuff you don’t want. 60 Hz power line noise. Slow electrode drift (the baseline wanders up and down over seconds). Muscle artifact from the patient clenching their jaw. Filtering is how you separate what matters from what doesn’t — like adjusting the bass and treble on a stereo, but for brain waves.</p>
 <p>The idea is simple: every signal is a mixture of different frequencies. A filter lets certain frequencies through and blocks others. The question is always: <em>which frequencies do you keep?</em></p>
+<section id="filtering-in-action" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="filtering-in-action">Filtering in Action</h2>
+<p>Watch the animation below. A synthetic “raw EEG” – built from slow drift, a 10 Hz alpha rhythm, and 60 Hz power line noise – gets decomposed in the frequency domain. A 1–40 Hz bandpass filter mask grays out the unwanted frequencies, and the time-domain signal transforms from noisy to clean.</p>
+<div class="column-page">
+<figure style="text-align:center; margin: 1em 0;" class="figure">
+  <video controls="" playsinline="" preload="metadata" style="max-width:100%; border-radius:8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+    <source src="../assets/videos/filtering_demo.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <figcaption style="font-size:0.9em; color:#666; margin-top:0.5em;">
+    Bandpass filtering removes slow drift and 60 Hz noise, leaving only the 10 Hz alpha rhythm.
+  </figcaption>
+</figure>
+</div>
+</section>
 <section id="the-anatomy-of-a-dirty-signal" class="level2">
 <h2 class="anchored" data-anchor-id="the-anatomy-of-a-dirty-signal">The Anatomy of a Dirty Signal</h2>
 <p>Before we filter anything, let’s see what we’re dealing with. The signal below is synthetic, but it’s a realistic mix of what you’d see in a real EEG recording:</p>
@@ -870,6 +889,26 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <p>The attending doesn’t just “read” an EEG — they adjust the filters, re-read, adjust again. It’s an interactive process.</p>
 </section>
+<section id="try-it-yourself-filter-a-signal-in-python" class="level2">
+<h2 class="anchored" data-anchor-id="try-it-yourself-filter-a-signal-in-python">Try It Yourself: Filter a Signal in Python</h2>
+<p>The widgets above let you see what filtering does. Now try it with real code. The cell below runs Python <em>in your browser</em> — no installation needed. Edit the code and click <strong>Run</strong>.</p>
+<div>
+<div id="pyodide-1" class="exercise-cell">
+
+</div>
+<script type="pyodide-1-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiaW1wb3J0IG51bXB5IGFzIG5wXG5cbiMgPT09IFNpZ25hbCBQYXJhbWV0ZXJzID09PVxuZHVyYXRpb24gPSAyICAgICAgICMgc2Vjb25kc1xuZnMgPSA1MDAgICAgICAgICAgICMgc2FtcGxpbmcgcmF0ZSAoSHopXG50ID0gbnAubGluc3BhY2UoMCwgZHVyYXRpb24sIGR1cmF0aW9uICogZnMsIGVuZHBvaW50PUZhbHNlKVxuXG4jID09PSBCdWlsZCBhIG5vaXN5IHNpZ25hbCA9PT1cbiMgMTAgSHogYWxwaGEgcmh5dGhtICh0aGUgYnJhaW4gc2lnbmFsIHdlIHdhbnQgdG8ga2VlcClcbmFscGhhID0gMyAqIG5wLnNpbigyICogbnAucGkgKiAxMCAqIHQpXG4jIDYwIEh6IHBvd2VyIGxpbmUgbm9pc2UgKHdlIHdhbnQgdG8gcmVtb3ZlIHRoaXMpXG5ub2lzZV82MGh6ID0gMS41ICogbnAuc2luKDIgKiBucC5waSAqIDYwICogdClcbiMgU2xvdyAwLjUgSHogZWxlY3Ryb2RlIGRyaWZ0XG5kcmlmdCA9IDQgKiBucC5zaW4oMiAqIG5wLnBpICogMC41ICogdClcblxuIyBDb21iaW5lZCBcInJhdyBFRUdcIlxucmF3X3NpZ25hbCA9IGFscGhhICsgbm9pc2VfNjBoeiArIGRyaWZ0XG5cbiMgPT09IFlPVVIgVEFTSyA9PT1cbiMgRGVzaWduIGEgYmFuZHBhc3MgZmlsdGVyIHRvIGtlZXAgb25seSAxLTQwIEh6XG4jIFRoaXMgc2hvdWxkIHJlbW92ZSB0aGUgZHJpZnQgKDwxIEh6KSBhbmQgdGhlIDYwIEh6IG5vaXNlXG4jXG4jIEhpbnQ6IHVzZSBzaW1wbGUgZnJlcXVlbmN5LWRvbWFpbiBmaWx0ZXJpbmdcbiMgMS4gQ29tcHV0ZSB0aGUgRkZUIG9mIHJhd19zaWduYWxcbiMgMi4gWmVybyBvdXQgZnJlcXVlbmNpZXMgb3V0c2lkZSAxLTQwIEh6XG4jIDMuIEludmVyc2UgRkZUIHRvIGdldCB0aGUgZmlsdGVyZWQgc2lnbmFsXG5cbiMgU3RlcCAxOiBGRlRcbmZyZXFzID0gbnAuZmZ0LnJmZnRmcmVxKGxlbihyYXdfc2lnbmFsKSwgZD0xL2ZzKVxuc3BlY3RydW0gPSBucC5mZnQucmZmdChyYXdfc2lnbmFsKVxuXG4jIFN0ZXAgMjogWmVybyBvdXQgdW53YW50ZWQgZnJlcXVlbmNpZXNcbiMgVFJZIElUOiBtb2RpZnkgdGhlIGxpbmUgYmVsb3cgdG8ga2VlcCBvbmx5IDEtNDAgSHpcbm1hc2sgPSAoZnJlcXMgPj0gMSkgJiAoZnJlcXMgPD0gNDApXG5maWx0ZXJlZF9zcGVjdHJ1bSA9IHNwZWN0cnVtICogbWFza1xuXG4jIFN0ZXAgMzogSW52ZXJzZSBGRlRcbmZpbHRlcmVkX3NpZ25hbCA9IG5wLmZmdC5pcmZmdChmaWx0ZXJlZF9zcGVjdHJ1bSwgbj1sZW4ocmF3X3NpZ25hbCkpXG5cbiMgPT09IERpc3BsYXkgcmVzdWx0cyA9PT1cbnByaW50KGZcIlJhdyBzaWduYWw6IG1pbj17cmF3X3NpZ25hbC5taW4oKTouMWZ9LCBtYXg9e3Jhd19zaWduYWwubWF4KCk6LjFmfVwiKVxucHJpbnQoZlwiRmlsdGVyZWQ6ICAgbWluPXtmaWx0ZXJlZF9zaWduYWwubWluKCk6LjFmfSwgbWF4PXtmaWx0ZXJlZF9zaWduYWwubWF4KCk6LjFmfVwiKVxucHJpbnQoZlwiS2VwdCBmcmVxdWVuY2llczoge2ZyZXFzW21hc2tdLm1pbigpOi4xZn0gSHogdG8ge2ZyZXFzW21hc2tdLm1heCgpOi4xZn0gSHpcIilcbnByaW50KGZcIlxcblRoZSA2MCBIeiBub2lzZSBhbmQgc2xvdyBkcmlmdCBzaG91bGQgYmUgZ29uZSFcIilcbnByaW50KGZcIldoYXQgcmVtYWlucyBzaG91bGQgbG9vayBsaWtlIGEgY2xlYW4gMTAgSHogc2luZSB3YXZlLlwiKSJ9
+</script>
+</div>
+<div class="try-it">
+<p><strong>Experiments to try:</strong></p>
+<ul>
+<li>Change the filter to keep only 8–13 Hz (alpha band). What happens?</li>
+<li>What if you set the upper cutoff to 55 Hz instead of 40 Hz? Does the 60 Hz noise survive?</li>
+<li>Try adding <code>import matplotlib.pyplot as plt</code> and plot both signals: <code>plt.plot(t[:200], raw_signal[:200]); plt.plot(t[:200], filtered_signal[:200]); plt.show()</code></li>
+</ul>
+</div>
+</section>
 <section id="quiz-check-your-understanding" class="level2">
 <h2 class="anchored" data-anchor-id="quiz-check-your-understanding">Quiz: Check Your Understanding</h2>
 <div class="quiz-container">
@@ -984,6 +1023,23 @@ ul.task-list li input[type="checkbox"] {
 </div>
 
 
+<script type="pyodide-data">
+eyJvcHRpb25zIjp7ImVudiI6eyJQTE9UTFlfUkVOREVSRVIiOiJwbG90bHlfbWltZXR5cGUifSwiaW5kZXhVUkwiOiJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvcHlvZGlkZS92MC4yOC4xL2Z1bGwvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsicHlvZGlkZV9odHRwIiwibWljcm9waXAiLCJpcHl0aG9uIl19fQ==
+</script>
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJweW9kaWRlLTEiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF9weW9kaWRlX2VkaXRvcl8xID0ge1xuICBjb25zdCB7IFB5b2RpZGVFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuXG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwicHlvZGlkZS0xLWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHB5b2RpZGUtMS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBQeW9kaWRlRXhlcmNpc2VFZGl0b3IoXG4gICAgcHlvZGlkZU9qcy5weW9kaWRlUHJvbWlzZSxcbiAgICBibG9jay5jb2RlLFxuICAgIG9wdGlvbnNcbiAgKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl9weW9kaWRlX3ZhbHVlXzEgPSBweW9kaWRlT2pzLnByb2Nlc3MoX3B5b2RpZGVfZWRpdG9yXzEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJweW9kaWRlLXByZWx1ZGUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJweW9kaWRlT2pzID0ge1xuICBjb25zdCB7XG4gICAgUHlvZGlkZUV2YWx1YXRvcixcbiAgICBQeW9kaWRlRW52aXJvbm1lbnRNYW5hZ2VyLFxuICAgIHNldHVwUHl0aG9uLFxuICAgIHN0YXJ0UHlvZGlkZVdvcmtlcixcbiAgICBiNjREZWNvZGUsXG4gICAgY29sbGFwc2VQYXRoLFxuICB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcblxuICBjb25zdCBzdGF0dXNDb250YWluZXIgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZChcImV4ZXJjaXNlLWxvYWRpbmctc3RhdHVzXCIpO1xuICBjb25zdCBpbmRpY2F0b3JDb250YWluZXIgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZChcImV4ZXJjaXNlLWxvYWRpbmctaW5kaWNhdG9yXCIpO1xuICBpbmRpY2F0b3JDb250YWluZXIuY2xhc3NMaXN0LnJlbW92ZShcImQtbm9uZVwiKTtcblxuICBsZXQgc3RhdHVzVGV4dCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoXCJkaXZcIilcbiAgc3RhdHVzVGV4dC5jbGFzc0xpc3QgPSBcImV4ZXJjaXNlLWxvYWRpbmctZGV0YWlsc1wiO1xuICBzdGF0dXNUZXh0ID0gc3RhdHVzQ29udGFpbmVyLmFwcGVuZENoaWxkKHN0YXR1c1RleHQpO1xuICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYEluaXRpYWxpc2VgO1xuXG4gIC8vIEhvaXN0IGluZGljYXRvciBvdXQgZnJvbSBmaW5hbCBzbGlkZSB3aGVuIHJ1bm5pbmcgdW5kZXIgcmV2ZWFsXG4gIGNvbnN0IHJldmVhbFN0YXR1cyA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoXCIucmV2ZWFsIC5leGVyY2lzZS1sb2FkaW5nLWluZGljYXRvclwiKTtcbiAgaWYgKHJldmVhbFN0YXR1cykge1xuICAgIHJldmVhbFN0YXR1cy5yZW1vdmUoKTtcbiAgICBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKFwiLnJldmVhbCA+IC5zbGlkZXNcIikuYXBwZW5kQ2hpbGQocmV2ZWFsU3RhdHVzKTtcbiAgfVxuXG4gIC8vIE1ha2UgYW55IHJldmVhbCBzbGlkZXMgd2l0aCBsaXZlIGNlbGxzIHNjcm9sbGFibGVcbiAgZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbChcIi5yZXZlYWwgLmV4ZXJjaXNlLWNlbGxcIikuZm9yRWFjaCgoZWwpID0+IHtcbiAgICBlbC5jbG9zZXN0KCdzZWN0aW9uLnNsaWRlJykuY2xhc3NMaXN0LmFkZChcInNjcm9sbGFibGVcIik7XG4gIH0pXG5cbiAgLy8gUHlvZGlkZSBzdXBwbGVtZW50YWwgZGF0YSBhbmQgb3B0aW9uc1xuICBjb25zdCBkYXRhQ29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJweW9kaWRlLWRhdGFcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBkYXRhID0gSlNPTi5wYXJzZShiNjREZWNvZGUoZGF0YUNvbnRlbnQpKTtcblxuICAvLyBHcmFiIGxpc3Qgb2YgcmVzb3VyY2VzIHRvIGJlIGRvd25sb2FkZWRcbiAgY29uc3QgZmlsZXNDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcInZmcy1maWxlXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgZmlsZXMgPSBKU09OLnBhcnNlKGI2NERlY29kZShmaWxlc0NvbnRlbnQpKTtcblxuICBsZXQgcHlvZGlkZVByb21pc2UgPSAoYXN5bmMgKCkgPT4ge1xuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgRG93bmxvYWRpbmcgUHlvZGlkZWA7XG4gICAgY29uc3QgcHlvZGlkZSA9IGF3YWl0IHN0YXJ0UHlvZGlkZVdvcmtlcihkYXRhLm9wdGlvbnMpO1xuXG4gICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyBwYWNrYWdlOiBtaWNyb3BpcGA7XG4gICAgYXdhaXQgcHlvZGlkZS5sb2FkUGFja2FnZShcIm1pY3JvcGlwXCIpO1xuICAgIGNvbnN0IG1pY3JvcGlwID0gYXdhaXQgcHlvZGlkZS5weWltcG9ydChcIm1pY3JvcGlwXCIpO1xuICAgIGF3YWl0IGRhdGEucGFja2FnZXMucGtncy5tYXAoKHBrZykgPT4gKCkgPT4ge1xuICAgICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyBwYWNrYWdlOiAke3BrZ31gO1xuICAgICAgcmV0dXJuIG1pY3JvcGlwLmluc3RhbGwocGtnKTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcbiAgICBhd2FpdCBtaWNyb3BpcC5kZXN0cm95KCk7XG5cbiAgICAvLyBEb3dubG9hZCBhbmQgaW5zdGFsbCByZXNvdXJjZXNcbiAgICBhd2FpdCBmaWxlcy5tYXAoKGZpbGUpID0+IGFzeW5jICgpID0+IHtcbiAgICAgIGNvbnN0IG5hbWUgPSBmaWxlLnN1YnN0cmluZyhmaWxlLmxhc3RJbmRleE9mKCcvJykgKyAxKTtcbiAgICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgRG93bmxvYWRpbmcgcmVzb3VyY2U6ICR7bmFtZX1gO1xuICAgICAgY29uc3QgcmVzcG9uc2UgPSBhd2FpdCBmZXRjaChmaWxlKTtcbiAgICAgIGlmICghcmVzcG9uc2Uub2spIHtcbiAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBDYW4ndCBkb3dubG9hZCBcXGAke2ZpbGV9XFxgLiBFcnJvciAke3Jlc3BvbnNlLnN0YXR1c306IFwiJHtyZXNwb25zZS5zdGF0dXNUZXh0fVwiLmApO1xuICAgICAgfVxuICAgICAgY29uc3QgZGF0YSA9IGF3YWl0IHJlc3BvbnNlLmFycmF5QnVmZmVyKCk7XG5cbiAgICAgIC8vIFN0b3JlIFVSTHMgaW4gdGhlIGN3ZCB3aXRob3V0IGFueSBzdWJkaXJlY3Rvcnkgc3RydWN0dXJlXG4gICAgICBpZiAoZmlsZS5pbmNsdWRlcyhcIjovL1wiKSkge1xuICAgICAgICBmaWxlID0gbmFtZTtcbiAgICAgIH1cblxuICAgICAgLy8gQ29sbGFwc2UgaGlnaGVyIGRpcmVjdG9yeSBzdHJ1Y3R1cmVcbiAgICAgIGZpbGUgPSBjb2xsYXBzZVBhdGgoZmlsZSk7XG5cbiAgICAgIC8vIENyZWF0ZSBkaXJlY3RvcnkgdHJlZSwgaWdub3JpbmcgXCJkaXJlY3RvcnkgZXhpc3RzXCIgVkZTIGVycm9yc1xuICAgICAgY29uc3QgcGFydHMgPSBmaWxlLnNwbGl0KCcvJykuc2xpY2UoMCwgLTEpO1xuICAgICAgbGV0IHBhdGggPSAnJztcbiAgICAgIHdoaWxlIChwYXJ0cy5sZW5ndGggPiAwKSB7XG4gICAgICAgIHBhdGggKz0gcGFydHMuc2hpZnQoKSArICcvJztcbiAgICAgICAgdHJ5IHtcbiAgICAgICAgICBhd2FpdCBweW9kaWRlLkZTLm1rZGlyKHBhdGgpO1xuICAgICAgICB9IGNhdGNoIChlKSB7XG4gICAgICAgICAgaWYgKGUubmFtZSAhPT0gXCJFcnJub0Vycm9yXCIpIHRocm93IGU7XG4gICAgICAgICAgaWYgKGUuZXJybm8gIT09IDIwKSB7XG4gICAgICAgICAgICBjb25zdCBlcnJvclRleHRQdHIgPSBhd2FpdCBweW9kaWRlLl9tb2R1bGUuX3N0cmVycm9yKGUuZXJybm8pO1xuICAgICAgICAgICAgY29uc3QgZXJyb3JUZXh0ID0gYXdhaXQgcHlvZGlkZS5fbW9kdWxlLlVURjhUb1N0cmluZyhlcnJvclRleHRQdHIpO1xuICAgICAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBGaWxlc3lzdGVtIEVycm9yICR7ZS5lcnJub30gXCIke2Vycm9yVGV4dH1cIi5gKTtcbiAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICAgIH1cblxuICAgICAgLy8gV3JpdGUgdGhpcyBmaWxlIHRvIHRoZSBWRlNcbiAgICAgIHRyeSB7XG4gICAgICAgIHJldHVybiBhd2FpdCBweW9kaWRlLkZTLndyaXRlRmlsZShmaWxlLCBuZXcgVWludDhBcnJheShkYXRhKSk7XG4gICAgICB9IGNhdGNoIChlKSB7XG4gICAgICAgIGlmIChlLm5hbWUgIT09IFwiRXJybm9FcnJvclwiKSB0aHJvdyBlO1xuICAgICAgICBjb25zdCBlcnJvclRleHRQdHIgPSBhd2FpdCBweW9kaWRlLl9tb2R1bGUuX3N0cmVycm9yKGUuZXJybm8pO1xuICAgICAgICBjb25zdCBlcnJvclRleHQgPSBhd2FpdCBweW9kaWRlLl9tb2R1bGUuVVRGOFRvU3RyaW5nKGVycm9yVGV4dFB0cik7XG4gICAgICAgIHRocm93IG5ldyBFcnJvcihgRmlsZXN5c3RlbSBFcnJvciAke2UuZXJybm99IFwiJHtlcnJvclRleHR9XCIuYCk7XG4gICAgICB9XG4gICAgfSkucmVkdWNlKChjdXIsIG5leHQpID0+IGN1ci50aGVuKG5leHQpLCBQcm9taXNlLnJlc29sdmUoKSk7XG5cbiAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYFB5b2RpZGUgZW52aXJvbm1lbnQgc2V0dXBgO1xuICAgIGF3YWl0IHNldHVwUHl0aG9uKHB5b2RpZGUpO1xuXG4gICAgc3RhdHVzVGV4dC5yZW1vdmUoKTtcbiAgICBpZiAoc3RhdHVzQ29udGFpbmVyLmNoaWxkcmVuLmxlbmd0aCA9PSAwKSB7XG4gICAgICBzdGF0dXNDb250YWluZXIucGFyZW50Tm9kZS5yZW1vdmUoKTtcbiAgICB9XG4gICAgcmV0dXJuIHB5b2RpZGU7XG4gIH0pKCkuY2F0Y2goKGVycikgPT4ge1xuICAgIHN0YXR1c1RleHQuc3R5bGUuY29sb3IgPSBcInZhcigtLWV4ZXJjaXNlLWVkaXRvci1obC1lciwgI0FEMDAwMClcIjtcbiAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gZXJyLm1lc3NhZ2U7XG4gICAgLy9pbmRpY2F0b3JDb250YWluZXIucXVlcnlTZWxlY3RvcihcIi5zcGlubmVyLWdyb3dcIikuY2xhc3NMaXN0LmFkZChcImQtbm9uZVwiKTtcbiAgICB0aHJvdyBlcnI7XG4gIH0pO1xuXG4gIC8vIEtlZXAgdHJhY2sgb2YgaW5pdGlhbCBPSlMgYmxvY2sgcmVuZGVyXG4gIGNvbnN0IHJlbmRlcmVkT2pzID0ge307XG5cbiAgY29uc3QgcHJvY2VzcyA9IGFzeW5jIChjb250ZXh0LCBpbnB1dHMpID0+IHtcbiAgICBjb25zdCBweW9kaWRlID0gYXdhaXQgcHlvZGlkZVByb21pc2U7XG4gICAgY29uc3QgZXZhbHVhdG9yID0gbmV3IFB5b2RpZGVFdmFsdWF0b3IocHlvZGlkZSwgY29udGV4dCk7XG4gICAgYXdhaXQgZXZhbHVhdG9yLnByb2Nlc3MoaW5wdXRzKTtcbiAgICByZXR1cm4gZXZhbHVhdG9yLmNvbnRhaW5lcjtcbiAgfVxuXG4gIHJldHVybiB7XG4gICAgcHlvZGlkZVByb21pc2UsXG4gICAgcmVuZGVyZWRPanMsXG4gICAgcHJvY2VzcyxcbiAgfTtcbn1cbiJ9XX0=
+</script>
+<div id="exercise-loading-indicator" class="exercise-loading-indicator d-none d-flex align-items-center gap-2">
+<div id="exercise-loading-status" class="d-flex gap-2">
+
+</div>
+<div class="spinner-grow spinner-grow-sm">
+
+</div>
+</div>
+<script type="vfs-file">
+W10=
+</script>
 </section>
 
 </main> <!-- /main -->

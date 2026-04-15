@@ -346,6 +346,7 @@ window.Quarto = {
    
   <ul class="collapse">
   <li><a href="#from-continuous-to-discrete" id="toc-from-continuous-to-discrete" class="nav-link active" data-scroll-target="#from-continuous-to-discrete">From Continuous to Discrete</a></li>
+  <li><a href="#watch-sampling-aliasing-in-action" id="toc-watch-sampling-aliasing-in-action" class="nav-link" data-scroll-target="#watch-sampling-aliasing-in-action">Watch: Sampling &amp; Aliasing in Action</a></li>
   <li><a href="#interactive-sampling-visualizer" id="toc-interactive-sampling-visualizer" class="nav-link" data-scroll-target="#interactive-sampling-visualizer">Interactive: Sampling Visualizer</a></li>
   <li><a href="#the-nyquist-rule" id="toc-the-nyquist-rule" class="nav-link" data-scroll-target="#the-nyquist-rule">The Nyquist Rule</a></li>
   <li><a href="#clinical-sampling-rates" id="toc-clinical-sampling-rates" class="nav-link" data-scroll-target="#clinical-sampling-rates">Clinical Sampling Rates</a></li>
@@ -388,6 +389,19 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="from-continuous-to-discrete">From Continuous to Discrete</h2>
 <p>Imagine someone singing a smooth, continuous note. Now imagine you can only listen for a brief instant once per second. If the note changes slowly, you’d follow along fine. But if the note is wobbling rapidly — faster than you’re checking — you’d miss what’s happening. Worse, you might <em>think</em> you’re hearing something that isn’t there.</p>
 <p>That’s sampling. The rate at which you “check” the signal is called the <strong>sampling rate</strong> (or sampling frequency, <span class="math inline">\(f_s\)</span>), measured in Hz — samples per second.</p>
+</section>
+<section id="watch-sampling-aliasing-in-action" class="level2">
+<h2 class="anchored" data-anchor-id="watch-sampling-aliasing-in-action">Watch: Sampling &amp; Aliasing in Action</h2>
+<p>Before you experiment with the interactive widgets, watch this 15-second animation. It shows a 10 Hz signal sampled at three different rates — fast enough (50 Hz), barely enough (12 Hz), and too slow (8 Hz, causing aliasing). Notice how undersampling creates a phantom 2 Hz wave that doesn’t exist in the original signal.</p>
+<div class="widget-box" style="text-align:center; padding:1em;">
+  <video width="100%" controls="" style="border-radius:8px; max-width:720px;">
+    <source src="../assets/videos/sampling_aliasing.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <p style="font-size:0.85em; color:#888; margin-top:0.5em;">
+    Blue = true 10 Hz signal &nbsp;|&nbsp; Green = good samples &nbsp;|&nbsp; Red = aliased reconstruction
+  </p>
+</div>
 </section>
 <section id="interactive-sampling-visualizer" class="level2">
 <h2 class="anchored" data-anchor-id="interactive-sampling-visualizer">Interactive: Sampling Visualizer</h2>

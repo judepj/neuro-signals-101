@@ -30,8 +30,6 @@ The montage defines which electrode is A and which is B. Change that pairing, an
 
 The figure below shows this in action. A focal spike at electrode C3 is displayed in two different montages. Same brain, same spike, but look how different the traces are.
 
-![Referential montage (left) shows the largest deflection at the electrode nearest the source. Bipolar montage (right) shows a phase reversal — the trace flips direction at the source electrode. Both correctly identify C3 as the origin, but by different visual signatures.](../assets/images/montage_comparison.png){#fig-montage-comparison fig-alt="Side-by-side comparison of referential and bipolar EEG montages showing the same focal spike at C3"}
-
 In the referential montage, you look for the **biggest** deflection. In the bipolar montage, you look for where the deflection **flips direction** — the phase reversal. Both point to C3. We'll come back to phase reversal shortly — it's the single most important localization skill in EEG reading.
 
 ## The Double Banana Montage
@@ -49,8 +47,6 @@ In a bipolar montage, each channel shows the voltage difference between two *nei
 
 The figure below shows this layout on a head diagram:
 
-![The double banana montage. Four chains of electrodes run from anterior to posterior. Each arrow represents one EEG channel — the voltage difference between the pair of electrodes it connects. The parasagittal chains (inner) cover the convexity; the temporal chains (outer) cover the lateral surface.](../assets/images/double_banana_montage.png){#fig-double-banana fig-alt="Diagram of the double banana longitudinal bipolar EEG montage showing four chains of electrode derivations on a head map"}
-
 Why is this montage the clinical default? Because EEG pathology — seizures, focal slowing, spikes — usually has a *location*. The front-to-back chains let you track where activity is strongest along the **anterior-posterior axis**. If a spike appears in F3-C3 and C3-P3 but not in Fp1-F3 or P3-O1, you know it's centered around C3. If the left temporal chain lights up but the right doesn't, it's lateralized to the left.
 
 ::: {.try-it}
@@ -64,8 +60,6 @@ Before we can understand phase reversal properly, we need to understand *what EE
 When a group of pyramidal neurons receives synaptic input, current flows along their long apical dendrites. This creates a tiny **current dipole** — a separation of positive and negative charge, like a miniature battery. One end of the neuron is a current sink (negative), the other is a current source (positive).
 
 A single neuron's dipole is far too small to detect at the scalp. But when **millions of pyramidal neurons** fire in synchrony — all oriented the same way, all producing dipoles at the same time — their fields sum up. That summed dipole is what the EEG electrode detects, after the signal has been smeared and attenuated by cerebrospinal fluid, skull, and scalp.
-
-![How cortical dipoles produce EEG signals. (Left) Pyramidal neurons create current dipoles when they receive synaptic input. (Right) The orientation of the dipole determines how well it's detected: radial dipoles on gyrus crowns are well-detected; tangential dipoles in sulci are poorly detected or invisible to surface electrodes.](../assets/images/cortical_dipole.png){#fig-cortical-dipole fig-alt="Diagram showing cortical pyramidal neuron dipoles, volume conduction through skull, and radial vs tangential dipole orientations"}
 
 Two important consequences:
 
@@ -88,6 +82,10 @@ Up in one channel, down in the next. The deflection reverses at C3. That's the p
 ::: {.key-concept}
 Remember Module 1? You shifted two waves by 180 degrees and watched them become perfectly out of phase — when one went up, the other went down. That's exactly what happens at a phase reversal. Same concept, now with real clinical stakes.
 :::
+
+Watch this animation walk through the mechanics step by step — a dipole activates at C3, the voltage drops off with distance, and the bipolar derivations produce the characteristic up-down reversal pattern.
+
+{{< video ../assets/videos/phase_reversal.mp4 >}}
 
 Try it yourself. The widget below simulates a bipolar montage with a movable spike source. Select where the spike originates, and watch the phase reversal follow it.
 

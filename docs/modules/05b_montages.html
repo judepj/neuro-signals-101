@@ -45,6 +45,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/bootstrap/bootstrap-29413b01964427e4ecb0fb43b1b88900.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
 <link href="../site_libs/bootstrap/bootstrap-dark-f426e8d8c371072b6717f744114b4209.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <link href="../site_libs/bootstrap/bootstrap-29413b01964427e4ecb0fb43b1b88900.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/videojs/video.min.js"></script>
+<link href="../site_libs/quarto-contrib/videojs/video-js.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -393,16 +395,6 @@ window.Quarto = {
 <p><strong>Analogy</strong>: Think of measuring elevation. You can express the height of a mountain relative to sea level (one fixed reference for everything) — that’s a <strong>referential montage</strong>. Or you can express it as the slope between two neighboring points along a trail — that’s a <strong>bipolar montage</strong>. Same mountain. Different way of describing it.</p>
 </div>
 <p>The figure below shows this in action. A focal spike at electrode C3 is displayed in two different montages. Same brain, same spike, but look how different the traces are.</p>
-<div id="fig-montage-comparison" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Side-by-side comparison of referential and bipolar EEG montages showing the same focal spike at C3">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-montage-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="../assets/images/montage_comparison.png" class="img-fluid figure-img" alt="Side-by-side comparison of referential and bipolar EEG montages showing the same focal spike at C3">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-montage-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Referential montage (left) shows the largest deflection at the electrode nearest the source. Bipolar montage (right) shows a phase reversal — the trace flips direction at the source electrode. Both correctly identify C3 as the origin, but by different visual signatures.
-</figcaption>
-</figure>
-</div>
 <p>In the referential montage, you look for the <strong>biggest</strong> deflection. In the bipolar montage, you look for where the deflection <strong>flips direction</strong> — the phase reversal. Both point to C3. We’ll come back to phase reversal shortly — it’s the single most important localization skill in EEG reading.</p>
 </section>
 <section id="the-double-banana-montage" class="level2">
@@ -446,16 +438,6 @@ Figure&nbsp;1: Referential montage (left) shows the largest deflection at the el
 </tbody>
 </table>
 <p>The figure below shows this layout on a head diagram:</p>
-<div id="fig-double-banana" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Diagram of the double banana longitudinal bipolar EEG montage showing four chains of electrode derivations on a head map">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-double-banana-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="../assets/images/double_banana_montage.png" class="img-fluid figure-img" alt="Diagram of the double banana longitudinal bipolar EEG montage showing four chains of electrode derivations on a head map">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-double-banana-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: The double banana montage. Four chains of electrodes run from anterior to posterior. Each arrow represents one EEG channel — the voltage difference between the pair of electrodes it connects. The parasagittal chains (inner) cover the convexity; the temporal chains (outer) cover the lateral surface.
-</figcaption>
-</figure>
-</div>
 <p>Why is this montage the clinical default? Because EEG pathology — seizures, focal slowing, spikes — usually has a <em>location</em>. The front-to-back chains let you track where activity is strongest along the <strong>anterior-posterior axis</strong>. If a spike appears in F3-C3 and C3-P3 but not in Fp1-F3 or P3-O1, you know it’s centered around C3. If the left temporal chain lights up but the right doesn’t, it’s lateralized to the left.</p>
 <div class="try-it">
 <p><strong>Think about it:</strong> If each chain runs from front to back, what kind of activity would the double banana miss or underestimate? (Hint: what about activity that’s purely <em>lateral</em> — differences between left and right hemispheres at the same anterior-posterior level?)</p>
@@ -466,16 +448,6 @@ Figure&nbsp;2: The double banana montage. Four chains of electrodes run from ant
 <p>Before we can understand phase reversal properly, we need to understand <em>what EEG actually measures</em>. Not just “brain activity” — specifically, the electrical dipoles created by cortical pyramidal neurons.</p>
 <p>When a group of pyramidal neurons receives synaptic input, current flows along their long apical dendrites. This creates a tiny <strong>current dipole</strong> — a separation of positive and negative charge, like a miniature battery. One end of the neuron is a current sink (negative), the other is a current source (positive).</p>
 <p>A single neuron’s dipole is far too small to detect at the scalp. But when <strong>millions of pyramidal neurons</strong> fire in synchrony — all oriented the same way, all producing dipoles at the same time — their fields sum up. That summed dipole is what the EEG electrode detects, after the signal has been smeared and attenuated by cerebrospinal fluid, skull, and scalp.</p>
-<div id="fig-cortical-dipole" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Diagram showing cortical pyramidal neuron dipoles, volume conduction through skull, and radial vs tangential dipole orientations">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-cortical-dipole-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="../assets/images/cortical_dipole.png" class="img-fluid figure-img" alt="Diagram showing cortical pyramidal neuron dipoles, volume conduction through skull, and radial vs tangential dipole orientations">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cortical-dipole-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: How cortical dipoles produce EEG signals. (Left) Pyramidal neurons create current dipoles when they receive synaptic input. (Right) The orientation of the dipole determines how well it’s detected: radial dipoles on gyrus crowns are well-detected; tangential dipoles in sulci are poorly detected or invisible to surface electrodes.
-</figcaption>
-</figure>
-</div>
 <p>Two important consequences:</p>
 <ol type="1">
 <li><p><strong>EEG has limited spatial resolution.</strong> You’re seeing the summed activity of millions of neurons, blurred through centimeters of tissue. You can’t pinpoint activity to a few millimeters — that requires intracranial electrodes.</p></li>
@@ -493,6 +465,8 @@ Figure&nbsp;3: How cortical dipoles produce EEG signals. (Left) Pyramidal neuron
 <div class="key-concept">
 <p>Remember Module 1? You shifted two waves by 180 degrees and watched them become perfectly out of phase — when one went up, the other went down. That’s exactly what happens at a phase reversal. Same concept, now with real clinical stakes.</p>
 </div>
+<p>Watch this animation walk through the mechanics step by step — a dipole activates at C3, the voltage drops off with distance, and the bipolar derivations produce the characteristic up-down reversal pattern.</p>
+<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="../assets/videos/phase_reversal.mp4"></video></div>
 <p>Try it yourself. The widget below simulates a bipolar montage with a movable spike source. Select where the spike originates, and watch the phase reversal follow it.</p>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 
@@ -1271,6 +1245,7 @@ Figure&nbsp;3: How cortical dipoles produce EEG signals. (Left) Pyramidal neuron
     </div>
   </div>
 </footer>
+<script>videojs(video_shortcode_videojs_video1);</script>
 
 
 
