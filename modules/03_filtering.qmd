@@ -4,8 +4,6 @@ subtitle: "Cleaning the Signal — Separating Brain Waves from Noise"
 format:
   html:
     code-fold: true
-filters:
-  - live
 ---
 
 ::: {.clinical-vignette}
@@ -40,7 +38,7 @@ Watch the animation below. A synthetic "raw EEG" -- built from slow drift, a 10 
 
 Before we filter anything, let's see what we're dealing with. The signal below is synthetic, but it's a realistic mix of what you'd see in a real EEG recording:
 
-- A **2 Hz drift** (slow baseline wander from electrode impedance changes)
+- A **slow drift (0.3 Hz)** (baseline wander from electrode impedance changes)
 - A **10 Hz alpha rhythm** (the brain signal you actually want)
 - A **60 Hz line noise** (power line interference)
 - Some **random noise** (thermal noise from electronics)
@@ -87,7 +85,7 @@ Before we filter anything, let's see what we're dealing with. The signal below i
   function rand() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
 
   // Individual components
-  const drift = t.map(function(ti) { return 30 * Math.sin(2 * Math.PI * 2 * ti); });
+  const drift = t.map(function(ti) { return 30 * Math.sin(2 * Math.PI * 0.3 * ti); });
   const alpha = t.map(function(ti) { return 20 * Math.sin(2 * Math.PI * 10 * ti); });
   const line60 = t.map(function(ti) { return 12 * Math.sin(2 * Math.PI * 60 * ti); });
   const noise = t.map(function() { return 5 * (rand() - 0.5); });
@@ -111,16 +109,16 @@ Before we filter anything, let's see what we're dealing with. The signal below i
     raw: '#2c3e50', highpass: '#e67e22', lowpass: '#2980b9', bandpass: '#27ae60'
   };
   const filterLabels = {
-    raw: 'Showing: <b>Raw signal</b> — all components present. The 60 Hz noise makes it "hairy," and the 2 Hz drift makes it roll up and down.',
-    highpass: 'Showing: <b>High-pass filter (cutoff: 1 Hz)</b> — the slow 2 Hz drift is removed. The 60 Hz noise and alpha rhythm both remain.',
+    raw: 'Showing: <b>Raw signal</b> — all components present. The 60 Hz noise makes it "hairy," and the slow drift makes it roll up and down.',
+    highpass: 'Showing: <b>High-pass filter (cutoff: 1 Hz)</b> — the slow slow drift is removed. The 60 Hz noise and alpha rhythm both remain.',
     lowpass: 'Showing: <b>Low-pass filter (cutoff: 40 Hz)</b> — the 60 Hz noise is removed. The slow drift and alpha rhythm both remain.',
     bandpass: 'Showing: <b>Band-pass filter (1–40 Hz)</b> — only the 10 Hz alpha rhythm survives (plus residual random noise). This is the standard EEG filter setting.'
   };
   const componentLabels = {
-    raw: '<b>Components present:</b> <span style="color:#c0392b;">2 Hz drift \u2713</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22;">60 Hz line noise \u2713</span> &nbsp; <span style="color:#888;">Random noise \u2713</span>',
-    highpass: '<b>Components present:</b> <span style="color:#c0392b; text-decoration:line-through;">2 Hz drift \u2717</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22;">60 Hz line noise \u2713</span> &nbsp; <span style="color:#888;">Random noise \u2713</span>',
-    lowpass: '<b>Components present:</b> <span style="color:#c0392b;">2 Hz drift \u2713</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22; text-decoration:line-through;">60 Hz line noise \u2717</span> &nbsp; <span style="color:#888;">Random noise \u2713</span>',
-    bandpass: '<b>Components present:</b> <span style="color:#c0392b; text-decoration:line-through;">2 Hz drift \u2717</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22; text-decoration:line-through;">60 Hz line noise \u2717</span> &nbsp; <span style="color:#888;">Random noise (partial) ~</span>'
+    raw: '<b>Components present:</b> <span style="color:#c0392b;">slow drift \u2713</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22;">60 Hz line noise \u2713</span> &nbsp; <span style="color:#888;">Random noise \u2713</span>',
+    highpass: '<b>Components present:</b> <span style="color:#c0392b; text-decoration:line-through;">slow drift \u2717</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22;">60 Hz line noise \u2713</span> &nbsp; <span style="color:#888;">Random noise \u2713</span>',
+    lowpass: '<b>Components present:</b> <span style="color:#c0392b;">slow drift \u2713</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22; text-decoration:line-through;">60 Hz line noise \u2717</span> &nbsp; <span style="color:#888;">Random noise \u2713</span>',
+    bandpass: '<b>Components present:</b> <span style="color:#c0392b; text-decoration:line-through;">slow drift \u2717</span> &nbsp; <span style="color:#2980b9;">10 Hz alpha \u2713</span> &nbsp; <span style="color:#e67e22; text-decoration:line-through;">60 Hz line noise \u2717</span> &nbsp; <span style="color:#888;">Random noise (partial) ~</span>'
   };
 
   const btnIds = {raw: 'btnRaw', highpass: 'btnHP', lowpass: 'btnLP', bandpass: 'btnBP'};
@@ -234,8 +232,8 @@ Now you control the filter cutoffs. Drag the sliders and watch the signal change
 
   // Frequency components: freq, amplitude pairs
   const components = [
+    {freq: 0.3, amp: 30, label: 'Drift'},
     {freq: 0.5, amp: 15, label: 'Very slow drift'},
-    {freq: 2, amp: 30, label: 'Drift'},
     {freq: 5, amp: 12, label: 'Theta'},
     {freq: 10, amp: 20, label: 'Alpha'},
     {freq: 22, amp: 8, label: 'Beta'},
@@ -540,66 +538,6 @@ Because filter settings change what you see, and what you see changes your diagn
 - **Notch filter always on**: You might miss gamma-frequency abnormalities (rare, but it happens).
 
 The attending doesn't just "read" an EEG — they adjust the filters, re-read, adjust again. It's an interactive process.
-
-## Try It Yourself: Filter a Signal in Python
-
-The widgets above let you see what filtering does. Now try it with real code. The cell below runs Python *in your browser* --- no installation needed. Edit the code and click **Run**.
-
-```{pyodide}
-import numpy as np
-
-# === Signal Parameters ===
-duration = 2       # seconds
-fs = 500           # sampling rate (Hz)
-t = np.linspace(0, duration, duration * fs, endpoint=False)
-
-# === Build a noisy signal ===
-# 10 Hz alpha rhythm (the brain signal we want to keep)
-alpha = 3 * np.sin(2 * np.pi * 10 * t)
-# 60 Hz power line noise (we want to remove this)
-noise_60hz = 1.5 * np.sin(2 * np.pi * 60 * t)
-# Slow 0.5 Hz electrode drift
-drift = 4 * np.sin(2 * np.pi * 0.5 * t)
-
-# Combined "raw EEG"
-raw_signal = alpha + noise_60hz + drift
-
-# === YOUR TASK ===
-# Design a bandpass filter to keep only 1-40 Hz
-# This should remove the drift (<1 Hz) and the 60 Hz noise
-#
-# Hint: use simple frequency-domain filtering
-# 1. Compute the FFT of raw_signal
-# 2. Zero out frequencies outside 1-40 Hz
-# 3. Inverse FFT to get the filtered signal
-
-# Step 1: FFT
-freqs = np.fft.rfftfreq(len(raw_signal), d=1/fs)
-spectrum = np.fft.rfft(raw_signal)
-
-# Step 2: Zero out unwanted frequencies
-# TRY IT: modify the line below to keep only 1-40 Hz
-mask = (freqs >= 1) & (freqs <= 40)
-filtered_spectrum = spectrum * mask
-
-# Step 3: Inverse FFT
-filtered_signal = np.fft.irfft(filtered_spectrum, n=len(raw_signal))
-
-# === Display results ===
-print(f"Raw signal: min={raw_signal.min():.1f}, max={raw_signal.max():.1f}")
-print(f"Filtered:   min={filtered_signal.min():.1f}, max={filtered_signal.max():.1f}")
-print(f"Kept frequencies: {freqs[mask].min():.1f} Hz to {freqs[mask].max():.1f} Hz")
-print(f"\nThe 60 Hz noise and slow drift should be gone!")
-print(f"What remains should look like a clean 10 Hz sine wave.")
-```
-
-::: {.try-it}
-**Experiments to try:**
-
-- Change the filter to keep only 8--13 Hz (alpha band). What happens?
-- What if you set the upper cutoff to 55 Hz instead of 40 Hz? Does the 60 Hz noise survive?
-- Try adding `import matplotlib.pyplot as plt` and plot both signals: `plt.plot(t[:200], raw_signal[:200]); plt.plot(t[:200], filtered_signal[:200]); plt.show()`
-:::
 
 ## Quiz: Check Your Understanding
 

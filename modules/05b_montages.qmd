@@ -83,10 +83,6 @@ Up in one channel, down in the next. The deflection reverses at C3. That's the p
 Remember Module 1? You shifted two waves by 180 degrees and watched them become perfectly out of phase — when one went up, the other went down. That's exactly what happens at a phase reversal. Same concept, now with real clinical stakes.
 :::
 
-Watch this animation walk through the mechanics step by step — a dipole activates at C3, the voltage drops off with distance, and the bipolar derivations produce the characteristic up-down reversal pattern.
-
-{{< video ../assets/videos/phase_reversal.mp4 >}}
-
 Try it yourself. The widget below simulates a bipolar montage with a movable spike source. Select where the spike originates, and watch the phase reversal follow it.
 
 ```{=html}
