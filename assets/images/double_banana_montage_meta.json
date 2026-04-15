@@ -1,0 +1,19 @@
+{
+  "adapter": "util_gen_image",
+  "version": "1.0",
+  "provider": "gemini",
+  "model": "imagen-4.0-fast-generate-001",
+  "primitive": "custom_eeg_montage",
+  "parameters": {},
+  "prompt": "Educational medical diagram of the EEG double banana (longitudinal bipolar) montage.\n\nShow a top-down view of a human head outline (oval) with the 10-20 system electrode positions marked as labeled dots:\n- Fp1, Fp2 (frontopolar)\n- F3, F4, F7, F8, Fz (frontal)\n- C3, C4, Cz (central)\n- P3, P4 (parietal)\n- T3, T4, T5, T6 (temporal)\n- O1, O2 (occipital)\n\nDraw four color-coded chains of bipolar derivations with arrows connecting electrode pairs:\n1. LEFT PARASAGITTAL (blue): Fp1 -> F3 -> C3 -> P3 -> O1\n2. RIGHT PARASAGITTAL (blue): Fp2 -> F4 -> C4 -> P4 -> O2\n3. LEFT TEMPORAL (green): Fp1 -> F7 -> T3 -> T5 -> O1\n4. RIGHT TEMPORAL (green): Fp2 -> F8 -> T4 -> T6 -> O2\n\nAlong each arrow, label the channel derivation name (e.g., \"Fp1-F3\", \"F3-C3\", etc.).\n\nInclude a legend showing the four chains.\nTitle: \"Double Banana (Longitudinal Bipolar) Montage\"\n\nClean line art style, white background, clearly labeled. Medical textbook quality illustration suitable for first-year medical students. No photographs, no 3D effects.\n\nPublication quality. Medical/scientific illustration style.\n\nBACKGROUND: Pure white (#FFFFFF)\nFONT: Sans-serif (Arial or Helvetica), black (#000000)\nLABELS: Clear, readable, appropriately sized (10-14pt equivalent)\nLINES: Consistent weight (1-2pt), black or dark gray\nCOLORS: Grayscale for anatomy + single accent color palette\nSCALE: Include scale bar where anatomically relevant\nASPECT: 4:3\n\nEXCLUDE: Watermarks, signatures, artistic lighting, gradients,\n    shadows, 3D rendering effects, stock photo aesthetics,\n    decorative borders, clip art style, cartoon style",
+  "negative_prompt": "Do not include: watermark, signature, artist name, copyright text, decorative border, ornamental frame, clip art, cartoon style, 3D render, photorealistic lighting, lens flare, bokeh, depth of field blur, vignette, film grain, noise texture, drop shadow on text, gradient backgrounds, stock photo, human hands, human faces, realistic skin texture",
+  "seed": null,
+  "timestamp": "2026-04-15T04:30:52.538653+00:00",
+  "post_processing": [
+    "labels"
+  ],
+  "metadata": {
+    "variant_index": 0,
+    "aspect_ratio": "4:3"
+  }
+}

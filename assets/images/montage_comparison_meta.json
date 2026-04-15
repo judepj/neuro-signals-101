@@ -1,0 +1,19 @@
+{
+  "adapter": "util_gen_image",
+  "version": "1.0",
+  "provider": "gemini",
+  "model": "imagen-4.0-fast-generate-001",
+  "primitive": "custom_montage_comparison",
+  "parameters": {},
+  "prompt": "Educational EEG diagram comparing referential and bipolar montage displays side by side.\n\nTwo-panel comparison diagram:\n\nLEFT PANEL: \"Referential Montage (Common Reference: Cz)\"\n- Show 4 EEG trace channels stacked vertically, labeled:\n  F3-Cz, C3-Cz, P3-Cz, O1-Cz\n- Each trace shows a time-voltage waveform (x-axis = time, y-axis = voltage)\n- Place a focal negative spike at electrode C3:\n  * The C3-Cz channel has the LARGEST negative deflection (biggest downward spike)\n  * F3-Cz shows a smaller spike (further from source)\n  * P3-Cz shows a smaller spike (further from source)\n  * O1-Cz shows minimal/no spike\n- Label: \"Largest deflection at C3 = source near C3\"\n\nRIGHT PANEL: \"Bipolar Montage (Longitudinal)\"\n- Show 3 EEG trace channels stacked vertically, labeled:\n  F3-C3, C3-P3, P3-O1\n- Same brain activity but viewed as bipolar derivations:\n  * F3-C3: deflection goes UPWARD (F3 is less negative than C3)\n  * C3-P3: deflection goes DOWNWARD (C3 is more negative than P3)\n  * P3-O1: minimal deflection\n- Draw a RED ARROW pointing to the junction between F3-C3 and C3-P3 traces\n- Label the red arrow: \"PHASE REVERSAL at C3\"\n- Add note: \"Phase reversal = the source is at C3\"\n\nTitle: \"Same Brain Activity, Two Different Montages\"\nSubtitle: \"Both point to C3 as the source\"\n\nClean medical illustration style, white background, clearly labeled axes and channels.\nEEG traces should look like realistic waveforms (not just sine waves).\nPublication quality diagram for medical students.\n\nPublication quality. Medical/scientific illustration style.\n\nBACKGROUND: Pure white (#FFFFFF)\nFONT: Sans-serif (Arial or Helvetica), black (#000000)\nLABELS: Clear, readable, appropriately sized (10-14pt equivalent)\nLINES: Consistent weight (1-2pt), black or dark gray\nCOLORS: Grayscale for anatomy + single accent color palette\nSCALE: Include scale bar where anatomically relevant\nASPECT: 16:9\n\nEXCLUDE: Watermarks, signatures, artistic lighting, gradients,\n    shadows, 3D rendering effects, stock photo aesthetics,\n    decorative borders, clip art style, cartoon style",
+  "negative_prompt": "Do not include: watermark, signature, artist name, copyright text, decorative border, ornamental frame, clip art, cartoon style, 3D render, photorealistic lighting, lens flare, bokeh, depth of field blur, vignette, film grain, noise texture, drop shadow on text, gradient backgrounds, stock photo, human hands, human faces, realistic skin texture",
+  "seed": null,
+  "timestamp": "2026-04-15T04:31:00.338353+00:00",
+  "post_processing": [
+    "labels"
+  ],
+  "metadata": {
+    "variant_index": 0,
+    "aspect_ratio": "16:9"
+  }
+}

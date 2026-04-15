@@ -405,7 +405,7 @@ window.Quarto = {
   </div>
   <div id="stepExplain" style="padding:10px 14px; background:#f9f9f9; border-radius:8px; margin-bottom:10px; font-size:0.92em; line-height:1.6; color:#333;"></div>
   <div id="stepPlot1" style="width:100%; height:280px;"></div>
-  <div id="stepPlot2" style="width:100%; height:300px; display:none;"></div>
+  <div id="stepPlot2" style="width:100%; height:380px; display:none;"></div>
 </div>
 
 <script>
@@ -413,7 +413,7 @@ window.Quarto = {
   function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
   const rand = seededRand(42);
 
-  const sr = 256, dur = 10;
+  const sr = 512, dur = 10;
   const N = sr * dur;
   const t = [], signal = [];
   for (let i = 0; i < N; i++) {
@@ -624,7 +624,7 @@ window.Quarto = {
       }, {responsive:true, displayModeBar:false});
 
       // Spectrogram
-      const spec = computeSpectrogram(signal, sr, 1.0, 0.125);
+      const spec = computeSpectrogram(signal, sr, 0.5, 0.05);
       // Transpose power for heatmap (z[freq][time])
       const zData = [];
       for (let f = 0; f < spec.freqs.length; f++) {
@@ -637,7 +637,7 @@ window.Quarto = {
 
       Plotly.react('stepPlot2', [{
         z:zData, x:spec.times, y:spec.freqs,
-        type:'heatmap', colorscale:'Viridis',
+        type:'heatmap', colorscale:'Viridis', zsmooth:'best',
         hovertemplate:'Time: %{x:.2f}s<br>Freq: %{y:.1f} Hz<br>Power: %{z:.1f} dB<extra></extra>',
         colorbar:{title:'dB', titleside:'right', thickness:15}
       }], {
@@ -711,7 +711,7 @@ window.Quarto = {
 (function() {
   function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
 
-  const sr = 256, dur = 10;
+  const sr = 512, dur = 10;
 
   function computeSpectrogram(sig, sr, winSec, hopSec) {
     const winN = Math.floor(winSec * sr);
@@ -782,7 +782,7 @@ window.Quarto = {
       hovermode:'x unified'
     }, {responsive:true, displayModeBar:false});
 
-    const spec = computeSpectrogram(signal, sr, 1.0, 0.125);
+    const spec = computeSpectrogram(signal, sr, 0.5, 0.05);
     const zData = [];
     for (let f = 0; f < spec.freqs.length; f++) {
       const row = [];
@@ -792,7 +792,7 @@ window.Quarto = {
 
     Plotly.react('designerSpectroPlot', [{
       z:zData, x:spec.times, y:spec.freqs,
-      type:'heatmap', colorscale:'Viridis',
+      type:'heatmap', colorscale:'Viridis', zsmooth:'best',
       hovertemplate:'Time: %{x:.2f}s<br>Freq: %{y:.1f} Hz<br>Power: %{z:.1f} dB<extra></extra>',
       colorbar:{title:'dB', titleside:'right', thickness:15}
     }], {
@@ -855,7 +855,7 @@ window.Quarto = {
   function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
   const rand = seededRand(99);
 
-  const sr = 256, dur = 5;
+  const sr = 512, dur = 5;
   const N = sr * dur;
   const t = [], signal = [];
   for (let i = 0; i < N; i++) {
@@ -934,7 +934,7 @@ window.Quarto = {
 
     Plotly.react('winSpectroPlot', [{
       z:zData, x:spec.times, y:spec.freqs,
-      type:'heatmap', colorscale:'Viridis',
+      type:'heatmap', colorscale:'Viridis', zsmooth:'best',
       hovertemplate:'Time: %{x:.2f}s<br>Freq: %{y:.1f} Hz<br>Power: %{z:.1f} dB<extra></extra>',
       colorbar:{title:'dB', titleside:'right', thickness:15}
     },{
