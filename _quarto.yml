@@ -23,6 +23,8 @@ website:
         href: modules/04_fft.qmd
       - text: "5. EEG Basics"
         href: modules/05_eeg_basics.qmd
+      - text: "5b. Montages"
+        href: modules/05b_montages.qmd
       - text: "6. Artifacts"
         href: modules/06_artifacts.qmd
       - text: "7. Spectrograms"

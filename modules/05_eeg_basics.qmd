@@ -668,5 +668,5 @@ But there's a catch. Not everything on that EEG screen comes from the brain. Eye
 
 ::: {.module-nav}
 [← Module 4: FFT](04_fft.qmd)
-[Module 6: Artifacts →](06_artifacts.qmd)
+[Module 5b: Montages & Dipoles →](05b_montages.qmd)
 :::

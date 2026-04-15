@@ -1,0 +1,445 @@
+---
+title: "Module 5b: Montages & Dipoles"
+subtitle: "Why the Same Brain Looks Different on Different Screens"
+format:
+  html:
+    code-fold: true
+---
+
+::: {.clinical-vignette}
+You're reviewing an EEG with the attending neurologist. The EEG technician asks: "Doctor, would you like the recording displayed in referential or bipolar montage?" The attending says, "Show me the banana." You have no idea what fruit has to do with neurology. But you need to learn — because the same brain activity can look completely different depending on how you display it. And one of those displays makes a seizure source obvious. The other can hide it.
+:::
+
+You've learned where the electrodes go (the 10-20 system) and what the frequency bands mean. But there's a piece missing between "recording the signal" and "reading the EEG": **the montage**. This is how EEG signals get wired up for display — and it changes everything about what you see.
+
+## What Is a Montage?
+
+A montage is **not** about where the electrodes go. You already covered that — the 10-20 system places electrodes in fixed, standardized positions on the scalp. That doesn't change.
+
+A montage is about **how you display** the recorded signals. It's the math that happens *after* the electrodes capture the voltages.
+
+Here's the fundamental principle: **EEG measures voltage *differences*.** A single electrode doesn't measure anything useful by itself — it needs a second point to compare against. Every EEG channel is always the difference between two electrodes:
+
+$$V_{\text{channel}} = V_{\text{electrode A}} - V_{\text{electrode B}}$$
+
+The montage defines which electrode is A and which is B. Change that pairing, and the same brain activity produces a completely different-looking trace.
+
+::: {.key-concept}
+**Analogy**: Think of measuring elevation. You can express the height of a mountain relative to sea level (one fixed reference for everything) — that's a **referential montage**. Or you can express it as the slope between two neighboring points along a trail — that's a **bipolar montage**. Same mountain. Different way of describing it.
+:::
+
+The figure below shows this in action. A focal spike at electrode C3 is displayed in two different montages. Same brain, same spike, but look how different the traces are.
+
+![Referential montage (left) shows the largest deflection at the electrode nearest the source. Bipolar montage (right) shows a phase reversal — the trace flips direction at the source electrode. Both correctly identify C3 as the origin, but by different visual signatures.](../assets/images/montage_comparison.png){#fig-montage-comparison fig-alt="Side-by-side comparison of referential and bipolar EEG montages showing the same focal spike at C3"}
+
+In the referential montage, you look for the **biggest** deflection. In the bipolar montage, you look for where the deflection **flips direction** — the phase reversal. Both point to C3. We'll come back to phase reversal shortly — it's the single most important localization skill in EEG reading.
+
+## The Double Banana Montage
+
+The most commonly used clinical EEG montage is the **longitudinal bipolar** montage, affectionately known as the **double banana**. (The name comes from the shape of the electrode chains — two curved lines running front-to-back on each side, like bananas. Neurologists did not name this.)
+
+In a bipolar montage, each channel shows the voltage difference between two *neighboring* electrodes along a chain. The double banana has four chains running from front to back:
+
+| Chain | Electrodes | Derivations |
+|-------|-----------|-------------|
+| Left parasagittal | Fp1 → F3 → C3 → P3 → O1 | Fp1-F3, F3-C3, C3-P3, P3-O1 |
+| Right parasagittal | Fp2 → F4 → C4 → P4 → O2 | Fp2-F4, F4-C4, C4-P4, P4-O2 |
+| Left temporal | Fp1 → F7 → T3 → T5 → O1 | Fp1-F7, F7-T3, T3-T5, T5-O1 |
+| Right temporal | Fp2 → F8 → T4 → T6 → O2 | Fp2-F8, F8-T4, T4-T6, T6-O2 |
+
+The figure below shows this layout on a head diagram:
+
+![The double banana montage. Four chains of electrodes run from anterior to posterior. Each arrow represents one EEG channel — the voltage difference between the pair of electrodes it connects. The parasagittal chains (inner) cover the convexity; the temporal chains (outer) cover the lateral surface.](../assets/images/double_banana_montage.png){#fig-double-banana fig-alt="Diagram of the double banana longitudinal bipolar EEG montage showing four chains of electrode derivations on a head map"}
+
+Why is this montage the clinical default? Because EEG pathology — seizures, focal slowing, spikes — usually has a *location*. The front-to-back chains let you track where activity is strongest along the **anterior-posterior axis**. If a spike appears in F3-C3 and C3-P3 but not in Fp1-F3 or P3-O1, you know it's centered around C3. If the left temporal chain lights up but the right doesn't, it's lateralized to the left.
+
+::: {.try-it}
+**Think about it:** If each chain runs from front to back, what kind of activity would the double banana miss or underestimate? (Hint: what about activity that's purely *lateral* — differences between left and right hemispheres at the same anterior-posterior level?)
+:::
+
+## The Dipole: Why EEG Looks the Way It Does
+
+Before we can understand phase reversal properly, we need to understand *what EEG actually measures*. Not just "brain activity" — specifically, the electrical dipoles created by cortical pyramidal neurons.
+
+When a group of pyramidal neurons receives synaptic input, current flows along their long apical dendrites. This creates a tiny **current dipole** — a separation of positive and negative charge, like a miniature battery. One end of the neuron is a current sink (negative), the other is a current source (positive).
+
+A single neuron's dipole is far too small to detect at the scalp. But when **millions of pyramidal neurons** fire in synchrony — all oriented the same way, all producing dipoles at the same time — their fields sum up. That summed dipole is what the EEG electrode detects, after the signal has been smeared and attenuated by cerebrospinal fluid, skull, and scalp.
+
+![How cortical dipoles produce EEG signals. (Left) Pyramidal neurons create current dipoles when they receive synaptic input. (Right) The orientation of the dipole determines how well it's detected: radial dipoles on gyrus crowns are well-detected; tangential dipoles in sulci are poorly detected or invisible to surface electrodes.](../assets/images/cortical_dipole.png){#fig-cortical-dipole fig-alt="Diagram showing cortical pyramidal neuron dipoles, volume conduction through skull, and radial vs tangential dipole orientations"}
+
+Two important consequences:
+
+1. **EEG has limited spatial resolution.** You're seeing the summed activity of millions of neurons, blurred through centimeters of tissue. You can't pinpoint activity to a few millimeters — that requires intracranial electrodes.
+
+2. **Dipole orientation matters.** Pyramidal neurons on the crown of a gyrus produce **radial dipoles** that point straight toward the scalp — these are well-detected by nearby electrodes. But neurons on the wall of a sulcus produce **tangential dipoles** that point sideways — these produce a weaker, more spread-out signal, or may be nearly invisible to surface EEG. About two-thirds of the cortical surface is buried in sulci. A lot of brain activity never makes it to the scalp.
+
+::: {.key-concept}
+**Why this matters clinically:** Not all seizures show up on scalp EEG. A seizure originating deep in a sulcus might produce tangential dipoles that are invisible to surface electrodes. This is one reason why some epilepsy patients need **intracranial EEG** — electrodes placed directly on or in the brain — to find the seizure focus.
+:::
+
+## Phase Reversal: Localizing the Source
+
+Now the payoff. In a bipolar montage, when there's a focal electrical source (a spike, a seizure onset), the two channels that *share* the electrode closest to the source will deflect in **opposite directions**. This is a **phase reversal**.
+
+Why does this happen? Think about the math. Say electrode C3 has the largest negative voltage (it's closest to the source). In the channel F3-C3, you're computing (F3 minus C3). Since C3 is very negative, subtracting a large negative number gives a large *positive* result — the trace deflects **up**. In the next channel, C3-P3, you're computing (C3 minus P3). C3 is very negative, so the result is a large *negative* number — the trace deflects **down**.
+
+Up in one channel, down in the next. The deflection reverses at C3. That's the phase reversal, and it points you straight at the source.
+
+::: {.key-concept}
+Remember Module 1? You shifted two waves by 180 degrees and watched them become perfectly out of phase — when one went up, the other went down. That's exactly what happens at a phase reversal. Same concept, now with real clinical stakes.
+:::
+
+Try it yourself. The widget below simulates a bipolar montage with a movable spike source. Select where the spike originates, and watch the phase reversal follow it.
+
+```{=html}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<div class="widget-box">
+  <div style="margin-bottom: 1em;">
+    <label for="sourceSelect" style="font-weight:600; font-size:0.95em;">
+      Spike source electrode:
+      <select id="sourceSelect" style="padding:6px 12px; border-radius:6px; border:2px solid #2980b9; font-size:0.95em; cursor:pointer;">
+        <option value="F3">F3 (frontal)</option>
+        <option value="C3" selected>C3 (central)</option>
+        <option value="P3">P3 (parietal)</option>
+        <option value="O1">O1 (occipital)</option>
+      </select>
+    </label>
+    <span id="sourceNote" style="margin-left:12px; font-size:0.88em; color:#8e44ad; font-style:italic;">
+      Phase reversal at C3
+    </span>
+  </div>
+
+  <div id="phaseReversalPlot" style="width:100%; height:480px;"></div>
+
+  <div id="phaseReversalCaption" style="margin-top:8px; padding:10px; background:#f4ecf7; border-radius:8px; border:1px solid #d2b4de; font-size:0.92em;">
+    The spike source is at <b>C3</b>. Notice: Fp1-F3 shows little deflection, <b>F3-C3 deflects UP</b>, <b>C3-P3 deflects DOWN</b>, and P3-O1 shows little deflection. The direction reversal between F3-C3 and C3-P3 is the <b>phase reversal</b> — it tells you C3 is the source.
+  </div>
+</div>
+
+<script>
+(function() {
+  var electrodes = ['Fp1', 'F3', 'C3', 'P3', 'O1'];
+  var channels = ['Fp1-F3', 'F3-C3', 'C3-P3', 'P3-O1'];
+  var channelColors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12'];
+
+  function seededRand(s) {
+    return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+  }
+
+  function generateEEG(source) {
+    var sr = 500, dur = 2;
+    var N = sr * dur;
+    var rand = seededRand(42);
+
+    // Electrode voltages — background + spike at source
+    var spikeIdx = electrodes.indexOf(source);
+    var spikeCenter = 1.0; // spike at t=1.0s
+    var spikeWidth = 0.03; // 30ms spike
+
+    // Build voltage at each electrode
+    var voltages = {};
+    electrodes.forEach(function(e, idx) {
+      voltages[e] = [];
+      for (var i = 0; i < N; i++) {
+        var ti = i / sr;
+        // Background: mix of alpha + noise
+        var bg = 15 * Math.sin(2 * Math.PI * 10 * ti + idx * 0.7)
+               + 8 * Math.sin(2 * Math.PI * 6 * ti + idx * 1.3)
+               + 5 * (rand() - 0.5);
+
+        // Spike: Gaussian-windowed sharp transient, negative at source
+        var dist = Math.abs(idx - spikeIdx);
+        var spikeAmp = 0;
+        if (dist <= 2) {
+          var falloff = [1.0, 0.4, 0.1][dist];
+          var tRel = ti - spikeCenter;
+          if (Math.abs(tRel) < 0.15) {
+            // Sharp spike followed by slow wave
+            var spike = -120 * falloff * Math.exp(-0.5 * Math.pow(tRel / spikeWidth, 2));
+            var slowWave = 40 * falloff * Math.exp(-0.5 * Math.pow((tRel - 0.06) / 0.05, 2));
+            spikeAmp = spike + slowWave;
+          }
+        }
+        voltages[e].push(bg + spikeAmp);
+      }
+    });
+
+    // Bipolar derivations
+    var traces = [];
+    var t = [];
+    for (var i = 0; i < N; i++) t.push(i / sr);
+
+    channels.forEach(function(ch, ci) {
+      var parts = ch.split('-');
+      var e1 = parts[0], e2 = parts[1];
+      var y = [];
+      for (var i = 0; i < N; i++) {
+        y.push(voltages[e1][i] - voltages[e2][i]);
+      }
+      // Offset for stacking
+      var offset = -ci * 120;
+      var yOffset = y.map(function(v) { return v + offset; });
+      traces.push({
+        x: t, y: yOffset, type: 'scatter', mode: 'lines',
+        line: {color: channelColors[ci], width: 1.5},
+        name: ch,
+        hovertemplate: ch + ': %{text:.0f} uV<extra></extra>',
+        text: y.map(function(v) { return v.toFixed(0); })
+      });
+    });
+
+    return {traces: traces, t: t};
+  }
+
+  function updatePlot() {
+    var source = document.getElementById('sourceSelect').value;
+    var data = generateEEG(source);
+
+    // Find which channels show the phase reversal
+    var sIdx = electrodes.indexOf(source);
+    var annotations = [];
+    var shapes = [];
+
+    // Channel labels on left
+    channels.forEach(function(ch, ci) {
+      annotations.push({
+        x: -0.05, y: -ci * 120,
+        xref: 'x', yref: 'y',
+        text: '<b>' + ch + '</b>',
+        showarrow: false,
+        font: {size: 12, color: channelColors[ci]},
+        xanchor: 'right'
+      });
+    });
+
+    // Phase reversal marker
+    if (sIdx > 0 && sIdx < electrodes.length - 1) {
+      var prChannel1 = sIdx - 1; // channel above
+      var prChannel2 = sIdx;     // channel below
+      var midY = (-prChannel1 * 120 + -prChannel2 * 120) / 2;
+      annotations.push({
+        x: 1.0, y: midY,
+        xref: 'x', yref: 'y',
+        text: '<b>PHASE<br>REVERSAL</b>',
+        showarrow: true,
+        arrowhead: 2,
+        arrowsize: 1.5,
+        arrowwidth: 2,
+        arrowcolor: '#c0392b',
+        ax: 80, ay: 0,
+        font: {size: 13, color: '#c0392b', family: 'Arial'},
+        bgcolor: 'rgba(255,255,255,0.9)',
+        bordercolor: '#c0392b',
+        borderwidth: 1,
+        borderpad: 4
+      });
+
+      // Vertical line at spike time
+      shapes.push({
+        type: 'line', x0: 1.0, x1: 1.0,
+        y0: -prChannel1 * 120 + 80, y1: -prChannel2 * 120 - 80,
+        line: {color: 'rgba(192,57,43,0.3)', width: 2, dash: 'dot'}
+      });
+    } else {
+      // Source at the edge — note that phase reversal is incomplete
+      annotations.push({
+        x: 1.0, y: -1.5 * 120,
+        xref: 'x', yref: 'y',
+        text: 'Source at chain end<br>(no full phase reversal)',
+        showarrow: false,
+        font: {size: 11, color: '#e67e22'},
+        bgcolor: 'rgba(255,255,255,0.9)',
+        bordercolor: '#e67e22',
+        borderwidth: 1,
+        borderpad: 4
+      });
+    }
+
+    // Spike time highlight
+    shapes.push({
+      type: 'rect', x0: 0.85, x1: 1.15,
+      y0: 100, y1: -(channels.length - 1) * 120 - 100,
+      fillcolor: 'rgba(142,68,173,0.06)', line: {width: 0}
+    });
+
+    var layout = {
+      xaxis: {title: 'Time (seconds)', range: [0, 2], dtick: 0.5},
+      yaxis: {
+        showticklabels: false, zeroline: false,
+        range: [-(channels.length - 1) * 120 - 100, 120],
+        fixedrange: true
+      },
+      margin: {t: 15, b: 50, l: 85, r: 100},
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      showlegend: false,
+      hovermode: 'x unified',
+      shapes: shapes,
+      annotations: annotations
+    };
+
+    Plotly.react('phaseReversalPlot', data.traces, layout, {responsive: true, displayModeBar: false});
+
+    // Update caption
+    var noteSpan = document.getElementById('sourceNote');
+    noteSpan.textContent = 'Phase reversal at ' + source;
+
+    var captionDiv = document.getElementById('phaseReversalCaption');
+    if (sIdx > 0 && sIdx < electrodes.length - 1) {
+      var ch1 = channels[sIdx - 1];
+      var ch2 = channels[sIdx];
+      captionDiv.innerHTML = 'The spike source is at <b>' + source + '</b>. Notice: <b>' + ch1 +
+        ' deflects UP</b> and <b>' + ch2 + ' deflects DOWN</b>. The direction reversal between ' +
+        ch1 + ' and ' + ch2 + ' is the <b>phase reversal</b> — it tells you ' + source + ' is the source.';
+      captionDiv.style.background = '#f4ecf7';
+      captionDiv.style.borderColor = '#d2b4de';
+    } else if (sIdx === 0) {
+      captionDiv.innerHTML = 'The spike source is at <b>' + source + '</b> (start of chain). ' +
+        'There is no channel above ' + channels[0] + ', so you only see a deflection in one direction. ' +
+        'A full phase reversal requires channels on <em>both sides</em> of the source. ' +
+        'This is a limitation of bipolar montages at chain endpoints.';
+      captionDiv.style.background = '#fef5e7';
+      captionDiv.style.borderColor = '#f0c27a';
+    } else {
+      captionDiv.innerHTML = 'The spike source is at <b>' + source + '</b> (end of chain). ' +
+        'There is no channel below ' + channels[channels.length - 1] + ', so you only see a deflection in one direction. ' +
+        'End-of-chain sources lack a complete phase reversal — another reason to look at multiple montages.';
+      captionDiv.style.background = '#fef5e7';
+      captionDiv.style.borderColor = '#f0c27a';
+    }
+  }
+
+  document.getElementById('sourceSelect').addEventListener('change', updatePlot);
+  updatePlot();
+})();
+</script>
+```
+
+::: {.try-it}
+**Experiment:**
+
+- Start with the source at **C3** (default). See the phase reversal between F3-C3 and C3-P3? One goes up, the other goes down.
+- Move the source to **P3**. The phase reversal shifts — now it's between C3-P3 and P3-O1.
+- Try **F3** — the phase reversal is between Fp1-F3 and F3-C3.
+- Now try **Fp1** or **O1** — what happens? The source is at the *end* of the chain, so there's only one neighboring channel. You get a deflection, but no full reversal. This is a real clinical limitation.
+:::
+
+::: {.key-concept}
+**Phase reversal summary:** In a bipolar montage, find the two adjacent channels where the deflection flips direction. The electrode they share is closest to the source. This is how neurologists localize spikes and seizure onsets on an EEG — and it's the most important pattern recognition skill for reading a bipolar montage.
+:::
+
+## Quiz: Check Your Understanding
+
+```{=html}
+<div class="quiz-container">
+  <h4>Quiz</h4>
+
+  <div style="margin-bottom: 1.5em;" id="mq1">
+    <p><strong>Q1:</strong> In a bipolar montage, what does a "phase reversal" tell you?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq1" value="a"> A. The signal has been filtered incorrectly
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq1" value="b"> B. The electrode where the phase reversal occurs is closest to the source of the activity
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq1" value="c"> C. The patient moved during the recording
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq1" value="d"> D. Two electrodes have become disconnected
+    </label>
+    <div id="mq1feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1.5em;" id="mq2">
+    <p><strong>Q2:</strong> Why can't surface EEG detect activity from tangential dipoles in deep sulci very well?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq2" value="a"> A. The skull blocks tangential electric fields completely
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq2" value="b"> B. Tangential dipoles are too small to measure
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq2" value="c"> C. The dipole is oriented parallel to the scalp surface, producing minimal voltage difference at nearby electrodes
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq2" value="d"> D. Sulcal neurons don't produce dipoles
+    </label>
+    <div id="mq2feedback"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom: 1em;" id="mq3">
+    <p><strong>Q3:</strong> The double banana montage runs chains of electrodes from front to back. It is best at localizing activity along which axis?</p>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq3" value="a"> A. Left-right (lateral)
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq3" value="b"> B. Anterior-posterior (front to back)
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq3" value="c"> C. Superior-inferior (top to bottom)
+    </label>
+    <label style="display:block; padding:4px 0; cursor:pointer;">
+      <input type="radio" name="mq3" value="d"> D. It localizes equally well in all directions
+    </label>
+    <div id="mq3feedback"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var answers = {
+    mq1: {correct: 'b', feedback: {
+      a: ['incorrect', 'Filtering changes the signal shape, but phase reversal is a spatial pattern, not a filter artifact. It comes from the voltage distribution across electrodes.'],
+      b: ['correct', 'Correct. Phase reversal occurs because the electrode closest to the source has the most extreme voltage. The bipolar channels on either side of it subtract this large value, producing deflections in opposite directions. The shared electrode is your source.'],
+      c: ['incorrect', 'Movement artifact typically affects many channels simultaneously and doesn\'t produce the systematic up-then-down pattern of a true phase reversal.'],
+      d: ['incorrect', 'A disconnected electrode produces artifact in just one channel (electrode pop), not the paired opposite-direction deflections of a phase reversal.']
+    }},
+    mq2: {correct: 'c', feedback: {
+      a: ['incorrect', 'The skull attenuates and smears electrical signals, but it doesn\'t block tangential fields completely. The real issue is the dipole orientation relative to the electrode.'],
+      b: ['incorrect', 'Tangential dipoles aren\'t necessarily smaller. The issue is geometry — their electric field projects sideways rather than toward the electrode above.'],
+      c: ['correct', 'Correct. A tangential dipole\'s positive and negative poles are arranged side-by-side relative to the scalp surface. A nearby electrode "sees" roughly equal contributions from both poles, which cancel out. This is why about two-thirds of the cortical surface (buried in sulci) is relatively invisible to surface EEG.'],
+      d: ['incorrect', 'Neurons in sulci absolutely produce dipoles — they\'re the same pyramidal neurons as elsewhere in the cortex. The issue is the orientation of those dipoles relative to the scalp electrodes.']
+    }},
+    mq3: {correct: 'b', feedback: {
+      a: ['incorrect', 'Left-right localization is possible by comparing the left and right chains, but the bipolar derivations themselves run front-to-back. A transverse montage (ear-to-ear chains) would be better for left-right localization.'],
+      b: ['correct', 'Correct. The double banana\'s four chains all run from frontal to occipital. Phase reversals along these chains tell you the anterior-posterior position of the source. For left-right localization, neurologists use a transverse montage — chains running ear-to-ear.'],
+      c: ['incorrect', 'EEG electrodes are on the scalp surface — they can\'t distinguish superior-inferior depth easily. That requires intracranial electrodes.'],
+      d: ['incorrect', 'No montage is equally good in all directions. The double banana is optimized for anterior-posterior localization because that\'s the direction its chains run. Neurologists use multiple montages to localize in different axes.']
+    }}
+  };
+
+  ['mq1','mq2','mq3'].forEach(function(qid) {
+    var radios = document.querySelectorAll('input[name="' + qid + '"]');
+    radios.forEach(function(r) {
+      r.addEventListener('change', function() {
+        var fb = answers[qid].feedback[r.value];
+        var div = document.getElementById(qid + 'feedback');
+        div.className = fb[0] === 'correct' ? 'quiz-feedback-correct' : 'quiz-feedback-incorrect';
+        div.innerHTML = (fb[0] === 'correct' ? '&#10003; ' : '&#10007; ') + fb[1];
+      });
+    });
+  });
+})();
+</script>
+```
+
+## Summary
+
+You now understand the layer between raw electrode recordings and what appears on the screen:
+
+1. **A montage defines how signals are displayed**, not where electrodes go. It's the pairing of electrodes into channels.
+2. **The double banana montage** is the clinical workhorse — four front-to-back chains of bipolar derivations, best at anterior-posterior localization.
+3. **Cortical dipoles** are the source of EEG signals. Radial dipoles (on gyrus crowns) are well-detected; tangential dipoles (in sulci) may be invisible. This limits what surface EEG can see.
+4. **Phase reversal** is the key localization tool in bipolar montages — the electrode where the deflection flips direction is closest to the source.
+
+Next up: not everything on that EEG screen is brain activity. Eye blinks, muscle tension, heartbeats, and loose electrodes all contaminate the recording. Time to learn the difference.
+
+::: {.module-nav}
+[← Module 5: EEG Basics](05_eeg_basics.qmd)
+[Module 6: Artifacts →](06_artifacts.qmd)
+:::

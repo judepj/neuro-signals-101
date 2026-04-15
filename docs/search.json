@@ -53,7 +53,7 @@
     "href": "modules/06_artifacts.html#whats-next",
     "title": "Module 6: Artifacts",
     "section": "What’s Next",
-    "text": "What’s Next\nYou can now tell brain from noise. With clean EEG in hand, there’s one more power tool to learn: instead of looking at frequencies averaged over the whole recording, what if you could watch them change in real time? That’s the spectrogram — and it’s how neurologists track brain dynamics as they unfold.\n\n← Module 5: EEG Basics Module 7: Spectrograms →"
+    "text": "What’s Next\nYou can now tell brain from noise. With clean EEG in hand, there’s one more power tool to learn: instead of looking at frequencies averaged over the whole recording, what if you could watch them change in real time? That’s the spectrogram — and it’s how neurologists track brain dynamics as they unfold.\n\n← Module 5b: Montages & Dipoles Module 7: Spectrograms →"
   },
   {
     "objectID": "modules/03_filtering.html",
@@ -112,60 +112,144 @@
     "text": "Summary\nFiltering is your first line of defense against noise. The key ideas:\n\nHigh-pass filters remove slow drift (low frequencies). Standard EEG: 0.5–1 Hz cutoff.\nLow-pass filters remove fast noise and muscle artifact (high frequencies). Standard EEG: 35–70 Hz cutoff.\nBand-pass filters combine both — they define the window of frequencies you care about.\nNotch filters surgically remove a single frequency (typically 60 Hz power line noise).\nEvery filter is a tradeoff — removing noise always risks removing signal. Clinical judgment determines the right balance.\n\nThe signal is clean. But right now we’re looking at wiggly lines in the time domain. What if we could peek inside and see exactly which frequencies are present, and how strong each one is? That’s the Fourier Transform — and it’s the single most important tool in signal processing.\n\n← Module 2: Sampling Module 4: FFT →"
   },
   {
-    "objectID": "modules/04_fft.html",
-    "href": "modules/04_fft.html",
-    "title": "Module 4: FFT",
+    "objectID": "modules/05b_montages.html",
+    "href": "modules/05b_montages.html",
+    "title": "Module 5b: Montages & Dipoles",
     "section": "",
-    "text": "A neurologist is reviewing a patient’s EEG. She glances at the screen and says: “I see a lot of theta activity.” How does she know? She’s not counting cycles by hand — the machine computed a power spectrum. The Fourier Transform is doing the work behind the scenes, every time anyone looks at a frequency analysis of any physiological signal.\nYour signal is clean (thanks to filtering). But looking at a wiggly line in the time domain is like listening to an orchestra and trying to identify every instrument by ear. The Fourier Transform is like a prism — it splits the signal into its individual frequency components so you can see exactly what’s inside.\nThis module teaches you the single most important analysis tool in signal processing: the Fast Fourier Transform (FFT). By the end, you’ll be able to look at any signal and answer: what frequencies are in there, and how strong are they?"
+    "text": "You’re reviewing an EEG with the attending neurologist. The EEG technician asks: “Doctor, would you like the recording displayed in referential or bipolar montage?” The attending says, “Show me the banana.” You have no idea what fruit has to do with neurology. But you need to learn — because the same brain activity can look completely different depending on how you display it. And one of those displays makes a seizure source obvious. The other can hide it.\nYou’ve learned where the electrodes go (the 10-20 system) and what the frequency bands mean. But there’s a piece missing between “recording the signal” and “reading the EEG”: the montage. This is how EEG signals get wired up for display — and it changes everything about what you see."
   },
   {
-    "objectID": "modules/04_fft.html#the-core-idea",
-    "href": "modules/04_fft.html#the-core-idea",
-    "title": "Module 4: FFT",
-    "section": "The Core Idea",
-    "text": "The Core Idea\nAny signal — no matter how messy it looks — is just a sum of simple sine waves at different frequencies. The FFT decomposes a signal into those individual components.\nThink of it this way:\n\nTime domain: you see the signal as voltage changing over time (the wiggly line)\nFrequency domain: you see which frequencies are present and how strong each one is (a bar chart of “ingredients”)\n\nThe FFT converts from the first view to the second. That’s it."
+    "objectID": "modules/05b_montages.html#what-is-a-montage",
+    "href": "modules/05b_montages.html#what-is-a-montage",
+    "title": "Module 5b: Montages & Dipoles",
+    "section": "What Is a Montage?",
+    "text": "What Is a Montage?\nA montage is not about where the electrodes go. You already covered that — the 10-20 system places electrodes in fixed, standardized positions on the scalp. That doesn’t change.\nA montage is about how you display the recorded signals. It’s the math that happens after the electrodes capture the voltages.\nHere’s the fundamental principle: EEG measures voltage differences. A single electrode doesn’t measure anything useful by itself — it needs a second point to compare against. Every EEG channel is always the difference between two electrodes:\n\\[V_{\\text{channel}} = V_{\\text{electrode A}} - V_{\\text{electrode B}}\\]\nThe montage defines which electrode is A and which is B. Change that pairing, and the same brain activity produces a completely different-looking trace.\n\nAnalogy: Think of measuring elevation. You can express the height of a mountain relative to sea level (one fixed reference for everything) — that’s a referential montage. Or you can express it as the slope between two neighboring points along a trail — that’s a bipolar montage. Same mountain. Different way of describing it.\n\nThe figure below shows this in action. A focal spike at electrode C3 is displayed in two different montages. Same brain, same spike, but look how different the traces are.\n\n\n\n\n\n\nFigure 1: Referential montage (left) shows the largest deflection at the electrode nearest the source. Bipolar montage (right) shows a phase reversal — the trace flips direction at the source electrode. Both correctly identify C3 as the origin, but by different visual signatures.\n\n\n\nIn the referential montage, you look for the biggest deflection. In the bipolar montage, you look for where the deflection flips direction — the phase reversal. Both point to C3. We’ll come back to phase reversal shortly — it’s the single most important localization skill in EEG reading."
   },
   {
-    "objectID": "modules/04_fft.html#interactive-build-a-signal-see-its-fft",
-    "href": "modules/04_fft.html#interactive-build-a-signal-see-its-fft",
-    "title": "Module 4: FFT",
-    "section": "Interactive: Build a Signal, See Its FFT",
-    "text": "Interactive: Build a Signal, See Its FFT\nThis is the key insight. On the left: the time-domain signal (the wiggly line). On the right: the frequency spectrum (the “ingredients list”). Add frequency components and watch both plots update.\n\n\n\n  \n    Add frequency components:\n  \n\n  \n    \n    \n      \n         3 Hz (Delta)\n      \n      Amplitude:\n        1.0\n      \n      \n    \n\n    \n    \n      \n         10 Hz (Alpha)\n      \n      Amplitude:\n        1.5\n      \n      \n    \n\n    \n    \n      \n         25 Hz (Beta)\n      \n      Amplitude:\n        0.8\n      \n      \n    \n\n    \n    \n      \n         60 Hz (Power line noise)\n      \n      Amplitude:\n        0.5\n      \n      \n    \n  \n\n  \n    \n    \n  \n\n\n\n\nExperiment:\n\nStart with just the 3 Hz and 10 Hz components checked. The time-domain signal looks complex, but the spectrum shows exactly two clean peaks.\nNow add 60 Hz. The wiggly line gets much messier — but the spectrum immediately reveals the culprit.\nTurn off everything except 10 Hz. The time domain becomes a clean sine wave, and the spectrum has a single peak. The FFT is just reading the recipe.\n\n\n\nThe FFT doesn’t create information — it reorganizes it. The same signal, viewed two different ways. The time domain shows what happens when. The frequency domain shows what frequencies are present and how strong they are. Both are equally valid descriptions of the same signal."
+    "objectID": "modules/05b_montages.html#the-double-banana-montage",
+    "href": "modules/05b_montages.html#the-double-banana-montage",
+    "title": "Module 5b: Montages & Dipoles",
+    "section": "The Double Banana Montage",
+    "text": "The Double Banana Montage\nThe most commonly used clinical EEG montage is the longitudinal bipolar montage, affectionately known as the double banana. (The name comes from the shape of the electrode chains — two curved lines running front-to-back on each side, like bananas. Neurologists did not name this.)\nIn a bipolar montage, each channel shows the voltage difference between two neighboring electrodes along a chain. The double banana has four chains running from front to back:\n\n\n\n\n\n\n\n\nChain\nElectrodes\nDerivations\n\n\n\n\nLeft parasagittal\nFp1 → F3 → C3 → P3 → O1\nFp1-F3, F3-C3, C3-P3, P3-O1\n\n\nRight parasagittal\nFp2 → F4 → C4 → P4 → O2\nFp2-F4, F4-C4, C4-P4, P4-O2\n\n\nLeft temporal\nFp1 → F7 → T3 → T5 → O1\nFp1-F7, F7-T3, T3-T5, T5-O1\n\n\nRight temporal\nFp2 → F8 → T4 → T6 → O2\nFp2-F8, F8-T4, T4-T6, T6-O2\n\n\n\nThe figure below shows this layout on a head diagram:\n\n\n\n\n\n\nFigure 2: The double banana montage. Four chains of electrodes run from anterior to posterior. Each arrow represents one EEG channel — the voltage difference between the pair of electrodes it connects. The parasagittal chains (inner) cover the convexity; the temporal chains (outer) cover the lateral surface.\n\n\n\nWhy is this montage the clinical default? Because EEG pathology — seizures, focal slowing, spikes — usually has a location. The front-to-back chains let you track where activity is strongest along the anterior-posterior axis. If a spike appears in F3-C3 and C3-P3 but not in Fp1-F3 or P3-O1, you know it’s centered around C3. If the left temporal chain lights up but the right doesn’t, it’s lateralized to the left.\n\nThink about it: If each chain runs from front to back, what kind of activity would the double banana miss or underestimate? (Hint: what about activity that’s purely lateral — differences between left and right hemispheres at the same anterior-posterior level?)"
   },
   {
-    "objectID": "modules/04_fft.html#interactive-mystery-signal-challenge",
-    "href": "modules/04_fft.html#interactive-mystery-signal-challenge",
-    "title": "Module 4: FFT",
-    "section": "Interactive: Mystery Signal Challenge",
-    "text": "Interactive: Mystery Signal Challenge\nHere’s a signal that looks like a mess. Can you guess what frequencies are hiding inside? Click “Reveal FFT” to find out.\n\n  \n    Choose a mystery signal:\n    \n      Normal Awake EEG\n    \n    \n      Deep Sleep\n    \n    \n      Noisy Recording\n    \n  \n\n  \n\n  \n    What frequencies do you think are in this signal?\n    \n      Reveal FFT\n    \n  \n\n  \n  \n\n\n\n\nExperiment:\n\nTry the “Deep Sleep” signal. Notice how the time-domain trace is slow and rolling — big, lazy waves. The FFT confirms: almost all the power is at 2 Hz (delta).\nTry “Noisy Recording.” It looks almost like the normal awake EEG, but the FFT instantly reveals the 60 Hz contamination that’s hard to spot by eye."
+    "objectID": "modules/05b_montages.html#the-dipole-why-eeg-looks-the-way-it-does",
+    "href": "modules/05b_montages.html#the-dipole-why-eeg-looks-the-way-it-does",
+    "title": "Module 5b: Montages & Dipoles",
+    "section": "The Dipole: Why EEG Looks the Way It Does",
+    "text": "The Dipole: Why EEG Looks the Way It Does\nBefore we can understand phase reversal properly, we need to understand what EEG actually measures. Not just “brain activity” — specifically, the electrical dipoles created by cortical pyramidal neurons.\nWhen a group of pyramidal neurons receives synaptic input, current flows along their long apical dendrites. This creates a tiny current dipole — a separation of positive and negative charge, like a miniature battery. One end of the neuron is a current sink (negative), the other is a current source (positive).\nA single neuron’s dipole is far too small to detect at the scalp. But when millions of pyramidal neurons fire in synchrony — all oriented the same way, all producing dipoles at the same time — their fields sum up. That summed dipole is what the EEG electrode detects, after the signal has been smeared and attenuated by cerebrospinal fluid, skull, and scalp.\n\n\n\n\n\n\nFigure 3: How cortical dipoles produce EEG signals. (Left) Pyramidal neurons create current dipoles when they receive synaptic input. (Right) The orientation of the dipole determines how well it’s detected: radial dipoles on gyrus crowns are well-detected; tangential dipoles in sulci are poorly detected or invisible to surface electrodes.\n\n\n\nTwo important consequences:\n\nEEG has limited spatial resolution. You’re seeing the summed activity of millions of neurons, blurred through centimeters of tissue. You can’t pinpoint activity to a few millimeters — that requires intracranial electrodes.\nDipole orientation matters. Pyramidal neurons on the crown of a gyrus produce radial dipoles that point straight toward the scalp — these are well-detected by nearby electrodes. But neurons on the wall of a sulcus produce tangential dipoles that point sideways — these produce a weaker, more spread-out signal, or may be nearly invisible to surface EEG. About two-thirds of the cortical surface is buried in sulci. A lot of brain activity never makes it to the scalp.\n\n\nWhy this matters clinically: Not all seizures show up on scalp EEG. A seizure originating deep in a sulcus might produce tangential dipoles that are invisible to surface electrodes. This is one reason why some epilepsy patients need intracranial EEG — electrodes placed directly on or in the brain — to find the seizure focus."
   },
   {
-    "objectID": "modules/04_fft.html#frequency-resolution-why-recording-duration-matters",
-    "href": "modules/04_fft.html#frequency-resolution-why-recording-duration-matters",
-    "title": "Module 4: FFT",
-    "section": "Frequency Resolution: Why Recording Duration Matters",
-    "text": "Frequency Resolution: Why Recording Duration Matters\nHere’s a subtlety that matters in practice. Suppose your signal contains two frequencies that are close together — say 9 Hz and 11 Hz. Can the FFT tell them apart?\nIt depends on how long you record. The frequency resolution of the FFT is:\n\\[\\Delta f = \\frac{1}{T}\\]\nwhere \\(T\\) is the recording duration in seconds. A 1-second recording can resolve frequencies 1 Hz apart. A 0.5-second recording? Only 2 Hz apart — and those two peaks will blur into one.\nDrag the slider and watch the two peaks separate (or merge).\n\n  \n    Recording duration:\n      1.0 s\n    \n    \n    \n      Frequency resolution: 1.00 Hz\n       ($\\Delta f = 1/T$)\n    \n  \n\n  \n    \n    \n  \n\n  \n\n\n\n\nFrequency resolution = \\(1/T\\), where \\(T\\) is the recording duration. Want to distinguish frequencies 1 Hz apart? You need at least 1 second of data. Want 0.5 Hz resolution? Record for 2 seconds. This is a fundamental tradeoff: better frequency resolution requires longer recordings.\nThis matters clinically. A 1-second EEG epoch can tell you whether activity is roughly “alpha-range” or “beta-range.” But to precisely characterize a 9 Hz vs. 11 Hz rhythm, you need several seconds of clean data.\n\n\nExperiment:\n\nSet duration to 0.5 seconds. The two peaks are invisible — just one merged bump.\nSlowly increase to 1 second. Can you start to see a hint of separation?\nAt 2-3 seconds, the two peaks are clearly distinct.\nAt 5 seconds, they’re razor-sharp. More data = more precision."
+    "objectID": "modules/05b_montages.html#phase-reversal-localizing-the-source",
+    "href": "modules/05b_montages.html#phase-reversal-localizing-the-source",
+    "title": "Module 5b: Montages & Dipoles",
+    "section": "Phase Reversal: Localizing the Source",
+    "text": "Phase Reversal: Localizing the Source\nNow the payoff. In a bipolar montage, when there’s a focal electrical source (a spike, a seizure onset), the two channels that share the electrode closest to the source will deflect in opposite directions. This is a phase reversal.\nWhy does this happen? Think about the math. Say electrode C3 has the largest negative voltage (it’s closest to the source). In the channel F3-C3, you’re computing (F3 minus C3). Since C3 is very negative, subtracting a large negative number gives a large positive result — the trace deflects up. In the next channel, C3-P3, you’re computing (C3 minus P3). C3 is very negative, so the result is a large negative number — the trace deflects down.\nUp in one channel, down in the next. The deflection reverses at C3. That’s the phase reversal, and it points you straight at the source.\n\nRemember Module 1? You shifted two waves by 180 degrees and watched them become perfectly out of phase — when one went up, the other went down. That’s exactly what happens at a phase reversal. Same concept, now with real clinical stakes.\n\nTry it yourself. The widget below simulates a bipolar montage with a movable spike source. Select where the spike originates, and watch the phase reversal follow it.\n\n\n\n  \n    \n      Spike source electrode:\n      \n        F3 (frontal)\n        C3 (central)\n        P3 (parietal)\n        O1 (occipital)\n      \n    \n    \n      Phase reversal at C3\n    \n  \n\n  \n\n  \n    The spike source is at C3. Notice: Fp1-F3 shows little deflection, F3-C3 deflects UP, C3-P3 deflects DOWN, and P3-O1 shows little deflection. The direction reversal between F3-C3 and C3-P3 is the phase reversal — it tells you C3 is the source.\n  \n\n\n\n\nExperiment:\n\nStart with the source at C3 (default). See the phase reversal between F3-C3 and C3-P3? One goes up, the other goes down.\nMove the source to P3. The phase reversal shifts — now it’s between C3-P3 and P3-O1.\nTry F3 — the phase reversal is between Fp1-F3 and F3-C3.\nNow try Fp1 or O1 — what happens? The source is at the end of the chain, so there’s only one neighboring channel. You get a deflection, but no full reversal. This is a real clinical limitation.\n\n\n\nPhase reversal summary: In a bipolar montage, find the two adjacent channels where the deflection flips direction. The electrode they share is closest to the source. This is how neurologists localize spikes and seizure onsets on an EEG — and it’s the most important pattern recognition skill for reading a bipolar montage."
   },
   {
-    "objectID": "modules/04_fft.html#why-this-matters-clinically",
-    "href": "modules/04_fft.html#why-this-matters-clinically",
-    "title": "Module 4: FFT",
-    "section": "Why This Matters Clinically",
-    "text": "Why This Matters Clinically\nThe FFT is behind every frequency analysis in clinical neurophysiology:\n\nEEG interpretation: identifying dominant rhythms (alpha, beta, theta, delta)\nSleep staging: each sleep stage has a characteristic power spectrum\nSeizure detection: abnormal rhythmic activity shows up as unexpected spectral peaks\nMonitoring: brain-computer interfaces and neurofeedback systems use real-time FFT\nArtifact detection: 60 Hz peaks = power line noise; broad spectral bumps = muscle artifact\n\nEvery time a monitor displays a “power spectrum” or “spectral analysis” — whether it’s in the EEG lab, the OR, or the ICU — it’s running an FFT under the hood."
-  },
-  {
-    "objectID": "modules/04_fft.html#quiz-check-your-understanding",
-    "href": "modules/04_fft.html#quiz-check-your-understanding",
-    "title": "Module 4: FFT",
+    "objectID": "modules/05b_montages.html#quiz-check-your-understanding",
+    "href": "modules/05b_montages.html#quiz-check-your-understanding",
+    "title": "Module 5b: Montages & Dipoles",
     "section": "Quiz: Check Your Understanding",
-    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: An EEG signal shows a sharp peak at 10 Hz in the power spectrum. What brain rhythm is this?\n    \n       A. Delta rhythm\n    \n    \n       B. Alpha rhythm\n    \n    \n       C. Beta rhythm\n    \n    \n       D. Gamma rhythm\n    \n    \n  \n\n  \n\n  \n    Q2: Your FFT shows peaks at 10 Hz AND 60 Hz. The 60 Hz peak is most likely:\n    \n       A. Gamma rhythm from active cognition\n    \n    \n       B. Power line noise, not brain activity\n    \n    \n       C. A harmonic of the 10 Hz alpha\n    \n    \n       D. Muscle artifact from jaw clenching\n    \n    \n  \n\n  \n\n  \n    Q3: You have a 2-second EEG recording. Your frequency resolution is:\n    \n       A. 2 Hz\n    \n    \n       B. 1 Hz\n    \n    \n       C. 0.5 Hz\n    \n    \n       D. It depends on the sampling rate"
+    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: In a bipolar montage, what does a \"phase reversal\" tell you?\n    \n       A. The signal has been filtered incorrectly\n    \n    \n       B. The electrode where the phase reversal occurs is closest to the source of the activity\n    \n    \n       C. The patient moved during the recording\n    \n    \n       D. Two electrodes have become disconnected\n    \n    \n  \n\n  \n\n  \n    Q2: Why can't surface EEG detect activity from tangential dipoles in deep sulci very well?\n    \n       A. The skull blocks tangential electric fields completely\n    \n    \n       B. Tangential dipoles are too small to measure\n    \n    \n       C. The dipole is oriented parallel to the scalp surface, producing minimal voltage difference at nearby electrodes\n    \n    \n       D. Sulcal neurons don't produce dipoles\n    \n    \n  \n\n  \n\n  \n    Q3: The double banana montage runs chains of electrodes from front to back. It is best at localizing activity along which axis?\n    \n       A. Left-right (lateral)\n    \n    \n       B. Anterior-posterior (front to back)\n    \n    \n       C. Superior-inferior (top to bottom)\n    \n    \n       D. It localizes equally well in all directions"
   },
   {
-    "objectID": "modules/04_fft.html#summary",
-    "href": "modules/04_fft.html#summary",
-    "title": "Module 4: FFT",
+    "objectID": "modules/05b_montages.html#summary",
+    "href": "modules/05b_montages.html#summary",
+    "title": "Module 5b: Montages & Dipoles",
     "section": "Summary",
-    "text": "Summary\nYou can now decompose any signal into its frequency components. The FFT takes a confusing time-domain signal and reveals its “ingredients” — which frequencies are present and how strong each one is.\nThree things to remember:\n\nThe FFT is a prism — it splits a mixed signal into individual frequency components\nPeaks in the spectrum = frequencies in the signal — clean peaks mean periodic activity; a sharp 60 Hz peak means noise\nResolution = \\(1/T\\) — longer recordings give you finer frequency detail\n\nBut so far we’ve been working with clean synthetic signals — sums of perfect sine waves. Real brain signals are messier, more interesting, and carry clinical meaning. Time to meet actual EEG.\n\n← Module 3: Filtering Module 5: EEG Basics →"
+    "text": "Summary\nYou now understand the layer between raw electrode recordings and what appears on the screen:\n\nA montage defines how signals are displayed, not where electrodes go. It’s the pairing of electrodes into channels.\nThe double banana montage is the clinical workhorse — four front-to-back chains of bipolar derivations, best at anterior-posterior localization.\nCortical dipoles are the source of EEG signals. Radial dipoles (on gyrus crowns) are well-detected; tangential dipoles (in sulci) may be invisible. This limits what surface EEG can see.\nPhase reversal is the key localization tool in bipolar montages — the electrode where the deflection flips direction is closest to the source.\n\nNext up: not everything on that EEG screen is brain activity. Eye blinks, muscle tension, heartbeats, and loose electrodes all contaminate the recording. Time to learn the difference.\n\n← Module 5: EEG Basics Module 6: Artifacts →"
+  },
+  {
+    "objectID": "modules/02_sampling.html",
+    "href": "modules/02_sampling.html",
+    "title": "Module 2: Sampling",
+    "section": "",
+    "text": "A technician is setting up an EEG for a patient with suspected temporal lobe epilepsy. The attending neurologist glances at the machine settings and asks: “What sampling rate are you using?” The tech replies: “256 Hz.” The attending nods and moves on. But why 256? Why not 100? Why not 10,000? And what happens if you get it wrong?\nYou now know what signals look like — smooth, continuous waves with amplitude and frequency. But here’s the problem: your body produces continuous signals (voltage that changes every infinitesimal instant), and computers only understand discrete numbers (a list of measurements at specific times). To get that EEG onto a screen, we need to sample it — measure the voltage at regular intervals.\nHow often is often enough? That’s the central question of this module. Get it right, and you faithfully capture the brain’s activity. Get it wrong, and the signal you see on screen is a lie."
+  },
+  {
+    "objectID": "modules/02_sampling.html#from-continuous-to-discrete",
+    "href": "modules/02_sampling.html#from-continuous-to-discrete",
+    "title": "Module 2: Sampling",
+    "section": "From Continuous to Discrete",
+    "text": "From Continuous to Discrete\nImagine someone singing a smooth, continuous note. Now imagine you can only listen for a brief instant once per second. If the note changes slowly, you’d follow along fine. But if the note is wobbling rapidly — faster than you’re checking — you’d miss what’s happening. Worse, you might think you’re hearing something that isn’t there.\nThat’s sampling. The rate at which you “check” the signal is called the sampling rate (or sampling frequency, \\(f_s\\)), measured in Hz — samples per second."
+  },
+  {
+    "objectID": "modules/02_sampling.html#interactive-sampling-visualizer",
+    "href": "modules/02_sampling.html#interactive-sampling-visualizer",
+    "title": "Module 2: Sampling",
+    "section": "Interactive: Sampling Visualizer",
+    "text": "Interactive: Sampling Visualizer\nWatch what happens as you change the sampling rate. The blue curve is the “real” continuous signal. The red dots are the discrete samples your computer would capture. The dashed line connects those dots — that’s what the computer thinks the signal looks like.\n\n\n\n  \n    Signal frequency:\n      5.0 Hz\n    \n    \n  \n  \n    Sampling rate:\n      40 Hz\n    \n    \n  \n  \n  \n\n\n\n\nExperiment:\n\nStart with the signal at 5 Hz and sampling rate at 40 Hz. The dots land right on the wave — no problem.\nNow slowly lower the sampling rate. Watch the dashed reconstruction start to deviate from the blue truth.\nDrop the sampling rate below 10 Hz (twice the signal frequency). The reconstruction becomes completely wrong — it looks like a different signal entirely.\nTry a 10 Hz signal sampled at 11 Hz. The reconstruction is a slow, ghostly wave that doesn’t exist in reality. That ghost is called an alias."
+  },
+  {
+    "objectID": "modules/02_sampling.html#the-nyquist-rule",
+    "href": "modules/02_sampling.html#the-nyquist-rule",
+    "title": "Module 2: Sampling",
+    "section": "The Nyquist Rule",
+    "text": "The Nyquist Rule\nHarry Nyquist figured this out in the 1920s: to faithfully capture a signal of frequency \\(f\\), you must sample at a rate of at least \\(2f\\) — twice the highest frequency present.\n\\[f_s \\geq 2 \\times f_{max}\\]\nBelow that threshold, the signal aliases — it masquerades as a lower frequency. The math is surprisingly clean: a signal at frequency \\(f\\) sampled at rate \\(f_s\\) will appear at the aliased frequency \\(|f - n \\cdot f_s|\\), where \\(n\\) is the nearest integer.\nThe widget below makes this visceral. A fixed 10 Hz signal, and you control the sampling rate.\n\n  \n    Sampling rate:\n      50 Hz\n    \n    \n  \n  \n  \n\n\n\n\nThe Nyquist moment:\n\nStart at 50 Hz. The samples clearly trace the 10 Hz wave.\nSlowly lower the sampling rate toward 20 Hz. It still works, but barely.\nDrop below 20 Hz. A dashed red alias wave appears — the computer now “sees” a completely different frequency.\nTry exactly 20 Hz (the Nyquist limit). Notice the samples land on zero crossings — you get zero amplitude. The Nyquist rate is the theoretical minimum; in practice, you need more than \\(2f\\).\n\n\n\nThe Nyquist-Shannon Sampling Theorem: To capture a signal containing frequencies up to \\(f_{max}\\) Hz, you must sample at \\(f_s &gt; 2 f_{max}\\). Below this rate, high-frequency content folds back as lower-frequency aliases — phantom signals that don’t actually exist in the patient’s body. Clinical systems typically sample at 4–5 times the maximum frequency of interest as a safety margin."
+  },
+  {
+    "objectID": "modules/02_sampling.html#clinical-sampling-rates",
+    "href": "modules/02_sampling.html#clinical-sampling-rates",
+    "title": "Module 2: Sampling",
+    "section": "Clinical Sampling Rates",
+    "text": "Clinical Sampling Rates\nIn practice, nobody samples at exactly \\(2f_{max}\\) — that’s the bare minimum, and any imperfection causes aliasing. Real systems add a generous safety margin. Here’s what you’ll see in clinical settings:\n\n\n\n\n\n\n\n\n\nSignal Type\nFrequencies of Interest\nMinimum Nyquist Rate\nTypical Clinical Rate\n\n\n\n\nEEG\n0.5–100 Hz\n200 Hz\n256–512 Hz\n\n\nECG (Holter)\n0.5–150 Hz\n300 Hz\n128–500 Hz\n\n\nEMG\n20–500 Hz\n1000 Hz\n1000–5000 Hz\n\n\n\nWhy 256 Hz for EEG? Because the highest frequency neurologists typically care about is around 100 Hz (the upper end of gamma activity). \\(2 \\times 100 = 200\\) Hz minimum. 256 gives a comfortable margin and happens to be a power of 2 (which makes the computer math faster — we’ll see why in the FFT module).\nThe widget below lets you explore this logic for any signal type.\n\n  Sampling Rate Calculator\n  \n    Select a signal type:\n    \n      EEG (0.5–100 Hz)\n    \n    \n      ECG (0.5–150 Hz)\n    \n    \n      EMG (20–500 Hz)\n    \n    \n      Custom\n    \n  \n  \n    Maximum frequency of interest (Hz):\n    \n    \n      Calculate\n    \n  \n  \n\n\n\n\nExplore:\n\nClick each signal type. Notice how much higher the practical rate is compared to the bare Nyquist minimum.\nTry “Custom” — enter 500 Hz (upper EMG range). The Nyquist minimum is 1000 Hz, but you’d want 2000+ Hz in practice.\nNow enter 30 Hz (just EEG alpha and beta). The minimum is only 60 Hz — but clinically we’d still use 128 or 256 Hz for safety.\n\n\n\nWhy this matters clinically: If a technician accidentally sets the EEG sampling rate too low — say 100 Hz when trying to capture high gamma activity up to 80 Hz — the system is right at the Nyquist edge. Any frequency above 50 Hz will alias down, potentially creating false patterns in the recording that look like real brain activity but aren’t. Aliasing doesn’t announce itself. The signal looks perfectly normal — just wrong. That’s what makes it dangerous."
+  },
+  {
+    "objectID": "modules/02_sampling.html#what-about-anti-aliasing",
+    "href": "modules/02_sampling.html#what-about-anti-aliasing",
+    "title": "Module 2: Sampling",
+    "section": "What About Anti-Aliasing?",
+    "text": "What About Anti-Aliasing?\nOne more thing. In real clinical systems, there’s a hardware filter before the analog-to-digital converter called an anti-aliasing filter. It’s a low-pass filter (we’ll learn about those in the next module) that removes any frequency above \\(f_s/2\\) before sampling. This guarantees nothing above the Nyquist frequency makes it into the digitized signal.\nYou don’t need to build one — the equipment manufacturer does. But you should know it exists, because it means the sampling rate you choose determines the highest frequency you can ever see in the recording. Set \\(f_s\\) = 256 Hz, and frequencies above 128 Hz are gone forever — the anti-aliasing filter removed them before they were recorded."
+  },
+  {
+    "objectID": "modules/02_sampling.html#quiz-check-your-understanding",
+    "href": "modules/02_sampling.html#quiz-check-your-understanding",
+    "title": "Module 2: Sampling",
+    "section": "Quiz: Check Your Understanding",
+    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: An EEG system samples at 256 Hz. What is the highest frequency it can faithfully capture?\n    \n       A. 256 Hz\n    \n    \n       B. 128 Hz\n    \n    \n       C. 512 Hz\n    \n    \n       D. 64 Hz\n    \n    \n  \n\n  \n\n  \n    Q2: You're recording EMG, which contains frequencies up to 500 Hz. Your system samples at 800 Hz. Is this adequate?\n    \n       A. Yes — 800 Hz is plenty\n    \n    \n       B. No — you need at least 1000 Hz\n    \n    \n       C. It depends on the patient\n    \n    \n       D. No — you need at least 500 Hz\n    \n    \n  \n\n  \n\n  \n    Q3: A 60 Hz signal is sampled at 50 Hz. What frequency does the aliased signal appear to be?\n    \n       A. 60 Hz — aliasing doesn't change the frequency\n    \n    \n       B. 50 Hz\n    \n    \n       C. 10 Hz\n    \n    \n       D. 110 Hz"
+  },
+  {
+    "objectID": "modules/02_sampling.html#summary",
+    "href": "modules/02_sampling.html#summary",
+    "title": "Module 2: Sampling",
+    "section": "Summary",
+    "text": "Summary\nWe captured the signal digitally. The key ideas:\n\nSampling converts a continuous signal into discrete numbers at regular intervals.\nThe Nyquist theorem says: sample at more than \\(2 \\times f_{max}\\) or you’ll get aliasing.\nAliasing creates phantom frequencies in your recording — signals that look real but aren’t.\nClinical systems use generous safety margins (4–5 times the maximum frequency of interest).\nAnti-aliasing filters in the hardware prevent aliasing before it happens.\n\nThe signal is now digital. But look at it — there’s noise everywhere. Power line hum at 60 Hz, slow electrode drift, muscle artifacts. How do we clean it up without throwing away the brain activity? That’s filtering.\n\n← Module 1: Signals Module 3: Filtering →"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "EEG & Signal Processing",
+    "section": "",
+    "text": "You’re training to become a doctor. At some point — maybe in neurology, maybe in the ICU, maybe in the OR — you will look at a screen showing electrical signals from a patient’s brain, heart, or muscles.\nThis tutorial will teach you to read those signals. Not just glance at them — actually understand what you’re seeing."
+  },
+  {
+    "objectID": "index.html#welcome",
+    "href": "index.html#welcome",
+    "title": "EEG & Signal Processing",
+    "section": "",
+    "text": "You’re training to become a doctor. At some point — maybe in neurology, maybe in the ICU, maybe in the OR — you will look at a screen showing electrical signals from a patient’s brain, heart, or muscles.\nThis tutorial will teach you to read those signals. Not just glance at them — actually understand what you’re seeing."
+  },
+  {
+    "objectID": "index.html#how-this-works",
+    "href": "index.html#how-this-works",
+    "title": "EEG & Signal Processing",
+    "section": "How This Works",
+    "text": "How This Works\nEach module is interactive. You’ll drag sliders, change parameters, and watch signals respond in real time. There are short quiz questions along the way — these are not graded. They’re just checkpoints to make sure the concepts are landing.\nModule 8 is graded. That’s where you’ll get real EEG data and find out what’s going on with the patient."
+  },
+  {
+    "objectID": "index.html#modules",
+    "href": "index.html#modules",
+    "title": "EEG & Signal Processing",
+    "section": "Modules",
+    "text": "Modules\n\n\n\n#\nModule\nWhat You’ll Learn\n\n\n\n\n1\nSignals\nWhat electrical signals from the body look like and how to describe them\n\n\n2\nSampling\nHow we capture continuous biological signals with a digital machine\n\n\n3\nFiltering\nHow to clean up a noisy recording to see what matters\n\n\n4\nFFT\nHow to reveal the hidden frequencies in a signal\n\n\n5\nEEG Basics\nWhat the EEG measures, where electrodes go, and what the bands mean\n\n\n5b\nMontages & Dipoles\nHow EEG signals are displayed, cortical dipoles, and phase reversal\n\n\n6\nArtifacts\nTelling brain activity apart from eye blinks, muscle, and noise\n\n\n7\nSpectrograms\nWatching brain rhythms change over time\n\n\n8\nThe Challenge\nA real EEG recording. A real clinical question. Your job to figure it out."
+  },
+  {
+    "objectID": "index.html#what-youll-need",
+    "href": "index.html#what-youll-need",
+    "title": "EEG & Signal Processing",
+    "section": "What You’ll Need",
+    "text": "What You’ll Need\n\nA web browser (you’re using one right now — good start)\nFor Module 8: Python or MATLAB, and a willingness to ask an AI for help writing code\n\nLet’s begin.\n\nBegin Module 1 →"
   },
   {
     "objectID": "modules/01_signals.html",
@@ -231,95 +315,60 @@
     "text": "Summary\nYou now know two things about any physiological signal:\n\nAmplitude — how tall the wave is (measured in μV for EEG, mV for ECG/EMG)\nFrequency — how many cycles per second (measured in Hz)\n\nIn the next module, we’ll tackle a fundamental question: how does a machine capture a continuously changing biological signal and turn it into numbers a computer can work with?\n(Spoiler: it can go wrong in interesting ways.)\n\n← Home Module 2: Sampling →"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "EEG & Signal Processing",
+    "objectID": "modules/04_fft.html",
+    "href": "modules/04_fft.html",
+    "title": "Module 4: FFT",
     "section": "",
-    "text": "You’re training to become a doctor. At some point — maybe in neurology, maybe in the ICU, maybe in the OR — you will look at a screen showing electrical signals from a patient’s brain, heart, or muscles.\nThis tutorial will teach you to read those signals. Not just glance at them — actually understand what you’re seeing."
+    "text": "A neurologist is reviewing a patient’s EEG. She glances at the screen and says: “I see a lot of theta activity.” How does she know? She’s not counting cycles by hand — the machine computed a power spectrum. The Fourier Transform is doing the work behind the scenes, every time anyone looks at a frequency analysis of any physiological signal.\nYour signal is clean (thanks to filtering). But looking at a wiggly line in the time domain is like listening to an orchestra and trying to identify every instrument by ear. The Fourier Transform is like a prism — it splits the signal into its individual frequency components so you can see exactly what’s inside.\nThis module teaches you the single most important analysis tool in signal processing: the Fast Fourier Transform (FFT). By the end, you’ll be able to look at any signal and answer: what frequencies are in there, and how strong are they?"
   },
   {
-    "objectID": "index.html#welcome",
-    "href": "index.html#welcome",
-    "title": "EEG & Signal Processing",
-    "section": "",
-    "text": "You’re training to become a doctor. At some point — maybe in neurology, maybe in the ICU, maybe in the OR — you will look at a screen showing electrical signals from a patient’s brain, heart, or muscles.\nThis tutorial will teach you to read those signals. Not just glance at them — actually understand what you’re seeing."
+    "objectID": "modules/04_fft.html#the-core-idea",
+    "href": "modules/04_fft.html#the-core-idea",
+    "title": "Module 4: FFT",
+    "section": "The Core Idea",
+    "text": "The Core Idea\nAny signal — no matter how messy it looks — is just a sum of simple sine waves at different frequencies. The FFT decomposes a signal into those individual components.\nThink of it this way:\n\nTime domain: you see the signal as voltage changing over time (the wiggly line)\nFrequency domain: you see which frequencies are present and how strong each one is (a bar chart of “ingredients”)\n\nThe FFT converts from the first view to the second. That’s it."
   },
   {
-    "objectID": "index.html#how-this-works",
-    "href": "index.html#how-this-works",
-    "title": "EEG & Signal Processing",
-    "section": "How This Works",
-    "text": "How This Works\nEach module is interactive. You’ll drag sliders, change parameters, and watch signals respond in real time. There are short quiz questions along the way — these are not graded. They’re just checkpoints to make sure the concepts are landing.\nModule 8 is graded. That’s where you’ll get real EEG data and find out what’s going on with the patient."
+    "objectID": "modules/04_fft.html#interactive-build-a-signal-see-its-fft",
+    "href": "modules/04_fft.html#interactive-build-a-signal-see-its-fft",
+    "title": "Module 4: FFT",
+    "section": "Interactive: Build a Signal, See Its FFT",
+    "text": "Interactive: Build a Signal, See Its FFT\nThis is the key insight. On the left: the time-domain signal (the wiggly line). On the right: the frequency spectrum (the “ingredients list”). Add frequency components and watch both plots update.\n\n\n\n  \n    Add frequency components:\n  \n\n  \n    \n    \n      \n         3 Hz (Delta)\n      \n      Amplitude:\n        1.0\n      \n      \n    \n\n    \n    \n      \n         10 Hz (Alpha)\n      \n      Amplitude:\n        1.5\n      \n      \n    \n\n    \n    \n      \n         25 Hz (Beta)\n      \n      Amplitude:\n        0.8\n      \n      \n    \n\n    \n    \n      \n         60 Hz (Power line noise)\n      \n      Amplitude:\n        0.5\n      \n      \n    \n  \n\n  \n    \n    \n  \n\n\n\n\nExperiment:\n\nStart with just the 3 Hz and 10 Hz components checked. The time-domain signal looks complex, but the spectrum shows exactly two clean peaks.\nNow add 60 Hz. The wiggly line gets much messier — but the spectrum immediately reveals the culprit.\nTurn off everything except 10 Hz. The time domain becomes a clean sine wave, and the spectrum has a single peak. The FFT is just reading the recipe.\n\n\n\nThe FFT doesn’t create information — it reorganizes it. The same signal, viewed two different ways. The time domain shows what happens when. The frequency domain shows what frequencies are present and how strong they are. Both are equally valid descriptions of the same signal."
   },
   {
-    "objectID": "index.html#modules",
-    "href": "index.html#modules",
-    "title": "EEG & Signal Processing",
-    "section": "Modules",
-    "text": "Modules\n\n\n\n#\nModule\nWhat You’ll Learn\n\n\n\n\n1\nSignals\nWhat electrical signals from the body look like and how to describe them\n\n\n2\nSampling\nHow we capture continuous biological signals with a digital machine\n\n\n3\nFiltering\nHow to clean up a noisy recording to see what matters\n\n\n4\nFFT\nHow to reveal the hidden frequencies in a signal\n\n\n5\nEEG Basics\nWhat the EEG measures, where electrodes go, and what the bands mean\n\n\n6\nArtifacts\nTelling brain activity apart from eye blinks, muscle, and noise\n\n\n7\nSpectrograms\nWatching brain rhythms change over time\n\n\n8\nThe Challenge\nA real EEG recording. A real clinical question. Your job to figure it out."
+    "objectID": "modules/04_fft.html#interactive-mystery-signal-challenge",
+    "href": "modules/04_fft.html#interactive-mystery-signal-challenge",
+    "title": "Module 4: FFT",
+    "section": "Interactive: Mystery Signal Challenge",
+    "text": "Interactive: Mystery Signal Challenge\nHere’s a signal that looks like a mess. Can you guess what frequencies are hiding inside? Click “Reveal FFT” to find out.\n\n  \n    Choose a mystery signal:\n    \n      Normal Awake EEG\n    \n    \n      Deep Sleep\n    \n    \n      Noisy Recording\n    \n  \n\n  \n\n  \n    What frequencies do you think are in this signal?\n    \n      Reveal FFT\n    \n  \n\n  \n  \n\n\n\n\nExperiment:\n\nTry the “Deep Sleep” signal. Notice how the time-domain trace is slow and rolling — big, lazy waves. The FFT confirms: almost all the power is at 2 Hz (delta).\nTry “Noisy Recording.” It looks almost like the normal awake EEG, but the FFT instantly reveals the 60 Hz contamination that’s hard to spot by eye."
   },
   {
-    "objectID": "index.html#what-youll-need",
-    "href": "index.html#what-youll-need",
-    "title": "EEG & Signal Processing",
-    "section": "What You’ll Need",
-    "text": "What You’ll Need\n\nA web browser (you’re using one right now — good start)\nFor Module 8: Python or MATLAB, and a willingness to ask an AI for help writing code\n\nLet’s begin.\n\nBegin Module 1 →"
+    "objectID": "modules/04_fft.html#frequency-resolution-why-recording-duration-matters",
+    "href": "modules/04_fft.html#frequency-resolution-why-recording-duration-matters",
+    "title": "Module 4: FFT",
+    "section": "Frequency Resolution: Why Recording Duration Matters",
+    "text": "Frequency Resolution: Why Recording Duration Matters\nHere’s a subtlety that matters in practice. Suppose your signal contains two frequencies that are close together — say 9 Hz and 11 Hz. Can the FFT tell them apart?\nIt depends on how long you record. The frequency resolution of the FFT is:\n\\[\\Delta f = \\frac{1}{T}\\]\nwhere \\(T\\) is the recording duration in seconds. A 1-second recording can resolve frequencies 1 Hz apart. A 0.5-second recording? Only 2 Hz apart — and those two peaks will blur into one.\nDrag the slider and watch the two peaks separate (or merge).\n\n  \n    Recording duration:\n      1.0 s\n    \n    \n    \n      Frequency resolution: 1.00 Hz\n       ($\\Delta f = 1/T$)\n    \n  \n\n  \n    \n    \n  \n\n  \n\n\n\n\nFrequency resolution = \\(1/T\\), where \\(T\\) is the recording duration. Want to distinguish frequencies 1 Hz apart? You need at least 1 second of data. Want 0.5 Hz resolution? Record for 2 seconds. This is a fundamental tradeoff: better frequency resolution requires longer recordings.\nThis matters clinically. A 1-second EEG epoch can tell you whether activity is roughly “alpha-range” or “beta-range.” But to precisely characterize a 9 Hz vs. 11 Hz rhythm, you need several seconds of clean data.\n\n\nExperiment:\n\nSet duration to 0.5 seconds. The two peaks are invisible — just one merged bump.\nSlowly increase to 1 second. Can you start to see a hint of separation?\nAt 2-3 seconds, the two peaks are clearly distinct.\nAt 5 seconds, they’re razor-sharp. More data = more precision."
   },
   {
-    "objectID": "modules/02_sampling.html",
-    "href": "modules/02_sampling.html",
-    "title": "Module 2: Sampling",
-    "section": "",
-    "text": "A technician is setting up an EEG for a patient with suspected temporal lobe epilepsy. The attending neurologist glances at the machine settings and asks: “What sampling rate are you using?” The tech replies: “256 Hz.” The attending nods and moves on. But why 256? Why not 100? Why not 10,000? And what happens if you get it wrong?\nYou now know what signals look like — smooth, continuous waves with amplitude and frequency. But here’s the problem: your body produces continuous signals (voltage that changes every infinitesimal instant), and computers only understand discrete numbers (a list of measurements at specific times). To get that EEG onto a screen, we need to sample it — measure the voltage at regular intervals.\nHow often is often enough? That’s the central question of this module. Get it right, and you faithfully capture the brain’s activity. Get it wrong, and the signal you see on screen is a lie."
+    "objectID": "modules/04_fft.html#why-this-matters-clinically",
+    "href": "modules/04_fft.html#why-this-matters-clinically",
+    "title": "Module 4: FFT",
+    "section": "Why This Matters Clinically",
+    "text": "Why This Matters Clinically\nThe FFT is behind every frequency analysis in clinical neurophysiology:\n\nEEG interpretation: identifying dominant rhythms (alpha, beta, theta, delta)\nSleep staging: each sleep stage has a characteristic power spectrum\nSeizure detection: abnormal rhythmic activity shows up as unexpected spectral peaks\nMonitoring: brain-computer interfaces and neurofeedback systems use real-time FFT\nArtifact detection: 60 Hz peaks = power line noise; broad spectral bumps = muscle artifact\n\nEvery time a monitor displays a “power spectrum” or “spectral analysis” — whether it’s in the EEG lab, the OR, or the ICU — it’s running an FFT under the hood."
   },
   {
-    "objectID": "modules/02_sampling.html#from-continuous-to-discrete",
-    "href": "modules/02_sampling.html#from-continuous-to-discrete",
-    "title": "Module 2: Sampling",
-    "section": "From Continuous to Discrete",
-    "text": "From Continuous to Discrete\nImagine someone singing a smooth, continuous note. Now imagine you can only listen for a brief instant once per second. If the note changes slowly, you’d follow along fine. But if the note is wobbling rapidly — faster than you’re checking — you’d miss what’s happening. Worse, you might think you’re hearing something that isn’t there.\nThat’s sampling. The rate at which you “check” the signal is called the sampling rate (or sampling frequency, \\(f_s\\)), measured in Hz — samples per second."
-  },
-  {
-    "objectID": "modules/02_sampling.html#interactive-sampling-visualizer",
-    "href": "modules/02_sampling.html#interactive-sampling-visualizer",
-    "title": "Module 2: Sampling",
-    "section": "Interactive: Sampling Visualizer",
-    "text": "Interactive: Sampling Visualizer\nWatch what happens as you change the sampling rate. The blue curve is the “real” continuous signal. The red dots are the discrete samples your computer would capture. The dashed line connects those dots — that’s what the computer thinks the signal looks like.\n\n\n\n  \n    Signal frequency:\n      5.0 Hz\n    \n    \n  \n  \n    Sampling rate:\n      40 Hz\n    \n    \n  \n  \n  \n\n\n\n\nExperiment:\n\nStart with the signal at 5 Hz and sampling rate at 40 Hz. The dots land right on the wave — no problem.\nNow slowly lower the sampling rate. Watch the dashed reconstruction start to deviate from the blue truth.\nDrop the sampling rate below 10 Hz (twice the signal frequency). The reconstruction becomes completely wrong — it looks like a different signal entirely.\nTry a 10 Hz signal sampled at 11 Hz. The reconstruction is a slow, ghostly wave that doesn’t exist in reality. That ghost is called an alias."
-  },
-  {
-    "objectID": "modules/02_sampling.html#the-nyquist-rule",
-    "href": "modules/02_sampling.html#the-nyquist-rule",
-    "title": "Module 2: Sampling",
-    "section": "The Nyquist Rule",
-    "text": "The Nyquist Rule\nHarry Nyquist figured this out in the 1920s: to faithfully capture a signal of frequency \\(f\\), you must sample at a rate of at least \\(2f\\) — twice the highest frequency present.\n\\[f_s \\geq 2 \\times f_{max}\\]\nBelow that threshold, the signal aliases — it masquerades as a lower frequency. The math is surprisingly clean: a signal at frequency \\(f\\) sampled at rate \\(f_s\\) will appear at the aliased frequency \\(|f - n \\cdot f_s|\\), where \\(n\\) is the nearest integer.\nThe widget below makes this visceral. A fixed 10 Hz signal, and you control the sampling rate.\n\n  \n    Sampling rate:\n      50 Hz\n    \n    \n  \n  \n  \n\n\n\n\nThe Nyquist moment:\n\nStart at 50 Hz. The samples clearly trace the 10 Hz wave.\nSlowly lower the sampling rate toward 20 Hz. It still works, but barely.\nDrop below 20 Hz. A dashed red alias wave appears — the computer now “sees” a completely different frequency.\nTry exactly 20 Hz (the Nyquist limit). Notice the samples land on zero crossings — you get zero amplitude. The Nyquist rate is the theoretical minimum; in practice, you need more than \\(2f\\).\n\n\n\nThe Nyquist-Shannon Sampling Theorem: To capture a signal containing frequencies up to \\(f_{max}\\) Hz, you must sample at \\(f_s &gt; 2 f_{max}\\). Below this rate, high-frequency content folds back as lower-frequency aliases — phantom signals that don’t actually exist in the patient’s body. Clinical systems typically sample at 4–5 times the maximum frequency of interest as a safety margin."
-  },
-  {
-    "objectID": "modules/02_sampling.html#clinical-sampling-rates",
-    "href": "modules/02_sampling.html#clinical-sampling-rates",
-    "title": "Module 2: Sampling",
-    "section": "Clinical Sampling Rates",
-    "text": "Clinical Sampling Rates\nIn practice, nobody samples at exactly \\(2f_{max}\\) — that’s the bare minimum, and any imperfection causes aliasing. Real systems add a generous safety margin. Here’s what you’ll see in clinical settings:\n\n\n\n\n\n\n\n\n\nSignal Type\nFrequencies of Interest\nMinimum Nyquist Rate\nTypical Clinical Rate\n\n\n\n\nEEG\n0.5–100 Hz\n200 Hz\n256–512 Hz\n\n\nECG (Holter)\n0.5–150 Hz\n300 Hz\n128–500 Hz\n\n\nEMG\n20–500 Hz\n1000 Hz\n1000–5000 Hz\n\n\n\nWhy 256 Hz for EEG? Because the highest frequency neurologists typically care about is around 100 Hz (the upper end of gamma activity). \\(2 \\times 100 = 200\\) Hz minimum. 256 gives a comfortable margin and happens to be a power of 2 (which makes the computer math faster — we’ll see why in the FFT module).\nThe widget below lets you explore this logic for any signal type.\n\n  Sampling Rate Calculator\n  \n    Select a signal type:\n    \n      EEG (0.5–100 Hz)\n    \n    \n      ECG (0.5–150 Hz)\n    \n    \n      EMG (20–500 Hz)\n    \n    \n      Custom\n    \n  \n  \n    Maximum frequency of interest (Hz):\n    \n    \n      Calculate\n    \n  \n  \n\n\n\n\nExplore:\n\nClick each signal type. Notice how much higher the practical rate is compared to the bare Nyquist minimum.\nTry “Custom” — enter 500 Hz (upper EMG range). The Nyquist minimum is 1000 Hz, but you’d want 2000+ Hz in practice.\nNow enter 30 Hz (just EEG alpha and beta). The minimum is only 60 Hz — but clinically we’d still use 128 or 256 Hz for safety.\n\n\n\nWhy this matters clinically: If a technician accidentally sets the EEG sampling rate too low — say 100 Hz when trying to capture high gamma activity up to 80 Hz — the system is right at the Nyquist edge. Any frequency above 50 Hz will alias down, potentially creating false patterns in the recording that look like real brain activity but aren’t. Aliasing doesn’t announce itself. The signal looks perfectly normal — just wrong. That’s what makes it dangerous."
-  },
-  {
-    "objectID": "modules/02_sampling.html#what-about-anti-aliasing",
-    "href": "modules/02_sampling.html#what-about-anti-aliasing",
-    "title": "Module 2: Sampling",
-    "section": "What About Anti-Aliasing?",
-    "text": "What About Anti-Aliasing?\nOne more thing. In real clinical systems, there’s a hardware filter before the analog-to-digital converter called an anti-aliasing filter. It’s a low-pass filter (we’ll learn about those in the next module) that removes any frequency above \\(f_s/2\\) before sampling. This guarantees nothing above the Nyquist frequency makes it into the digitized signal.\nYou don’t need to build one — the equipment manufacturer does. But you should know it exists, because it means the sampling rate you choose determines the highest frequency you can ever see in the recording. Set \\(f_s\\) = 256 Hz, and frequencies above 128 Hz are gone forever — the anti-aliasing filter removed them before they were recorded."
-  },
-  {
-    "objectID": "modules/02_sampling.html#quiz-check-your-understanding",
-    "href": "modules/02_sampling.html#quiz-check-your-understanding",
-    "title": "Module 2: Sampling",
+    "objectID": "modules/04_fft.html#quiz-check-your-understanding",
+    "href": "modules/04_fft.html#quiz-check-your-understanding",
+    "title": "Module 4: FFT",
     "section": "Quiz: Check Your Understanding",
-    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: An EEG system samples at 256 Hz. What is the highest frequency it can faithfully capture?\n    \n       A. 256 Hz\n    \n    \n       B. 128 Hz\n    \n    \n       C. 512 Hz\n    \n    \n       D. 64 Hz\n    \n    \n  \n\n  \n\n  \n    Q2: You're recording EMG, which contains frequencies up to 500 Hz. Your system samples at 800 Hz. Is this adequate?\n    \n       A. Yes — 800 Hz is plenty\n    \n    \n       B. No — you need at least 1000 Hz\n    \n    \n       C. It depends on the patient\n    \n    \n       D. No — you need at least 500 Hz\n    \n    \n  \n\n  \n\n  \n    Q3: A 60 Hz signal is sampled at 50 Hz. What frequency does the aliased signal appear to be?\n    \n       A. 60 Hz — aliasing doesn't change the frequency\n    \n    \n       B. 50 Hz\n    \n    \n       C. 10 Hz\n    \n    \n       D. 110 Hz"
+    "text": "Quiz: Check Your Understanding\n\n  Quiz\n\n  \n    Q1: An EEG signal shows a sharp peak at 10 Hz in the power spectrum. What brain rhythm is this?\n    \n       A. Delta rhythm\n    \n    \n       B. Alpha rhythm\n    \n    \n       C. Beta rhythm\n    \n    \n       D. Gamma rhythm\n    \n    \n  \n\n  \n\n  \n    Q2: Your FFT shows peaks at 10 Hz AND 60 Hz. The 60 Hz peak is most likely:\n    \n       A. Gamma rhythm from active cognition\n    \n    \n       B. Power line noise, not brain activity\n    \n    \n       C. A harmonic of the 10 Hz alpha\n    \n    \n       D. Muscle artifact from jaw clenching\n    \n    \n  \n\n  \n\n  \n    Q3: You have a 2-second EEG recording. Your frequency resolution is:\n    \n       A. 2 Hz\n    \n    \n       B. 1 Hz\n    \n    \n       C. 0.5 Hz\n    \n    \n       D. It depends on the sampling rate"
   },
   {
-    "objectID": "modules/02_sampling.html#summary",
-    "href": "modules/02_sampling.html#summary",
-    "title": "Module 2: Sampling",
+    "objectID": "modules/04_fft.html#summary",
+    "href": "modules/04_fft.html#summary",
+    "title": "Module 4: FFT",
     "section": "Summary",
-    "text": "Summary\nWe captured the signal digitally. The key ideas:\n\nSampling converts a continuous signal into discrete numbers at regular intervals.\nThe Nyquist theorem says: sample at more than \\(2 \\times f_{max}\\) or you’ll get aliasing.\nAliasing creates phantom frequencies in your recording — signals that look real but aren’t.\nClinical systems use generous safety margins (4–5 times the maximum frequency of interest).\nAnti-aliasing filters in the hardware prevent aliasing before it happens.\n\nThe signal is now digital. But look at it — there’s noise everywhere. Power line hum at 60 Hz, slow electrode drift, muscle artifacts. How do we clean it up without throwing away the brain activity? That’s filtering.\n\n← Module 1: Signals Module 3: Filtering →"
+    "text": "Summary\nYou can now decompose any signal into its frequency components. The FFT takes a confusing time-domain signal and reveals its “ingredients” — which frequencies are present and how strong each one is.\nThree things to remember:\n\nThe FFT is a prism — it splits a mixed signal into individual frequency components\nPeaks in the spectrum = frequencies in the signal — clean peaks mean periodic activity; a sharp 60 Hz peak means noise\nResolution = \\(1/T\\) — longer recordings give you finer frequency detail\n\nBut so far we’ve been working with clean synthetic signals — sums of perfect sine waves. Real brain signals are messier, more interesting, and carry clinical meaning. Time to meet actual EEG.\n\n← Module 3: Filtering Module 5: EEG Basics →"
   },
   {
     "objectID": "modules/07_spectrograms.html",
@@ -431,6 +480,6 @@
     "href": "modules/05_eeg_basics.html#summary",
     "title": "Module 5: EEG Basics",
     "section": "Summary",
-    "text": "Summary\nYou can now read an EEG — or at least, you know the basics:\n\nThe 10-20 System places electrodes in standardized positions. Letters = brain region, odd = left, even = right, z = midline.\nFive frequency bands (delta, theta, alpha, beta, gamma) each carry distinct clinical meaning. Slower = bigger amplitude, faster = smaller.\nAlpha blocking (disappearance of the posterior alpha rhythm with eye opening) is a fundamental sign of normal cortical reactivity.\n\nBut there’s a catch. Not everything on that EEG screen comes from the brain. Eye blinks, muscle tension, the patient’s heartbeat, a loose electrode, someone’s cell phone — all of these can contaminate the recording. Next up: how to tell artifacts from actual brain activity, and why it matters more than you might think.\n\n← Module 4: FFT Module 6: Artifacts →"
+    "text": "Summary\nYou can now read an EEG — or at least, you know the basics:\n\nThe 10-20 System places electrodes in standardized positions. Letters = brain region, odd = left, even = right, z = midline.\nFive frequency bands (delta, theta, alpha, beta, gamma) each carry distinct clinical meaning. Slower = bigger amplitude, faster = smaller.\nAlpha blocking (disappearance of the posterior alpha rhythm with eye opening) is a fundamental sign of normal cortical reactivity.\n\nBut there’s a catch. Not everything on that EEG screen comes from the brain. Eye blinks, muscle tension, the patient’s heartbeat, a loose electrode, someone’s cell phone — all of these can contaminate the recording. Next up: how to tell artifacts from actual brain activity, and why it matters more than you might think.\n\n← Module 4: FFT Module 5b: Montages & Dipoles →"
   }
 ]

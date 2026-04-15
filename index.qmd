@@ -24,6 +24,7 @@ Each module is **interactive**. You'll drag sliders, change parameters, and watc
 | 3 | [Filtering](modules/03_filtering.qmd) | How to clean up a noisy recording to see what matters |
 | 4 | [FFT](modules/04_fft.qmd) | How to reveal the hidden frequencies in a signal |
 | 5 | [EEG Basics](modules/05_eeg_basics.qmd) | What the EEG measures, where electrodes go, and what the bands mean |
+| 5b | [Montages & Dipoles](modules/05b_montages.qmd) | How EEG signals are displayed, cortical dipoles, and phase reversal |
 | 6 | [Artifacts](modules/06_artifacts.qmd) | Telling brain activity apart from eye blinks, muscle, and noise |
 | 7 | [Spectrograms](modules/07_spectrograms.qmd) | Watching brain rhythms change over time |
 | 8 | [**The Challenge**](modules/08_challenge.qmd) | A real EEG recording. A real clinical question. Your job to figure it out. |

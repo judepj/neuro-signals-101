@@ -835,6 +835,6 @@ The difference is in the **distribution** (which channels are affected), the **m
 You can now tell brain from noise. With clean EEG in hand, there's one more power tool to learn: instead of looking at frequencies averaged over the whole recording, what if you could watch them *change* in real time? That's the **spectrogram** — and it's how neurologists track brain dynamics as they unfold.
 
 ::: {.module-nav}
-[← Module 5: EEG Basics](05_eeg_basics.qmd)
+[← Module 5b: Montages & Dipoles](05b_montages.qmd)
 [Module 7: Spectrograms →](07_spectrograms.qmd)
 :::
