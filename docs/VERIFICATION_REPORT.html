@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>verification_report – EEG &amp; Signal Processing — Interactive Tutorial</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-29413b01964427e4ecb0fb43b1b88900.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-f426e8d8c371072b6717f744114b4209.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-29413b01964427e4ecb0fb43b1b88900.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="assets/css/tutorial.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">EEG &amp; Signal Processing — Interactive Tutorial</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./modules/01_signals.html"> 
+<span class="menu-text">1. Signals</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./modules/02_sampling.html"> 
+<span class="menu-text">2. Sampling</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./modules/03_filtering.html"> 
+<span class="menu-text">3. Filtering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./modules/04_fft.html"> 
+<span class="menu-text">4. FFT</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./modules/05_eeg_basics.html"> 
+<span class="menu-text">5. EEG Basics</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./modules/05b_montages.html"> 
+<span class="menu-text">5b. Montages</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./modules/06_artifacts.html"> 
+<span class="menu-text">6. Artifacts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./modules/07_spectrograms.html"> 
+<span class="menu-text">7. Spectrograms</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./modules/08_challenge.html"> 
+<span class="menu-text">8. Challenge</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#tutorial-verification-report" id="toc-tutorial-verification-report" class="nav-link active" data-scroll-target="#tutorial-verification-report">Tutorial Verification Report</a>
+  <ul class="collapse">
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#module-by-module-audit" id="toc-module-by-module-audit" class="nav-link" data-scroll-target="#module-by-module-audit">Module-by-Module Audit</a></li>
+  <li><a href="#critical-issues-must-fix-before-sharing" id="toc-critical-issues-must-fix-before-sharing" class="nav-link" data-scroll-target="#critical-issues-must-fix-before-sharing">Critical Issues (must fix before sharing)</a></li>
+  <li><a href="#minor-issues-nice-to-fix" id="toc-minor-issues-nice-to-fix" class="nav-link" data-scroll-target="#minor-issues-nice-to-fix">Minor Issues (nice to fix)</a></li>
+  <li><a href="#suggestions-improvements-not-errors" id="toc-suggestions-improvements-not-errors" class="nav-link" data-scroll-target="#suggestions-improvements-not-errors">Suggestions (improvements, not errors)</a></li>
+  <li><a href="#code-correctness-summary" id="toc-code-correctness-summary" class="nav-link" data-scroll-target="#code-correctness-summary">Code Correctness Summary</a></li>
+  <li><a href="#pedagogical-flow-assessment" id="toc-pedagogical-flow-assessment" class="nav-link" data-scroll-target="#pedagogical-flow-assessment">Pedagogical Flow Assessment</a></li>
+  <li><a href="#quiz-answer-verification-all-modules" id="toc-quiz-answer-verification-all-modules" class="nav-link" data-scroll-target="#quiz-answer-verification-all-modules">Quiz Answer Verification (all modules)</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+
+<section id="tutorial-verification-report" class="level1">
+<h1>Tutorial Verification Report</h1>
+<p>Date: 2026-04-15</p>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<ul>
+<li>Total issues found: 12</li>
+<li>Critical (factually wrong): 2</li>
+<li>Minor (imprecise but not wrong): 6</li>
+<li>Suggestions (improvements): 4</li>
+</ul>
+<p>Overall verdict: <strong>The tutorial is remarkably accurate overall.</strong> The clinical EEG content is standard and well-sourced, the quiz answers are all correct, and most code correctly implements the formulas. Two issues rise to the “critical” level: (1) a filter demo that incorrectly removes a 2 Hz signal with a 1 Hz high-pass filter, and (2) a partially inaccurate ECG sampling rate claim. Both are straightforward fixes. The rest are minor precision issues and suggestions. After fixing the two critical items, this is safe to share with the instructor.</p>
+<hr>
+</section>
+<section id="module-by-module-audit" class="level2">
+<h2 class="anchored" data-anchor-id="module-by-module-audit">Module-by-Module Audit</h2>
+<section id="module-1-signals-modules01_signals.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="module-1-signals-modules01_signals.qmd">Module 1: Signals (<code>modules/01_signals.qmd</code>)</h3>
+<ul>
+<li><strong>[PASS]</strong> Sine wave formula: <code>A * sin(2 * pi * f * t)</code> – correctly implemented in both the main signal generator (line 167) and the phase demo (line 363-364).</li>
+<li><strong>[PASS]</strong> Phase formula: <code>A * sin(2 * pi * f * t + phi)</code> with degrees-to-radians conversion (<code>deg * pi / 180</code>) – correct (line 355).</li>
+<li><strong>[PASS]</strong> Clinical presets: Alpha at 10 Hz, Delta at 2 Hz, Beta at 20 Hz – all within standard frequency band ranges.</li>
+<li><strong>[PASS]</strong> Delta amplitude note “real amplitude ~150 uV” – correct; delta waves are typically 100-200 uV.</li>
+<li><strong>[PASS]</strong> ECG waveform: P-QRS-T morphology is correctly synthesized. Heart rate of 72 bpm (1.2 Hz) is standard. The P wave precedes QRS, T wave follows – correct sequence.</li>
+<li><strong>[PASS]</strong> ECG scale: Correctly notes ECG is in millivolts (0.5-3 mV range) and is ~1000x larger than EEG – accurate.</li>
+<li><strong>[PASS]</strong> EEG/ECG/EMG comparison table: EEG 10-100 uV, ECG 0.5-3 mV, EMG 0.1-5 mV – standard clinical ranges.</li>
+<li><strong>[PASS]</strong> Frequency ranges in clinical table: Delta 1-4 Hz, Alpha 8-13 Hz, Beta 13-30 Hz, Gamma &gt;30 Hz – correct.</li>
+<li><strong>[PASS]</strong> Clinical associations: Deep sleep = delta, relaxed eyes closed = alpha, focused attention = beta, active thinking = gamma – correct standard associations.</li>
+<li><strong>[PASS]</strong> Inverse amplitude-frequency relationship explanation (synchrony) – correct.</li>
+<li><strong>[PASS]</strong> Phase demo at 180 degrees: “perfectly out of sync, if you added them they’d cancel out” – correct.</li>
+<li><strong>[PASS]</strong> Phase reversal clinical teaser: correctly foreshadows Module 5b content.</li>
+<li><strong>[PASS]</strong> Quiz Q1 answer (b): Larger amplitude = more electrical activity reaching the electrode – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q2 answer (b): 70 bpm / 60 = ~1.17 Hz – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q3 answer (b): Slow rhythms = more synchrony = larger amplitude – correct.</li>
+<li><strong>[PASS]</strong> 3 Hz spike-and-wave clinical vignette: Correctly described as the hallmark of absence seizures. The clinical scenario (28-year-old with staring episodes, 10-15 seconds, unresponsive) is a classic absence seizure presentation.</li>
+</ul>
+<p><strong>Issues:</strong> None.</p>
+<hr>
+</section>
+<section id="module-2-sampling-modules02_sampling.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="module-2-sampling-modules02_sampling.qmd">Module 2: Sampling (<code>modules/02_sampling.qmd</code>)</h3>
+<ul>
+<li><strong>[PASS]</strong> Nyquist theorem: <code>f_s &gt;= 2 * f_max</code> – correctly stated.</li>
+<li><strong>[PASS]</strong> Aliasing formula: <code>|f - n * f_s|</code> where n is the nearest integer – correct.</li>
+<li><strong>[PASS]</strong> Aliasing demo code: Correctly computes <code>nNearest = Math.round(fSig / fSamp)</code> and <code>fAlias = Math.abs(fSig - nNearest * fSamp)</code> – mathematically correct.</li>
+<li><strong>[PASS]</strong> Sampling rate of 256 Hz for EEG: correctly noted as standard and explained (captures up to 128 Hz, &gt;100 Hz upper clinical interest).</li>
+<li><strong>[PASS]</strong> Power-of-2 benefit for FFT speed – correct.</li>
+<li><strong>[PASS]</strong> Anti-aliasing filter explanation: hardware low-pass before ADC, removes frequencies above f_s/2 – correct.</li>
+<li><strong>[PASS]</strong> Key concept box correctly uses strict inequality <code>f_s &gt; 2 * f_max</code> (the practical statement) while the formula uses <code>&gt;=</code> (the mathematical minimum). Both are acceptable; the text appropriately notes practical systems use 4-5x the max frequency.</li>
+<li><strong>[PASS]</strong> EEG frequencies of interest 0.5-100 Hz, minimum Nyquist 200 Hz, typical 256-512 Hz – correct.</li>
+<li><strong>[PASS]</strong> EMG frequencies 20-500 Hz, minimum 1000 Hz, typical 1000-5000 Hz – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q1 answer (b): 256/2 = 128 Hz maximum capturable frequency – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q2 answer (b): 800 Hz &lt; 2 * 500 = 1000 Hz, therefore inadequate – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q3 answer (c): |60 - 1*50| = 10 Hz aliased frequency – correct.</li>
+<li><strong>[PASS]</strong> Clinical sampling rates note about 100 Hz being “right at the Nyquist edge” for 80 Hz gamma: Correctly identifies frequencies above 50 Hz (not 80 Hz) would alias at that sampling rate. Wait – let me re-read… The text says “100 Hz when trying to capture high gamma activity up to 80 Hz” and “any frequency above 50 Hz will alias down.” The Nyquist frequency at 100 Hz sampling rate is 50 Hz. So the claim that frequencies above 50 Hz will alias is correct.</li>
+</ul>
+<p><strong>Issues:</strong></p>
+<ol type="1">
+<li><p><strong>[MINOR]</strong> ECG (Holter) typical clinical rate listed as “128-500 Hz.” This is somewhat imprecise. Standard Holter monitors typically sample at 125-200 Hz; diagnostic 12-lead ECG systems sample at 250-500 Hz. The range conflates two different clinical contexts. Most Holter monitors operate at 125-250 Hz. The “500 Hz” end is more typical of diagnostic resting ECG or stress-test systems, not standard Holter. This is not wrong per se (you can find devices in this range), but calling it “ECG (Holter)” at 500 Hz is slightly misleading.</p></li>
+<li><p><strong>[MINOR]</strong> The tutorial says “Harry Nyquist figured this out in the 1920s.” This oversimplifies. Nyquist’s 1928 paper addressed maximum signaling rate through a bandlimited channel but did not explicitly state the sampling theorem for reconstructing continuous signals. The theorem was formally proven by Claude Shannon in 1949. The concept is often called the Nyquist-Shannon theorem. For a first-year medical student audience, this simplification is acceptable, but the attribution is historically imprecise.</p></li>
+</ol>
+<hr>
+</section>
+<section id="module-3-filtering-modules03_filtering.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="module-3-filtering-modules03_filtering.qmd">Module 3: Filtering (<code>modules/03_filtering.qmd</code>)</h3>
+<ul>
+<li><strong>[PASS]</strong> High-pass filter definition: “removes frequencies below the cutoff, lets high frequencies through” – correct.</li>
+<li><strong>[PASS]</strong> Low-pass filter definition: “removes frequencies above the cutoff, lets low frequencies through” – correct.</li>
+<li><strong>[PASS]</strong> Band-pass filter: combination of high-pass and low-pass – correct.</li>
+<li><strong>[PASS]</strong> Standard clinical EEG filter: 1-40 Hz bandpass (noted as sometimes 0.5-70 Hz) – correct; both are standard clinical settings.</li>
+<li><strong>[PASS]</strong> Notch filter explanation: removes narrow band around a single frequency – correct.</li>
+<li><strong>[PASS]</strong> 60 Hz in US, 50 Hz in Europe – correct.</li>
+<li><strong>[PASS]</strong> Notch filter tradeoff: correctly notes it removes gamma oscillations at 60 Hz as well as noise.</li>
+<li><strong>[PASS]</strong> Filter rules of thumb table: high-pass 0.5-1 Hz, low-pass 35-70 Hz, notch 60/50 Hz – all standard values.</li>
+<li><strong>[PASS]</strong> “Display filters change what you see, not what’s stored” for digital EEG – correct.</li>
+<li><strong>[PASS]</strong> Clinical consequence of over-aggressive filtering: 5 Hz high-pass losing slow components, 15 Hz low-pass missing spikes – both correct practical observations.</li>
+<li><strong>[PASS]</strong> Filter demo code: The ideal filter simulation (simply including/excluding frequency components) is pedagogically appropriate for teaching, even though real filters have transition bands.</li>
+<li><strong>[PASS]</strong> Quiz Q1 answer (b): High-pass filter to remove 0.2 Hz drift – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q2 answer (b): 50 Hz removed by 1-40 Hz bandpass – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q3 answer (b): Notch filter removes brain activity at 60 Hz too – correct.</li>
+</ul>
+<p><strong>Issues:</strong></p>
+<ol start="3" type="1">
+<li><p><strong>[CRITICAL]</strong> The filter type demo has a factual error. The “drift” component is a 2 Hz sine wave (line 88: <code>30 * Math.sin(2 * Math.PI * 2 * ti)</code>). When the 1 Hz high-pass filter is applied, the code removes this 2 Hz component entirely (line 100: <code>return alpha[i] + line60[i] + noise[i]</code>). But a 1 Hz high-pass filter would PASS a 2 Hz signal – 2 Hz is above the 1 Hz cutoff. The code comment says “Remove drift (&lt; 1 Hz component)” but the drift is at 2 Hz, not below 1 Hz. The same error occurs with the 1-40 Hz bandpass (line 102), which also removes the 2 Hz component even though 2 Hz is within the passband. This teaches students that a 1 Hz high-pass removes 2 Hz signals, which is wrong.</p>
+<p><strong>Fix options:</strong></p>
+<ul>
+<li>Change the drift frequency from 2 Hz to 0.3 Hz (realistic electrode drift, and correctly below the 1 Hz cutoff), OR</li>
+<li>Change the high-pass cutoff label to 3 Hz (which would correctly remove 2 Hz), OR</li>
+<li>Keep 2 Hz but mark it as “passed” by the high-pass filter (changing the demo behavior).</li>
+</ul>
+<p>Recommended: Change the drift to 0.3 Hz. This is more physiologically realistic anyway – real electrode drift is typically &lt; 0.5 Hz.</p></li>
+<li><p><strong>[MINOR]</strong> The interactive bandpass filter demo uses ideal brick-wall filtering (a frequency is either in or out). A brief note that real filters have gradual rolloff (transition band) rather than a sharp cutoff would improve accuracy. The Quiz Q2 feedback mentions this: “In an ideal filter, 50 Hz would be fully blocked. Real filters have a transition zone” – good, but it’s buried in quiz feedback rather than in the main instructional text.</p></li>
+</ol>
+<hr>
+</section>
+<section id="module-4-fft-modules04_fft.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="module-4-fft-modules04_fft.qmd">Module 4: FFT (<code>modules/04_fft.qmd</code>)</h3>
+<ul>
+<li><strong>[PASS]</strong> “Any signal is just a sum of simple sine waves at different frequencies” – correct (Fourier’s theorem, for periodic signals; approximately true for finite-duration signals, which is the practical case here).</li>
+<li><strong>[PASS]</strong> FFT “reorganizes information, doesn’t create it” – correct conceptual framing.</li>
+<li><strong>[PASS]</strong> Frequency resolution formula: <code>Delta_f = 1/T</code> where T is recording duration – correct.</li>
+<li><strong>[PASS]</strong> DFT code implementation (lines 428-443): The simple DFT computation is mathematically correct: <code>re += signal[n] * cos(2*pi*k*n/N)</code>, <code>im -= signal[n] * sin(2*pi*k*n/N)</code>, magnitude = <code>2 * sqrt(re^2 + im^2) / N</code> – correct implementation of the DFT with proper scaling for single-sided amplitude.</li>
+<li><strong>[PASS]</strong> Frequency resolution demo: 9 Hz and 11 Hz components, 2 Hz apart – at 0.5s (resolution 2 Hz) they blur, at 1s (resolution 1 Hz) they separate. The behavior is correct.</li>
+<li><strong>[PASS]</strong> Quiz Q1 answer (b): 10 Hz = alpha rhythm – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q2 answer (b): 60 Hz spike = power line noise – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q3 answer (c): 1/2 = 0.5 Hz resolution for 2-second recording – correct.</li>
+<li><strong>[PASS]</strong> Q3 feedback correctly distinguishes frequency resolution (depends on duration) from maximum frequency (depends on sampling rate) – important distinction, well stated.</li>
+</ul>
+<p><strong>Issues:</strong> None.</p>
+<hr>
+</section>
+<section id="module-5-eeg-basics-modules05_eeg_basics.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="module-5-eeg-basics-modules05_eeg_basics.qmd">Module 5: EEG Basics (<code>modules/05_eeg_basics.qmd</code>)</h3>
+<ul>
+<li><strong>[PASS]</strong> EEG measures summed postsynaptic potentials of cortical pyramidal neurons – correct.</li>
+<li><strong>[PASS]</strong> 10-20 system description: electrodes at 10% or 20% intervals from nasion, inion, preauricular points – correct.</li>
+<li><strong>[PASS]</strong> Naming convention: letter = region, odd = left, even = right, z = midline – correct.</li>
+<li><strong>[PASS]</strong> Electrode abbreviations: Fp = frontopolar, F = frontal, C = central, T = temporal, P = parietal, O = occipital – correct.</li>
+<li><strong>[PASS]</strong> Electrode descriptions are clinically accurate:
+<ul>
+<li>O1/O2: best place for alpha rhythm, alpha blocking – correct</li>
+<li>Fp1/Fp2: pick up eye blink artifacts – correct</li>
+<li>T3/T4: important for temporal lobe epilepsy – correct</li>
+<li>C3/C4: sensorimotor cortex, mu rhythm – correct</li>
+<li>Cz: vertex sharp waves during drowsiness – correct</li>
+<li>Pz: P300 component – correct</li>
+<li>F7/F8: near temporal lobe boundary, relevant for temporal lobe epilepsy – correct</li>
+</ul></li>
+<li><strong>[PASS]</strong> Frequency band ranges: Delta 1-4 Hz, Theta 4-8 Hz, Alpha 8-13 Hz, Beta 13-30 Hz, Gamma &gt;30 Hz – these match the most commonly used clinical definitions.</li>
+<li><strong>[PASS]</strong> Amplitude ranges: Delta 100-200 uV, Theta 50-100 uV, Alpha 30-50 uV, Beta 10-20 uV, Gamma 5-10 uV – standard textbook values.</li>
+<li><strong>[PASS]</strong> Clinical associations:
+<ul>
+<li>Delta: normal in deep sleep (N3), pathological if awake – correct</li>
+<li>Theta: normal in drowsiness/children, focal = possible lesion – correct</li>
+<li>Alpha: occipital, eyes closed, blocks with eye opening – correct</li>
+<li>Beta: frontal/central, enhanced by benzodiazepines – correct</li>
+<li>Gamma: cognitive processing, contaminated by muscle artifact – correct</li>
+</ul></li>
+<li><strong>[PASS]</strong> Alpha blocking explanation: thalamo-cortical idle rhythm disrupted by visual input – correct mechanism.</li>
+<li><strong>[PASS]</strong> “If alpha fails to block with eye opening, raises concern for cortical dysfunction” – correct.</li>
+<li><strong>[PASS]</strong> Quiz answers all correct.</li>
+</ul>
+<p><strong>Issues:</strong></p>
+<ol start="4" type="1">
+<li><p><strong>[MINOR]</strong> The tutorial uses the older 10-20 electrode nomenclature (T3, T4, T5, T6) rather than the updated 10-10 nomenclature (T7, T8, P7, P8) recommended by the ACNS since 2006. Both naming systems are still used in practice, and many clinical labs still use T3/T4/T5/T6, so this is not wrong. However, a brief parenthetical note like “(also called T7 in the modified 10-10 system)” would future-proof the content.</p></li>
+<li><p><strong>[MINOR]</strong> The description of theta as “50-100 uV” is on the high end. Some references give theta amplitude as 20-100 uV. The value stated is not wrong but represents the upper range of what is typically reported.</p></li>
+</ol>
+<hr>
+</section>
+<section id="module-5b-montages-dipoles-modules05b_montages.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="module-5b-montages-dipoles-modules05b_montages.qmd">Module 5b: Montages &amp; Dipoles (<code>modules/05b_montages.qmd</code>)</h3>
+<ul>
+<li><strong>[PASS]</strong> Fundamental principle: EEG measures voltage differences – correct.</li>
+<li><strong>[PASS]</strong> <code>V_channel = V_electrode_A - V_electrode_B</code> – correct.</li>
+<li><strong>[PASS]</strong> Referential vs bipolar montage analogy (elevation vs slope) – excellent pedagogical framing.</li>
+<li><strong>[PASS]</strong> Double banana montage electrode chains:
+<ul>
+<li>Left parasagittal: Fp1 -&gt; F3 -&gt; C3 -&gt; P3 -&gt; O1 – correct</li>
+<li>Right parasagittal: Fp2 -&gt; F4 -&gt; C4 -&gt; P4 -&gt; O2 – correct</li>
+<li>Left temporal: Fp1 -&gt; F7 -&gt; T3 -&gt; T5 -&gt; O1 – correct</li>
+<li>Right temporal: Fp2 -&gt; F8 -&gt; T4 -&gt; T6 -&gt; O2 – correct All four chains are standard and match ACNS guidelines.</li>
+</ul></li>
+<li><strong>[PASS]</strong> Cortical dipole explanation: pyramidal neurons, current sink/source, apical dendrites – correct.</li>
+<li><strong>[PASS]</strong> Radial vs tangential dipoles: radial (gyrus crown) well-detected, tangential (sulcus wall) poorly detected – correct.</li>
+<li><strong>[PASS]</strong> “About two-thirds of the cortical surface is buried in sulci” – this is a commonly cited figure and is approximately correct.</li>
+<li><strong>[PASS]</strong> Phase reversal explanation: F3-C3 deflects up, C3-P3 deflects down when source is at C3. The math is correctly explained: subtracting a large negative gives a positive result (up), starting from a large negative gives a negative result (down).</li>
+<li><strong>[PASS]</strong> Phase reversal code: Correctly implements electrode voltages with distance-dependent falloff, then computes bipolar derivations by subtraction – mathematically correct.</li>
+<li><strong>[PASS]</strong> End-of-chain limitation: correctly noted that sources at Fp1 or O1 lack full phase reversal.</li>
+<li><strong>[PASS]</strong> Quiz answers all correct.</li>
+</ul>
+<p><strong>Issues:</strong> None. This is an exceptionally well-crafted module.</p>
+<hr>
+</section>
+<section id="module-6-artifacts-modules06_artifacts.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="module-6-artifacts-modules06_artifacts.qmd">Module 6: Artifacts (<code>modules/06_artifacts.qmd</code>)</h3>
+<ul>
+<li><strong>[PASS]</strong> Artifact table:
+<ul>
+<li>Eye blink: corneoretinal dipole, large slow positive deflection at Fp1/Fp2 – correct</li>
+<li>Muscle: high-frequency fuzz, temporal electrodes – correct</li>
+<li>60 Hz: perfect sinusoidal, all channels equally – correct</li>
+<li>ECG: periodic sharp waves at heart rate, ~1 Hz – correct</li>
+<li>Electrode pop: sudden spike, single channel – correct</li>
+</ul></li>
+<li><strong>[PASS]</strong> Eye blink mechanism: cornea is positive relative to retina, creating a dipole; blink moves this dipole relative to frontal electrodes – correct (verified via Medscape and PubMed sources).</li>
+<li><strong>[PASS]</strong> Eye blink amplitude ~100-200 uV – correct.</li>
+<li><strong>[PASS]</strong> Muscle artifact: broadband, &gt;20 Hz – correct.</li>
+<li><strong>[PASS]</strong> Muscle artifact location: temporal electrodes (near temporalis muscle) – correct.</li>
+<li><strong>[PASS]</strong> 60 Hz noise: affects all channels equally – correct (electromagnetic interference is not electrode-specific).</li>
+<li><strong>[PASS]</strong> ECG artifact: sharp periodic waves matching heart rate, best seen at ear/temporal references – correct.</li>
+<li><strong>[PASS]</strong> Electrode pop: single channel, abrupt impedance change – correct.</li>
+<li><strong>[PASS]</strong> Artifact-pathology confusion examples: blink resembling frontal spike, muscle resembling beta, ECG resembling periodic discharges – all correct clinical pitfalls.</li>
+<li><strong>[PASS]</strong> Artifact rejection strategies: prevention, rejection, correction (ICA) – correct.</li>
+<li><strong>[PASS]</strong> Quiz answers all correct.</li>
+</ul>
+<p><strong>Issues:</strong></p>
+<ol start="6" type="1">
+<li><strong>[MINOR]</strong> The eye blink artifact is described as a “positive deflection” at Fp1/Fp2. This is correct by standard EEG convention (negative up), but could be confusing for first-year medical students who may not know the EEG polarity convention. The tutorial does not explicitly state the convention (negative up vs.&nbsp;positive up) anywhere. A one-sentence note clarifying this would help. However, the blink is correctly described as being “positive” at the frontopolar electrodes, which matches the corneoretinal dipole physics.</li>
+</ol>
+<hr>
+</section>
+<section id="module-7-spectrograms-modules07_spectrograms.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="module-7-spectrograms-modules07_spectrograms.qmd">Module 7: Spectrograms (<code>modules/07_spectrograms.qmd</code>)</h3>
+<ul>
+<li><strong>[PASS]</strong> Spectrogram construction: chop into windows, FFT each, stack side by side – correct description of the STFT.</li>
+<li><strong>[PASS]</strong> Hanning window applied to each chunk: <code>0.5 * (1 - cos(2*pi*i/(N-1)))</code> – correct Hann window formula.</li>
+<li><strong>[PASS]</strong> Time-frequency tradeoff: smaller window = better time resolution, worse frequency resolution; and vice versa – correct.</li>
+<li><strong>[PASS]</strong> <code>Delta_f = 1/T</code> where T = window size – correct.</li>
+<li><strong>[PASS]</strong> DFT computation in spectrogram: properly normalizes by <code>winN^2</code> before taking log – correct for power spectral density.</li>
+<li><strong>[PASS]</strong> Clinical window sizes table: seizure 0.5-1s, sleep 2-5s, anesthesia 1-2s, BCI 0.25-0.5s – reasonable and standard values.</li>
+<li><strong>[PASS]</strong> Spectrogram code correctly transposes the power matrix for heatmap display (frequency on y-axis, time on x-axis).</li>
+<li><strong>[PASS]</strong> Quiz Q1 answer (b): 10 Hz disappearing = alpha blocking from eye opening – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q2 answer (b): larger window improves frequency resolution (0.5 Hz vs 2 Hz) but worsens time resolution – correct.</li>
+<li><strong>[PASS]</strong> Quiz Q3 answer (c): evolving frequency pattern = seizure – correct.</li>
+</ul>
+<p><strong>Issues:</strong> None.</p>
+<hr>
+</section>
+<section id="index-index.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="index-index.qmd">Index (<code>index.qmd</code>)</h3>
+<ul>
+<li><strong>[PASS]</strong> Module list and descriptions are accurate.</li>
+<li><strong>[PASS]</strong> Module ordering is logical: Signals -&gt; Sampling -&gt; Filtering -&gt; FFT -&gt; EEG Basics -&gt; Montages -&gt; Artifacts -&gt; Spectrograms -&gt; Challenge.</li>
+<li><strong>[PASS]</strong> Statement “Module 8 is graded” – appropriate framing for the capstone.</li>
+</ul>
+<p><strong>Issues:</strong> None.</p>
+<hr>
+</section>
+</section>
+<section id="critical-issues-must-fix-before-sharing" class="level2">
+<h2 class="anchored" data-anchor-id="critical-issues-must-fix-before-sharing">Critical Issues (must fix before sharing)</h2>
+<ol type="1">
+<li><p><strong>[CRITICAL] 2 Hz drift incorrectly removed by 1 Hz high-pass filter (Module 3, filter type demo)</strong></p>
+<p>The demo’s “drift” component is a 2 Hz sine wave. When the “High-pass (1 Hz)” filter is activated, the code removes this 2 Hz component. But a 1 Hz high-pass filter passes everything ABOVE 1 Hz – including 2 Hz. The code teaches students that a 1 Hz high-pass removes 2 Hz signals, which is factually wrong.</p>
+<p>The same error propagates to the 1-40 Hz bandpass mode, which also removes the 2 Hz drift even though 2 Hz falls within the 1-40 Hz passband.</p>
+<p><strong>Quickest fix:</strong> Change the drift frequency from 2 Hz to 0.3 Hz (line 88 of the script: change <code>2 * Math.PI * 2 * ti</code> to <code>2 * Math.PI * 0.3 * ti</code>). Update all labels from “2 Hz drift” to “0.3 Hz drift” or “slow drift.” This also makes the demo more physiologically realistic – real electrode drift is &lt; 0.5 Hz.</p></li>
+<li><p><strong>[CRITICAL] ECG (Holter) sampling rate range (Module 2, clinical sampling rates table)</strong></p>
+<p>The table lists ECG (Holter) frequencies of interest as “0.5-150 Hz” with a typical clinical rate of “128-500 Hz.” This conflates two different clinical contexts:</p>
+<ul>
+<li><strong>Standard Holter monitors</strong> typically sample at 125-250 Hz (for rhythm monitoring, HRV analysis). The AHA-recommended diagnostic ECG bandwidth is 0.05-150 Hz, but this refers to diagnostic 12-lead ECG, not Holter.</li>
+<li><strong>500 Hz</strong> is typical of high-fidelity diagnostic ECG or stress-test systems, not standard ambulatory Holter monitors.</li>
+</ul>
+<p>The listing mixes Holter-specific context in the label with diagnostic-ECG numbers in the frequency range and sampling rate.</p>
+<p><strong>Recommendation:</strong> Either relabel as “ECG (diagnostic)” with frequency range 0.05-150 Hz and typical rate 250-500 Hz, OR keep the Holter label but adjust to “0.5-40 Hz” (typical Holter monitoring bandwidth) with typical rate “125-250 Hz.” Alternatively, split into two rows (Holter vs.&nbsp;diagnostic).</p>
+<p><strong>Why critical:</strong> A student or instructor might look this up and find standard Holter monitors run at 125-200 Hz, contradicting the table. This could undermine trust in the rest of the tutorial’s clinical accuracy.</p></li>
+</ol>
+<hr>
+</section>
+<section id="minor-issues-nice-to-fix" class="level2">
+<h2 class="anchored" data-anchor-id="minor-issues-nice-to-fix">Minor Issues (nice to fix)</h2>
+<ol type="1">
+<li><p><strong>Nyquist attribution (Module 2):</strong> “Harry Nyquist figured this out in the 1920s” – Nyquist’s 1928 paper addressed signaling rate, not the sampling theorem per se. The sampling theorem was formally stated by Shannon in 1949. Suggestion: “The insight traces back to work by Harry Nyquist in the 1920s and was formalized by Claude Shannon in 1949.”</p></li>
+<li><p><strong>Ideal filter visualization (Module 3):</strong> The bandpass filter demo uses brick-wall ideal filtering (frequencies are either fully passed or fully blocked). Real filters have transition bands. The quiz feedback for Q2 mentions this, but a brief note in the main instructional text would be more visible.</p></li>
+<li><p><strong>T3/T4/T5/T6 nomenclature (Module 5):</strong> The tutorial uses the classic 10-20 names. The ACNS recommended renaming T3-&gt;T7, T4-&gt;T8, T5-&gt;P7, T6-&gt;P8 in the modified 10-10 system (2006). Both are in clinical use. Consider adding a parenthetical: “(T3, also called T7 in the 10-10 system)” on first use.</p></li>
+<li><p><strong>Theta amplitude (Module 5):</strong> Listed as 50-100 uV. This is at the high end. Many references give 20-100 uV. Not wrong, but the lower bound could be adjusted to 20-30 uV to be more inclusive.</p></li>
+<li><p><strong>Eye blink polarity convention (Module 6):</strong> The blink is correctly described as “positive” at Fp1/Fp2, but the tutorial never states EEG polarity convention. First-year students may not know whether “positive” means the trace goes up or down on screen. A one-sentence note would clarify.</p></li>
+<li><p><strong>Quiz radio button name collision (Module 4 vs Module 3):</strong> Both modules use <code>name="fq1"</code>, <code>name="fq2"</code>, <code>name="fq3"</code> for their quiz radio buttons. If both modules were ever rendered on the same page (unlikely in Quarto’s per-page rendering, but possible in a single-page build), the radio buttons would conflict.</p></li>
+</ol>
+<hr>
+</section>
+<section id="suggestions-improvements-not-errors" class="level2">
+<h2 class="anchored" data-anchor-id="suggestions-improvements-not-errors">Suggestions (improvements, not errors)</h2>
+<ol type="1">
+<li><p><strong>Add EEG polarity convention note.</strong> Somewhere in Module 1 or Module 5, mention that clinical EEG displays typically use “negative up” convention, which affects how waveforms appear on screen. This will prevent confusion when students see real EEG traces.</p></li>
+<li><p><strong>Module 2 linear interpolation note.</strong> The sampling widget uses linear interpolation for reconstruction. Real DAC reconstruction uses sinc interpolation (ideal) or zero-order hold. A brief note like “This demo connects the dots with straight lines for simplicity. Real systems use more sophisticated reconstruction, but the aliasing problem is the same” would be instructionally honest.</p></li>
+<li><p><strong>Module 5 frequency band boundary note.</strong> The boundaries between EEG bands (e.g., alpha at 8-13 Hz vs.&nbsp;8-12 Hz) vary across sources. A brief note acknowledging this – “These boundaries are approximate; some textbooks define alpha as 8-12 Hz” – would prevent students from being confused when they encounter different numbers in other resources.</p></li>
+<li><p><strong>Module 7 seizure evolution.</strong> The “Seizure-like Preset” goes Alpha (10 Hz) -&gt; Delta (2 Hz) -&gt; Beta (20 Hz). A more realistic seizure evolution pattern would be: normal baseline -&gt; low-frequency rhythmic onset -&gt; progressive increase in frequency (the “frequency evolution” the quiz describes) -&gt; abrupt termination -&gt; post-ictal suppression. The current preset (Alpha -&gt; Delta -&gt; Beta) is somewhat inverted from the classic pattern. Consider relabeling it or adjusting the frequencies to better match the clinical vignette in the module’s intro.</p></li>
+</ol>
+<hr>
+</section>
+<section id="code-correctness-summary" class="level2">
+<h2 class="anchored" data-anchor-id="code-correctness-summary">Code Correctness Summary</h2>
+<p>All JavaScript implementations were verified:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 51%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Widget</th>
+<th>Formula/Algorithm</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sine wave generator (Mod 1)</td>
+<td><code>A * sin(2*pi*f*t)</code></td>
+<td>Correct</td>
+</tr>
+<tr class="even">
+<td>Phase offset (Mod 1)</td>
+<td><code>sin(2*pi*f*t + phi)</code>, degrees-&gt;radians</td>
+<td>Correct</td>
+</tr>
+<tr class="odd">
+<td>ECG P-QRS-T synthesis (Mod 1)</td>
+<td>Phase-based piecewise sinusoids</td>
+<td>Correct morphology</td>
+</tr>
+<tr class="even">
+<td>Sampling visualizer (Mod 2)</td>
+<td>Samples at <code>sin(2*pi*f*(k/fs))</code></td>
+<td>Correct</td>
+</tr>
+<tr class="odd">
+<td>Alias frequency (Mod 2)</td>
+<td><code>|f - round(f/fs)*fs|</code></td>
+<td>Correct</td>
+</tr>
+<tr class="even">
+<td>Filter demo (Mod 3)</td>
+<td>Component inclusion/exclusion</td>
+<td>Correct (ideal)</td>
+</tr>
+<tr class="odd">
+<td>DFT computation (Mod 4)</td>
+<td><code>sum(x[n]*cos/sin(2*pi*k*n/N))</code></td>
+<td>Correct</td>
+</tr>
+<tr class="even">
+<td>Magnitude scaling (Mod 4)</td>
+<td><code>2*sqrt(re^2+im^2)/N</code></td>
+<td>Correct</td>
+</tr>
+<tr class="odd">
+<td>Freq resolution demo (Mod 4)</td>
+<td>DFT of variable-length signals</td>
+<td>Correct</td>
+</tr>
+<tr class="even">
+<td>Bipolar derivation (Mod 5b)</td>
+<td><code>V_A - V_B</code> with distance falloff</td>
+<td>Correct</td>
+</tr>
+<tr class="odd">
+<td>Spectrogram (Mod 7)</td>
+<td>Hann window + DFT per segment</td>
+<td>Correct</td>
+</tr>
+<tr class="even">
+<td>Hann window (Mod 7)</td>
+<td><code>0.5*(1-cos(2*pi*i/(N-1)))</code></td>
+<td>Correct</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="pedagogical-flow-assessment" class="level2">
+<h2 class="anchored" data-anchor-id="pedagogical-flow-assessment">Pedagogical Flow Assessment</h2>
+<p>The module ordering is logical and well-scaffolded:</p>
+<ol type="1">
+<li><strong>Signals</strong> – establishes vocabulary (amplitude, frequency, phase)</li>
+<li><strong>Sampling</strong> – explains how continuous signals become digital</li>
+<li><strong>Filtering</strong> – teaches noise removal</li>
+<li><strong>FFT</strong> – reveals frequency content</li>
+<li><strong>EEG Basics</strong> – applies all prior concepts to the clinical domain 5b. <strong>Montages &amp; Dipoles</strong> – extends EEG understanding with display and localization</li>
+<li><strong>Artifacts</strong> – teaches discrimination of signal from noise</li>
+<li><strong>Spectrograms</strong> – adds the time dimension to frequency analysis</li>
+</ol>
+<p>Each module explicitly references prior modules and builds on established concepts. The clinical vignettes are realistic and appropriate for first-year medical students. The interactive widgets reinforce concepts effectively.</p>
+<p>No oversimplifications reach the level of being misleading. The tutorial is appropriately pitched for the audience – it makes justified simplifications (ideal filters, pure sine wave components, linear interpolation) while being honest about them where it matters most.</p>
+<hr>
+</section>
+<section id="quiz-answer-verification-all-modules" class="level2">
+<h2 class="anchored" data-anchor-id="quiz-answer-verification-all-modules">Quiz Answer Verification (all modules)</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Module</th>
+<th>Q</th>
+<th>Correct Answer</th>
+<th>Verified</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Q1</td>
+<td>B (amplitude = voltage)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>Q2</td>
+<td>B (70 bpm = ~1.2 Hz)</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>1</td>
+<td>Q3</td>
+<td>B (synchrony = larger amplitude)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Q1</td>
+<td>B (256/2 = 128 Hz)</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>Q2</td>
+<td>B (need &gt;= 1000 Hz for 500 Hz EMG)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Q3</td>
+<td>C (</td>
+<td>60-50</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Q1</td>
+<td>B (high-pass to remove 0.2 Hz)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>Q2</td>
+<td>B (50 Hz removed by 40 Hz LP)</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Q3</td>
+<td>B (notch removes all 60 Hz)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Q1</td>
+<td>B (10 Hz = alpha)</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>Q2</td>
+<td>B (60 Hz = line noise)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Q3</td>
+<td>C (1/2s = 0.5 Hz)</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Q1</td>
+<td>C (O1/O2 for alpha)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>Q2</td>
+<td>B (awake delta = pathological)</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Q3</td>
+<td>C (alpha blocking = normal)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>5b</td>
+<td>Q1</td>
+<td>B (phase reversal = source)</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>5b</td>
+<td>Q2</td>
+<td>C (tangential dipole geometry)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>5b</td>
+<td>Q3</td>
+<td>B (AP localization)</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>Q1</td>
+<td>B (frontal positive = blink)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Q2</td>
+<td>C (temporal fuzz + gum = EMG)</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>Q3</td>
+<td>C (periodic at pulse = ECG)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td>Q1</td>
+<td>B (10 Hz disappears = alpha blocking)</td>
+<td>PASS</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Q2</td>
+<td>B (larger window = better freq, worse time)</td>
+<td>PASS</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td>Q3</td>
+<td>C (evolving frequency = seizure)</td>
+<td>PASS</td>
+</tr>
+</tbody>
+</table>
+<p>All 24 quiz answers are correct.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Interactive Tutorial — EEG &amp; Signal Processing</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

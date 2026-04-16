@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: docs
+  resources:
+    - homework/homework.pdf
 
 website:
   title: "EEG & Signal Processing — Interactive Tutorial"

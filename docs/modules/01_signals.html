@@ -296,7 +296,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">7. Spectrograms</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../modules/08_challenge.qmd"> 
+    <a class="nav-link" href="../modules/08_challenge.html"> 
 <span class="menu-text">8. Challenge</span></a>
   </li>  
 </ul>
@@ -318,10 +318,9 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#the-basics" id="toc-the-basics" class="nav-link active" data-scroll-target="#the-basics">The Basics</a></li>
   <li><a href="#interactive-build-a-signal" id="toc-interactive-build-a-signal" class="nav-link" data-scroll-target="#interactive-build-a-signal">Interactive: Build a Signal</a></li>
-  <li><a href="#one-more-thing-phase" id="toc-one-more-thing-phase" class="nav-link" data-scroll-target="#one-more-thing-phase">One More Thing: Phase</a></li>
+  <li><a href="#phase-across-electrodes" id="toc-phase-across-electrodes" class="nav-link" data-scroll-target="#phase-across-electrodes">Phase Across Electrodes</a></li>
   <li><a href="#why-does-this-matter-clinically" id="toc-why-does-this-matter-clinically" class="nav-link" data-scroll-target="#why-does-this-matter-clinically">Why Does This Matter Clinically?</a></li>
   <li><a href="#its-not-just-the-brain" id="toc-its-not-just-the-brain" class="nav-link" data-scroll-target="#its-not-just-the-brain">It’s Not Just the Brain</a></li>
-  <li><a href="#compare-eeg-vs-ecg-vs-emg" id="toc-compare-eeg-vs-ecg-vs-emg" class="nav-link" data-scroll-target="#compare-eeg-vs-ecg-vs-emg">Compare: EEG vs ECG vs EMG</a></li>
   <li><a href="#quiz-check-your-understanding" id="toc-quiz-check-your-understanding" class="nav-link" data-scroll-target="#quiz-check-your-understanding">Quiz: Check Your Understanding</a></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
   </ul>
@@ -434,12 +433,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="the-basics">The Basics</h2>
 <p>Every cell in your body produces tiny electrical signals. Neurons fire. Heart muscle contracts. Skeletal muscle twitches. These are not abstract physics — these are <strong>your patient’s physiology</strong>, translated into voltage over time.</p>
 <p>A signal is just a measurement that changes over time. When we record an EEG, ECG, or EMG, we’re measuring <strong>voltage</strong> (in microvolts or millivolts) at each moment.</p>
-<p>The simplest signal you can imagine is a smooth, repeating wave. It has two properties that matter right now:</p>
-<ul>
-<li><strong>Amplitude</strong>: How tall the wave is. Bigger amplitude = stronger signal.</li>
-<li><strong>Frequency</strong>: How fast the wave repeats. Higher frequency = more cycles per second.</li>
-</ul>
-<p>That’s it. Two knobs. Let’s play with them.</p>
+<p>The simplest signal you can imagine is a smooth, repeating wave. Three properties describe it completely: <strong>amplitude</strong> — how tall the wave is, which tells you how strong the signal is; <strong>frequency</strong> — how fast it repeats, in cycles per second; and <strong>phase</strong> — where in its cycle the wave sits at any given moment. Three knobs. Let’s play with them.</p>
 </section>
 <section id="interactive-build-a-signal" class="level2">
 <h2 class="anchored" data-anchor-id="interactive-build-a-signal">Interactive: Build a Signal</h2>
@@ -447,13 +441,13 @@ ul.task-list li input[type="checkbox"] {
 <div class="widget-box">
   <div style="margin-bottom: 0.8em;">
     <label style="font-weight:600; font-size:0.9em; color:#555;">Try a clinical preset:</label><br>
-    <button class="preset-btn" onclick="setPreset(10, 5, 'Alpha rhythm — eyes closed, relaxed')" style="padding:6px 14px; margin:3px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+    <button class="preset-btn" onclick="setPreset(10, 5, 0, 'Alpha rhythm — eyes closed, relaxed')" style="padding:6px 14px; margin:3px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
       Alpha (10 Hz)
     </button>
-    <button class="preset-btn" onclick="setPreset(2, 8, 'Delta rhythm — deep sleep (real amplitude ~150 μV)')" style="padding:6px 14px; margin:3px; border:2px solid #2c3e50; background:#2c3e50; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+    <button class="preset-btn" onclick="setPreset(2, 8, 0, 'Delta rhythm — deep sleep (real amplitude ~150 μV)')" style="padding:6px 14px; margin:3px; border:2px solid #2c3e50; background:#2c3e50; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
       Delta (2 Hz)
     </button>
-    <button class="preset-btn" onclick="setPreset(20, 3, 'Beta rhythm — focused attention')" style="padding:6px 14px; margin:3px; border:2px solid #e67e22; background:#e67e22; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
+    <button class="preset-btn" onclick="setPreset(20, 3, 0, 'Beta rhythm — focused attention')" style="padding:6px 14px; margin:3px; border:2px solid #e67e22; background:#e67e22; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
       Beta (20 Hz)
     </button>
     <button class="preset-btn" onclick="showECGPreset()" style="padding:6px 14px; margin:3px; border:2px solid #27ae60; background:#27ae60; color:white; border-radius:20px; cursor:pointer; font-size:0.85em;">
@@ -461,37 +455,99 @@ ul.task-list li input[type="checkbox"] {
     </button>
   </div>
   <div id="presetLabel" style="font-size:0.88em; color:#8e44ad; font-style:italic; margin-bottom:0.6em; min-height:1.2em;"></div>
-  <div style="margin-bottom: 1em;">
-    <label for="ampSlider" style="font-weight:600;">Amplitude (μV):
-      <span id="ampValue" style="color:#e74c3c; font-weight:700;">5.0</span>
-    </label><br>
-    <input type="range" id="ampSlider" min="0.5" max="10" step="0.1" value="5" style="width:100%; accent-color:#2980b9;">
+
+  <div id="c1Block">
+    <div style="font-weight:600; font-size:0.85em; color:#2980b9; margin-bottom:4px;">Component 1</div>
+    <div style="margin-bottom: 0.8em;">
+      <label for="ampSlider" style="font-weight:600;">Amplitude (μV):
+        <span id="ampValue" style="color:#e74c3c; font-weight:700;">5.0</span>
+      </label><br>
+      <input type="range" id="ampSlider" min="0.5" max="10" step="0.1" value="5" style="width:100%; accent-color:#2980b9;">
+    </div>
+    <div style="margin-bottom: 0.8em;">
+      <label for="freqSlider" style="font-weight:600;">Frequency (Hz):
+        <span id="freqValue" style="color:#27ae60; font-weight:700;">10.0</span>
+      </label><br>
+      <input type="range" id="freqSlider" min="0.5" max="30" step="0.5" value="10" style="width:100%; accent-color:#2980b9;">
+    </div>
+    <div style="margin-bottom: 1em;">
+      <label for="phaseSlider1" style="font-weight:600;">Phase (°):
+        <span id="phaseValue1" style="color:#8e44ad; font-weight:700;">0</span>
+      </label><br>
+      <input type="range" id="phaseSlider1" min="0" max="360" step="5" value="0" style="width:100%; accent-color:#2980b9;">
+    </div>
   </div>
-  <div style="margin-bottom: 1em;">
-    <label for="freqSlider" style="font-weight:600;">Frequency (Hz):
-      <span id="freqValue" style="color:#27ae60; font-weight:700;">10.0</span>
-    </label><br>
-    <input type="range" id="freqSlider" min="0.5" max="30" step="0.5" value="10" style="width:100%; accent-color:#2980b9;">
-  </div>
+
   <div id="signalPlot" style="width:100%; height:320px;"></div>
+
+  <div style="margin-top:0.8em; padding-top:0.8em; border-top:1px dashed #ccc;">
+    <div id="c2Hint" style="font-size:0.88em; color:#555; margin-bottom:0.6em;">
+      Real EEG isn't a single clean wave — it's many rhythms layered together, alpha riding on slower delta, fast beta riding on top of both. Add a second component and watch the shape change.
+    </div>
+    <button id="toggleC2" onclick="toggleComponent2()" style="padding:6px 14px; border:2px solid #2980b9; background:#fff; color:#2980b9; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">
+      + Add second component
+    </button>
+  </div>
+
+  <div id="c2Block" style="display:none; margin-top:0.8em; padding-top:0.8em; border-top:1px dashed #ccc;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+      <span style="font-weight:600; font-size:0.85em; color:#c0392b;">Component 2</span>
+      <button onclick="removeComponent2()" style="padding:3px 10px; border:1px solid #aaa; background:#fff; color:#555; border-radius:14px; cursor:pointer; font-size:0.78em;">
+        × Remove
+      </button>
+    </div>
+    <div style="margin-bottom: 0.8em;">
+      <label for="ampSlider2" style="font-weight:600;">Amplitude (μV):
+        <span id="ampValue2" style="color:#e74c3c; font-weight:700;">3.0</span>
+      </label><br>
+      <input type="range" id="ampSlider2" min="0.5" max="10" step="0.1" value="3" style="width:100%; accent-color:#c0392b;">
+    </div>
+    <div style="margin-bottom: 0.8em;">
+      <label for="freqSlider2" style="font-weight:600;">Frequency (Hz):
+        <span id="freqValue2" style="color:#27ae60; font-weight:700;">3.0</span>
+      </label><br>
+      <input type="range" id="freqSlider2" min="0.5" max="30" step="0.5" value="3" style="width:100%; accent-color:#c0392b;">
+    </div>
+    <div style="margin-bottom: 0.4em;">
+      <label for="phaseSlider2" style="font-weight:600;">Phase (°):
+        <span id="phaseValue2" style="color:#8e44ad; font-weight:700;">0</span>
+      </label><br>
+      <input type="range" id="phaseSlider2" min="0" max="360" step="5" value="0" style="width:100%; accent-color:#c0392b;">
+    </div>
+  </div>
 </div>
 
 <script>
 (function() {
   const ampSlider = document.getElementById('ampSlider');
   const freqSlider = document.getElementById('freqSlider');
+  const phaseSlider1 = document.getElementById('phaseSlider1');
   const ampValue = document.getElementById('ampValue');
   const freqValue = document.getElementById('freqValue');
+  const phaseValue1 = document.getElementById('phaseValue1');
+
+  const ampSlider2 = document.getElementById('ampSlider2');
+  const freqSlider2 = document.getElementById('freqSlider2');
+  const phaseSlider2 = document.getElementById('phaseSlider2');
+  const ampValue2 = document.getElementById('ampValue2');
+  const freqValue2 = document.getElementById('freqValue2');
+  const phaseValue2 = document.getElementById('phaseValue2');
+
+  const c2Block = document.getElementById('c2Block');
+  const toggleBtn = document.getElementById('toggleC2');
+  const c2Hint = document.getElementById('c2Hint');
 
   let ecgMode = false;
+  let c2Active = false;
 
-  function generateSignal(amp, freq) {
+  function generateSignal(amp, freq, phaseDeg) {
     const duration = 2, sr = 1000;
+    const phaseRad = (phaseDeg || 0) * Math.PI / 180;
     const t = [], y = [];
     for (let i = 0; i < duration * sr; i++) {
       const ti = i / sr;
       t.push(ti);
-      y.push(amp * Math.sin(2 * Math.PI * freq * ti));
+      y.push(amp * Math.sin(2 * Math.PI * freq * ti + phaseRad));
     }
     return {t, y};
   }
@@ -504,13 +560,10 @@ ul.task-list li input[type="checkbox"] {
       t.push(ti);
       const ph = (ti * hr) % 1;
       let v = 0;
-      // P wave
       if (ph > 0.10 && ph < 0.20) v += 0.15 * Math.sin(Math.PI*(ph-0.10)/0.10);
-      // QRS complex
       if (ph > 0.25 && ph < 0.28) v -= 0.20 * Math.sin(Math.PI*(ph-0.25)/0.03);
       if (ph > 0.28 && ph < 0.32) v += 1.20 * Math.sin(Math.PI*(ph-0.28)/0.04);
       if (ph > 0.32 && ph < 0.35) v -= 0.30 * Math.sin(Math.PI*(ph-0.32)/0.03);
-      // T wave
       if (ph > 0.40 && ph < 0.55) v += 0.30 * Math.sin(Math.PI*(ph-0.40)/0.15);
       y.push(v);
     }
@@ -558,84 +611,143 @@ ul.task-list li input[type="checkbox"] {
       return;
     }
 
-    const amp = parseFloat(ampSlider.value);
-    const freq = parseFloat(freqSlider.value);
-    ampValue.textContent = amp.toFixed(1);
-    freqValue.textContent = freq.toFixed(1);
+    const amp1 = parseFloat(ampSlider.value);
+    const freq1 = parseFloat(freqSlider.value);
+    const phase1 = parseFloat(phaseSlider1.value);
+    ampValue.textContent = amp1.toFixed(1);
+    freqValue.textContent = freq1.toFixed(1);
+    phaseValue1.textContent = phase1.toFixed(0);
 
-    const sig = generateSignal(amp, freq);
-    const period = 1 / freq;
+    const sig1 = generateSignal(amp1, freq1, phase1);
+    let plotY = sig1.y;
+    let titleText = freq1.toFixed(1) + ' Hz — ' + amp1.toFixed(1) + ' μV, ' + phase1.toFixed(0) + '° phase';
+    let yBound = 12;
+    const traces = [];
 
-    const trace = {
-      x: sig.t, y: sig.y, type: 'scatter', mode: 'lines',
-      line: {color: '#2980b9', width: 2.5}, name: 'Signal',
-      hovertemplate: 'Time: %{x:.3f} s<br>Voltage: %{y:.1f} μV<extra></extra>'
-    };
+    if (c2Active) {
+      const amp2 = parseFloat(ampSlider2.value);
+      const freq2 = parseFloat(freqSlider2.value);
+      const phase2 = parseFloat(phaseSlider2.value);
+      ampValue2.textContent = amp2.toFixed(1);
+      freqValue2.textContent = freq2.toFixed(1);
+      phaseValue2.textContent = phase2.toFixed(0);
 
-    const annotations = [], shapes = [];
-    const peakT = 1 / (4 * freq);
+      const sig2 = generateSignal(amp2, freq2, phase2);
+      plotY = sig1.y.map(function(v, i) { return v + sig2.y[i]; });
+      titleText = 'Sum: ' + freq1.toFixed(1) + ' Hz (' + amp1.toFixed(1) + ' μV) + ' +
+                  freq2.toFixed(1) + ' Hz (' + amp2.toFixed(1) + ' μV)';
+      yBound = Math.max(10, amp1 + amp2 + 1);
 
-    if (peakT < 2) {
-      shapes.push({type:'line', x0:peakT, x1:peakT, y0:0, y1:amp,
-        line:{color:'#e74c3c', width:2, dash:'dash'}});
-      annotations.push({x:peakT, y:amp/2, xanchor:'left', yanchor:'middle',
-        text:'  '+amp.toFixed(1)+' μV', showarrow:false,
-        font:{color:'#e74c3c', size:13}});
+      traces.push({
+        x: sig1.t, y: sig1.y, type: 'scatter', mode: 'lines',
+        line: {color: '#2980b9', width: 1.2, dash: 'dot'}, name: 'Component 1',
+        opacity: 0.55, hoverinfo: 'skip'
+      });
+      traces.push({
+        x: sig2.t, y: sig2.y, type: 'scatter', mode: 'lines',
+        line: {color: '#c0392b', width: 1.2, dash: 'dot'}, name: 'Component 2',
+        opacity: 0.55, hoverinfo: 'skip'
+      });
     }
 
-    if (freq <= 15 && period < 1.8) {
-      shapes.push({type:'line', x0:0, x1:period, y0:-amp-1.2, y1:-amp-1.2,
-        line:{color:'#27ae60', width:2}});
-      shapes.push({type:'line', x0:0, x1:0, y0:-amp-0.8, y1:-amp-1.6,
-        line:{color:'#27ae60', width:2}});
-      shapes.push({type:'line', x0:period, x1:period, y0:-amp-0.8, y1:-amp-1.6,
-        line:{color:'#27ae60', width:2}});
-      annotations.push({x:period/2, y:-amp-2, xanchor:'center', yanchor:'top',
-        text:'1 cycle = '+(period*1000).toFixed(0)+' ms', showarrow:false,
-        font:{color:'#27ae60', size:12}});
+    traces.push({
+      x: sig1.t, y: plotY, type: 'scatter', mode: 'lines',
+      line: {color: c2Active ? '#2c3e50' : '#2980b9', width: 2.5},
+      name: c2Active ? 'Sum' : 'Signal',
+      hovertemplate: 'Time: %{x:.3f} s<br>Voltage: %{y:.1f} μV<extra></extra>'
+    });
+
+    const annotations = [], shapes = [];
+    if (!c2Active) {
+      // First peak of sin(2πft + φ) lies at t = (0.25 − φ/360) / f (mod 1/f)
+      let peakT = (0.25 - phase1/360) / freq1;
+      while (peakT < 0) peakT += 1/freq1;
+      if (peakT < 2) {
+        shapes.push({type:'line', x0:peakT, x1:peakT, y0:0, y1:amp1,
+          line:{color:'#e74c3c', width:2, dash:'dash'}});
+        annotations.push({x:peakT, y:amp1/2, xanchor:'left', yanchor:'middle',
+          text:'  '+amp1.toFixed(1)+' μV', showarrow:false,
+          font:{color:'#e74c3c', size:13}});
+      }
+      const period = 1 / freq1;
+      if (freq1 <= 15 && period < 1.8) {
+        shapes.push({type:'line', x0:0, x1:period, y0:-amp1-1.2, y1:-amp1-1.2,
+          line:{color:'#27ae60', width:2}});
+        shapes.push({type:'line', x0:0, x1:0, y0:-amp1-0.8, y1:-amp1-1.6,
+          line:{color:'#27ae60', width:2}});
+        shapes.push({type:'line', x0:period, x1:period, y0:-amp1-0.8, y1:-amp1-1.6,
+          line:{color:'#27ae60', width:2}});
+        annotations.push({x:period/2, y:-amp1-2, xanchor:'center', yanchor:'top',
+          text:'1 cycle = '+(period*1000).toFixed(0)+' ms', showarrow:false,
+          font:{color:'#27ae60', size:12}});
+      }
     }
 
     const layout = {
-      title: {text: freq.toFixed(1)+' Hz signal — '+amp.toFixed(1)+' μV amplitude',
-        font:{size:14, color:'#555'}},
+      title: {text: titleText, font:{size:14, color:'#555'}},
       xaxis: {title:'Time (seconds)', range:[0,2], dtick:0.5},
-      yaxis: {title:'Voltage (μV)', range:[-12,12]},
+      yaxis: {title:'Voltage (μV)', range:[-yBound, yBound]},
       shapes: shapes, annotations: annotations,
       margin: {t:40, b:50, l:60, r:20},
       plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
+      showlegend: c2Active,
+      legend: c2Active ? {x:0.65, y:1.05, orientation:'h', font:{size:10}} : undefined,
       hovermode: 'x unified'
     };
 
-    Plotly.react('signalPlot', [trace], layout, {responsive: true, displayModeBar: false});
+    Plotly.react('signalPlot', traces, layout, {responsive: true, displayModeBar: false});
+  }
+
+  function resetC2() {
+    c2Active = false;
+    c2Block.style.display = 'none';
+    toggleBtn.style.display = 'inline-block';
+    c2Hint.style.display = 'block';
   }
 
   window.showECGPreset = function() {
     ecgMode = true;
+    resetC2();
     document.getElementById('presetLabel').innerHTML =
       'ECG — ~72 bpm. Note: the y-axis switched to <b>millivolts</b> (1000× larger than EEG). Labels show the P wave, QRS complex, and T wave.';
     updatePlot();
   };
 
-  window.setPreset = function(freq, amp, label) {
+  window.setPreset = function(freq, amp, phase, label) {
     ecgMode = false;
+    resetC2();
     freqSlider.value = freq;
     ampSlider.value = amp;
+    phaseSlider1.value = phase || 0;
     document.getElementById('presetLabel').textContent = label;
     updatePlot();
   };
 
-  ampSlider.addEventListener('input', function() {
-    ecgMode = false;
-    document.getElementById('presetLabel').textContent = '';
+  window.toggleComponent2 = function() {
+    c2Active = true;
+    c2Block.style.display = 'block';
+    toggleBtn.style.display = 'none';
+    c2Hint.style.display = 'none';
     updatePlot();
-  });
-  freqSlider.addEventListener('input', function() {
-    ecgMode = false;
-    document.getElementById('presetLabel').textContent = '';
+  };
+
+  window.removeComponent2 = function() {
+    resetC2();
     updatePlot();
+  };
+
+  [ampSlider, freqSlider, phaseSlider1].forEach(function(el) {
+    el.addEventListener('input', function() {
+      ecgMode = false;
+      document.getElementById('presetLabel').textContent = '';
+      updatePlot();
+    });
   });
 
-  // Initial render
+  [ampSlider2, freqSlider2, phaseSlider2].forEach(function(el) {
+    el.addEventListener('input', updatePlot);
+  });
+
   updatePlot();
 })();
 </script>
@@ -648,11 +760,10 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </div>
 </section>
-<section id="one-more-thing-phase" class="level2">
-<h2 class="anchored" data-anchor-id="one-more-thing-phase">One More Thing: Phase</h2>
-<p>You now know amplitude (how tall) and frequency (how fast). There’s one more property worth seeing — <strong>phase</strong>.</p>
-<p>Phase tells you <em>where in the cycle</em> the wave is at a given moment. Two signals can have the same frequency and amplitude but be <strong>offset</strong> from each other — like two runners on the same track, one slightly ahead of the other.</p>
-<p>Drag the slider below. Both waves have the same frequency and amplitude — only the phase changes.</p>
+<section id="phase-across-electrodes" class="level2">
+<h2 class="anchored" data-anchor-id="phase-across-electrodes">Phase Across Electrodes</h2>
+<p>You’ve already played with phase in the signal builder above. Here’s why neurologists care: when two nearby electrodes record signals that are <strong>out of phase</strong> with each other, that difference is often the clue that tells you <em>where</em> a seizure is starting.</p>
+<p>Drag the slider below. Both waves have the same frequency and amplitude — only the phase differs, as if two electrodes were sitting on opposite sides of the same generator.</p>
 <div class="widget-box">
   <div style="margin-bottom: 1em;">
     <label for="phaseSlider" style="font-weight:600;">Phase offset:
@@ -719,7 +830,7 @@ ul.task-list li input[type="checkbox"] {
 })();
 </script>
 <div class="key-concept">
-<p>Phase won’t come up much in this tutorial — but remember this slider. When we get to EEG localization later, neurologists use <strong>phase reversal</strong> (where one electrode’s signal flips relative to its neighbor) to pinpoint exactly where a seizure starts. Same concept, real clinical stakes.</p>
+<p>This matters clinically. Neurologists use <strong>phase reversal</strong> — where one electrode’s signal flips relative to its neighbor — to pinpoint exactly where a seizure starts. Same concept as the slider above, real clinical stakes.</p>
 </div>
 </section>
 <section id="why-does-this-matter-clinically" class="level2">
@@ -769,7 +880,7 @@ ul.task-list li input[type="checkbox"] {
 </table>
 <p>Notice the pattern: <strong>slower rhythms tend to be bigger, faster rhythms tend to be smaller.</strong> This isn’t a coincidence — slow rhythms reflect more neurons firing together (synchrony), which sums to a larger voltage at the scalp.</p>
 <div class="key-concept">
-<p><strong>Amplitude</strong> tells you how much electrical activity is reaching the electrode. <strong>Frequency</strong> tells you how fast that activity is oscillating. Together, they are the first two things you assess when you look at any physiological recording — EEG, ECG, or EMG.</p>
+<p><strong>Amplitude</strong> tells you how much electrical activity is reaching the electrode, and <strong>frequency</strong> tells you how fast that activity is oscillating. Together they are the first two things you assess when you look at any physiological recording — EEG, ECG, or EMG.</p>
 </div>
 </section>
 <section id="its-not-just-the-brain" class="level2">
@@ -812,97 +923,6 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 <p>The ECG is about <strong>1,000× larger</strong> than the EEG. The EMG has <strong>much higher frequencies</strong> than either. These differences aren’t trivia — they determine what equipment you need, what filters you set, and what artifacts you worry about. (More on artifacts in Module 6.)</p>
-</section>
-<section id="compare-eeg-vs-ecg-vs-emg" class="level2">
-<h2 class="anchored" data-anchor-id="compare-eeg-vs-ecg-vs-emg">Compare: EEG vs ECG vs EMG</h2>
-<p>What do these three signals actually look like side by side? Same 2 seconds of time, three different parts of the body. Notice the <strong>amplitude scales</strong> — they’re wildly different.</p>
-<div class="widget-box">
-  <div id="stackedPlot" style="width:100%; height:600px;"></div>
-  <div style="padding:10px 12px; background:#f0f0f0; border-radius:6px; margin-top:8px; font-size:0.9em; line-height:1.6;">
-    <b style="color:#2980b9;">EEG</b> (top) — ~50 μV. Alpha rhythm at 10 Hz. This is what you see over the occipital cortex, eyes closed. Tiny signal.<br>
-    <b style="color:#27ae60;">ECG</b> (middle) — ~1 mV. The tall spike is the QRS complex — ventricular depolarization. That's <b>1000× larger</b> than EEG.<br>
-    <b style="color:#e74c3c;">EMG</b> (bottom) — bursts during contraction, quiet at rest. Much faster oscillations — motor units firing asynchronously.
-  </div>
-</div>
-
-<script>
-(function() {
-  // Use seeded random for consistent display
-  function seededRandom(seed) {
-    let s = seed;
-    return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
-  }
-
-  const rand = seededRandom(42);
-  const duration = 2, sr = 2000;
-  const t = [];
-  for (let i = 0; i < duration * sr; i++) t.push(i / sr);
-
-  // EEG — alpha-dominant with some theta and beta
-  const eeg = t.map(function(ti) {
-    return 40 * Math.sin(2*Math.PI*10*ti + 0.3)
-         + 12 * Math.sin(2*Math.PI*3.5*ti + 1.1)
-         + 6 * Math.sin(2*Math.PI*21*ti + 0.7)
-         + 10 * (rand() - 0.5);
-  });
-
-  // ECG — stylized but recognizable P-QRS-T
-  const ecg = t.map(function(ti) {
-    const hr = 1.2;
-    const ph = (ti * hr) % 1;
-    let v = 0;
-    if (ph > 0.10 && ph < 0.20) v += 0.15 * Math.sin(Math.PI*(ph-0.10)/0.10);
-    if (ph > 0.25 && ph < 0.28) v -= 0.20 * Math.sin(Math.PI*(ph-0.25)/0.03);
-    if (ph > 0.28 && ph < 0.32) v += 1.20 * Math.sin(Math.PI*(ph-0.28)/0.04);
-    if (ph > 0.32 && ph < 0.35) v -= 0.30 * Math.sin(Math.PI*(ph-0.32)/0.03);
-    if (ph > 0.40 && ph < 0.55) v += 0.30 * Math.sin(Math.PI*(ph-0.40)/0.15);
-    return v + 0.015 * (rand() - 0.5);
-  });
-
-  // EMG — burst in the middle
-  const emg = t.map(function(ti) {
-    const env = (ti > 0.5 && ti < 1.5) ? 1.5 * Math.sin(Math.PI*(ti-0.5)/1.0) : 0.03;
-    let v = 0;
-    for (let k = 1; k <= 8; k++) v += Math.sin(2*Math.PI*(40+k*35)*ti + k*1.7);
-    return env * v / 5 + 0.03 * (rand() - 0.5);
-  });
-
-  const traceEEG = {
-    x: t, y: eeg, type: 'scatter', mode: 'lines',
-    line: {color: '#2980b9', width: 1.2}, name: 'EEG',
-    xaxis: 'x', yaxis: 'y',
-    hovertemplate: '%{y:.1f} μV<extra>EEG</extra>'
-  };
-  const traceECG = {
-    x: t, y: ecg, type: 'scatter', mode: 'lines',
-    line: {color: '#27ae60', width: 1.2}, name: 'ECG',
-    xaxis: 'x2', yaxis: 'y2',
-    hovertemplate: '%{y:.2f} mV<extra>ECG</extra>'
-  };
-  const traceEMG = {
-    x: t, y: emg, type: 'scatter', mode: 'lines',
-    line: {color: '#e74c3c', width: 1}, name: 'EMG',
-    xaxis: 'x3', yaxis: 'y3',
-    hovertemplate: '%{y:.2f} mV<extra>EMG</extra>'
-  };
-
-  const layout = {
-    grid: {rows: 3, columns: 1, subplots: [['xy'],['x2y2'],['x3y3']], roworder: 'top to bottom'},
-    xaxis:  {title: '', showticklabels: false, range: [0, 2]},
-    xaxis2: {title: '', showticklabels: false, range: [0, 2]},
-    xaxis3: {title: 'Time (seconds)', range: [0, 2]},
-    yaxis:  {title: 'EEG (μV)', titlefont: {color: '#2980b9', size: 12}, range: [-80, 80]},
-    yaxis2: {title: 'ECG (mV)', titlefont: {color: '#27ae60', size: 12}, range: [-0.8, 1.6]},
-    yaxis3: {title: 'EMG (mV)', titlefont: {color: '#e74c3c', size: 12}, range: [-2.5, 2.5]},
-    margin: {t: 15, b: 45, l: 65, r: 15},
-    plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
-    showlegend: false,
-    hovermode: 'x unified'
-  };
-
-  Plotly.newPlot('stackedPlot', [traceEEG, traceECG, traceEMG], layout, {responsive: true, displayModeBar: false});
-})();
-</script>
 </section>
 <section id="quiz-check-your-understanding" class="level2">
 <h2 class="anchored" data-anchor-id="quiz-check-your-understanding">Quiz: Check Your Understanding</h2>
@@ -1004,13 +1024,8 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="summary" class="level2">
 <h2 class="anchored" data-anchor-id="summary">Summary</h2>
-<p>You now know two things about any physiological signal:</p>
-<ol type="1">
-<li><strong>Amplitude</strong> — how tall the wave is (measured in μV for EEG, mV for ECG/EMG)</li>
-<li><strong>Frequency</strong> — how many cycles per second (measured in Hz)</li>
-</ol>
-<p>In the next module, we’ll tackle a fundamental question: <em>how does a machine capture a continuously changing biological signal and turn it into numbers a computer can work with?</em></p>
-<p>(Spoiler: it can go wrong in interesting ways.)</p>
+<p>You now know three things about any physiological signal: <strong>amplitude</strong> (how tall the wave is — μV for EEG, mV for ECG and EMG), <strong>frequency</strong> (how many cycles per second, in Hz), and <strong>phase</strong> (where in the cycle it sits at any moment). You’ve also seen that real signals aren’t single pure waves — they’re sums of many components layered together, each with its own amplitude, frequency, and phase. That last idea is what makes the Fourier transform (Module 4) so useful: it takes a messy recorded signal and pulls the components back apart.</p>
+<p>In the next module we tackle a more basic question: <em>how does a machine capture a continuously changing biological signal and turn it into numbers a computer can work with?</em> Spoiler — it can go wrong in interesting ways.</p>
 <div class="module-nav">
 <p><a href="../index.html">← Home</a> <a href="../modules/02_sampling.html">Module 2: Sampling →</a></p>
 </div>

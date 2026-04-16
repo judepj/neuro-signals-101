@@ -14,27 +14,33 @@ You've learned where the electrodes go (the 10-20 system) and what the frequency
 
 ## What Is a Montage?
 
-A montage is **not** about where the electrodes go. You already covered that — the 10-20 system places electrodes in fixed, standardized positions on the scalp. That doesn't change.
+The 10-20 system places electrodes in fixed positions on the scalp — that part doesn't change. A **montage** is the math that happens *after* recording: how each displayed channel is built from the raw electrode voltages.
 
-A montage is about **how you display** the recorded signals. It's the math that happens *after* the electrodes capture the voltages.
-
-Here's the fundamental principle: **EEG measures voltage *differences*.** A single electrode doesn't measure anything useful by itself — it needs a second point to compare against. Every EEG channel is always the difference between two electrodes:
+Here's the fundamental principle: **EEG measures voltage *differences*.** A single electrode carries no meaningful voltage on its own — it needs a second point to compare against. Every channel on an EEG display is always a difference:
 
 $$V_{\text{channel}} = V_{\text{electrode A}} - V_{\text{electrode B}}$$
 
-The montage defines which electrode is A and which is B. Change that pairing, and the same brain activity produces a completely different-looking trace.
+The montage defines which electrode is A and which is B. Change the pairing, and the same brain activity produces a completely different-looking trace.
 
 ::: {.key-concept}
-**Analogy**: Think of measuring elevation. You can express the height of a mountain relative to sea level (one fixed reference for everything) — that's a **referential montage**. Or you can express it as the slope between two neighboring points along a trail — that's a **bipolar montage**. Same mountain. Different way of describing it.
+**Analogy**: Measuring elevation. You can express the height of a mountain relative to sea level — one fixed reference for everything — that's a **referential montage**. Or as the slope between two neighboring points along a trail — that's a **bipolar montage**. Same mountain, different description.
 :::
 
-The figure below shows this in action. A focal spike at electrode C3 is displayed in two different montages. Same brain, same spike, but look how different the traces are.
+## The Five Montages
 
-In the referential montage, you look for the **biggest** deflection. In the bipolar montage, you look for where the deflection **flips direction** — the phase reversal. Both point to C3. We'll come back to phase reversal shortly — it's the single most important localization skill in EEG reading.
+Clinical EEG is displayed in one of five standard montages. Each is a different linear mapping from the 19 raw electrode voltages to the channels you see on screen:
+
+| Montage | How each channel is built | What it's good at |
+|---------|---------------------------|-------------------|
+| **Longitudinal bipolar** *(double banana)* | Electrode − neighbor along a **front-to-back** chain | Localizing focal activity via phase reversal — the clinical default |
+| **Transverse bipolar** | Electrode − neighbor along a **left-to-right** chain | Catching lateralized or inter-hemispheric asymmetries |
+| **Referential (Cz)** | Every electrode − Cz | Amplitude mapping across the scalp (but Cz itself is always 0) |
+| **Average reference** | Every electrode − mean of all | "Unbiased" view; standard in quantitative EEG / research |
+| **Laplacian** | Electrode − mean of its 4 spatial neighbors | Sharpening focal sources; suppressing diffuse activity |
+
+You'll meet all five in the interactive at the end of this module. But first, let's drill into the clinical default — the **longitudinal bipolar**, nicknamed the **double banana** — because it's what every neurologist defaults to when they sit down to read a study.
 
 ## The Double Banana Montage
-
-The most commonly used clinical EEG montage is the **longitudinal bipolar** montage, affectionately known as the **double banana**. (The name comes from the shape of the electrode chains — two curved lines running front-to-back on each side, like bananas. Neurologists did not name this.)
 
 In a bipolar montage, each channel shows the voltage difference between two *neighboring* electrodes along a chain. The double banana has four chains running from front to back:
 
@@ -45,7 +51,7 @@ In a bipolar montage, each channel shows the voltage difference between two *nei
 | Left temporal | Fp1 → F7 → T3 → T5 → O1 | Fp1-F7, F7-T3, T3-T5, T5-O1 |
 | Right temporal | Fp2 → F8 → T4 → T6 → O2 | Fp2-F8, F8-T4, T4-T6, T6-O2 |
 
-The figure below shows this layout on a head diagram:
+The name comes from the shape of the chains — two curved lines running front-to-back on each side, like bananas. (Neurologists did not name this.)
 
 Why is this montage the clinical default? Because EEG pathology — seizures, focal slowing, spikes — usually has a *location*. The front-to-back chains let you track where activity is strongest along the **anterior-posterior axis**. If a spike appears in F3-C3 and C3-P3 but not in Fp1-F3 or P3-O1, you know it's centered around C3. If the left temporal chain lights up but the right doesn't, it's lateralized to the left.
 
@@ -73,11 +79,15 @@ Two important consequences:
 
 ## Phase Reversal: Localizing the Source
 
+::: {.key-concept}
+**Clinical convention — negative is up.** Real clinical EEG displays voltage with **negative values pointing upward**. This is the opposite of a normal math plot. It's arbitrary (a 1950s convention), but universal in neurology. The widgets below follow this convention, so "up" means "more negative voltage" — the direction flips your signal-processing intuition by 180°.
+:::
+
 Now the payoff. In a bipolar montage, when there's a focal electrical source (a spike, a seizure onset), the two channels that *share* the electrode closest to the source will deflect in **opposite directions**. This is a **phase reversal**.
 
-Why does this happen? Think about the math. Say electrode C3 has the largest negative voltage (it's closest to the source). In the channel F3-C3, you're computing (F3 minus C3). Since C3 is very negative, subtracting a large negative number gives a large *positive* result — the trace deflects **up**. In the next channel, C3-P3, you're computing (C3 minus P3). C3 is very negative, so the result is a large *negative* number — the trace deflects **down**.
+Why does this happen? Think about the math. Say electrode C3 has the largest negative voltage (it's closest to the source). In the channel F3-C3 you compute (F3 − C3): F3 is less-negative than C3, so F3 − C3 is a positive number. On an EEG display (negative-up), positive values deflect **down**, so F3-C3 deflects down. In the next channel, C3-P3, you compute (C3 − P3): C3 very-negative minus P3 less-negative gives a large negative number — which deflects **up**.
 
-Up in one channel, down in the next. The deflection reverses at C3. That's the phase reversal, and it points you straight at the source.
+Down in one channel, up in the next. The deflection reverses at C3. That's the phase reversal, and it points you straight at the source.
 
 ::: {.key-concept}
 Remember Module 1? You shifted two waves by 180 degrees and watched them become perfectly out of phase — when one went up, the other went down. That's exactly what happens at a phase reversal. Same concept, now with real clinical stakes.
@@ -107,7 +117,7 @@ Try it yourself. The widget below simulates a bipolar montage with a movable spi
   <div id="phaseReversalPlot" style="width:100%; height:480px;"></div>
 
   <div id="phaseReversalCaption" style="margin-top:8px; padding:10px; background:#f4ecf7; border-radius:8px; border:1px solid #d2b4de; font-size:0.92em;">
-    The spike source is at <b>C3</b>. Notice: Fp1-F3 shows little deflection, <b>F3-C3 deflects UP</b>, <b>C3-P3 deflects DOWN</b>, and P3-O1 shows little deflection. The direction reversal between F3-C3 and C3-P3 is the <b>phase reversal</b> — it tells you C3 is the source.
+    The spike source is at <b>C3</b>. Notice: Fp1-F3 shows little deflection, <b>F3-C3 deflects DOWN</b>, <b>C3-P3 deflects UP</b>, and P3-O1 shows little deflection. The direction reversal between F3-C3 and C3-P3 is the <b>phase reversal</b> — it tells you C3 is the source.
   </div>
 </div>
 
@@ -171,9 +181,9 @@ Try it yourself. The widget below simulates a bipolar montage with a movable spi
       for (var i = 0; i < N; i++) {
         y.push(voltages[e1][i] - voltages[e2][i]);
       }
-      // Offset for stacking
+      // Offset for stacking. Negate v for clinical "negative-up" convention.
       var offset = -ci * 120;
-      var yOffset = y.map(function(v) { return v + offset; });
+      var yOffset = y.map(function(v) { return -v + offset; });
       traces.push({
         x: t, y: yOffset, type: 'scatter', mode: 'lines',
         line: {color: channelColors[ci], width: 1.5},
@@ -283,7 +293,7 @@ Try it yourself. The widget below simulates a bipolar montage with a movable spi
       var ch1 = channels[sIdx - 1];
       var ch2 = channels[sIdx];
       captionDiv.innerHTML = 'The spike source is at <b>' + source + '</b>. Notice: <b>' + ch1 +
-        ' deflects UP</b> and <b>' + ch2 + ' deflects DOWN</b>. The direction reversal between ' +
+        ' deflects DOWN</b> and <b>' + ch2 + ' deflects UP</b>. The direction reversal between ' +
         ch1 + ' and ' + ch2 + ' is the <b>phase reversal</b> — it tells you ' + source + ' is the source.';
       captionDiv.style.background = '#f4ecf7';
       captionDiv.style.borderColor = '#d2b4de';
@@ -312,7 +322,7 @@ Try it yourself. The widget below simulates a bipolar montage with a movable spi
 ::: {.try-it}
 **Experiment:**
 
-- Start with the source at **C3** (default). See the phase reversal between F3-C3 and C3-P3? One goes up, the other goes down.
+- Start with the source at **C3** (default). See the phase reversal between F3-C3 and C3-P3? One deflects down, the other deflects up — on a clinical EEG display, "up" means more negative voltage.
 - Move the source to **P3**. The phase reversal shifts — now it's between C3-P3 and P3-O1.
 - Try **F3** — the phase reversal is between Fp1-F3 and F3-C3.
 - Now try **Fp1** or **O1** — what happens? The source is at the *end* of the chain, so there's only one neighboring channel. You get a deflection, but no full reversal. This is a real clinical limitation.
@@ -320,6 +330,481 @@ Try it yourself. The widget below simulates a bipolar montage with a movable spi
 
 ::: {.key-concept}
 **Phase reversal summary:** In a bipolar montage, find the two adjacent channels where the deflection flips direction. The electrode they share is closest to the source. This is how neurologists localize spikes and seizure onsets on an EEG — and it's the most important pattern recognition skill for reading a bipolar montage.
+:::
+
+## One Dipole, Five Montages — Interactive
+
+Time to revisit all five montages now that you know what phase reversal looks like. Pick a montage, pick a spike source, and watch two things at once: the **stacked channel traces** (what a neurologist sees) and the **scalp topographic map** (the spatial voltage field, re-referenced to match the montage's implied reference).
+
+The underlying dipole doesn't change. What changes is the lens — both the channel layout *and* the zero point the topomap is measured from.
+
+```{=html}
+<div class="widget-box">
+  <div style="margin-bottom:0.8em;">
+    <div style="font-weight:600; font-size:0.88em; color:#555; margin-bottom:4px;">Montage:</div>
+    <div id="montageButtonRow" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;"></div>
+
+    <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center;">
+      <label style="font-weight:600; font-size:0.9em;">
+        Spike source:
+        <select id="montageSourceSelect" style="padding:5px 10px; border-radius:6px; border:2px solid #2980b9; font-size:0.9em; cursor:pointer; margin-left:4px;">
+          <option value="Fp1">Fp1</option>
+          <option value="F3">F3</option>
+          <option value="F7">F7</option>
+          <option value="C3" selected>C3</option>
+          <option value="T3">T3</option>
+          <option value="P3">P3</option>
+          <option value="T5">T5</option>
+          <option value="O1">O1</option>
+          <option value="Cz">Cz</option>
+          <option value="Pz">Pz</option>
+        </select>
+      </label>
+      <button id="montagePlayBtn" style="padding:5px 14px; border:2px solid #2980b9; background:#2980b9; color:white; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">⏸ Pause</button>
+      <label style="flex:1; min-width:180px; font-size:0.85em;">
+        <span id="montageTimeLabel" style="color:#8e44ad; font-weight:700;">t = 0.00 s</span>
+        <input type="range" id="montageScrub" min="0" max="39" step="1" value="0" style="width:100%; accent-color:#8e44ad;">
+      </label>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns: 1fr 1.3fr; gap:10px; align-items:start;">
+    <div id="topomapPlot" style="width:100%; height:380px;"></div>
+    <div id="tracesPlot" style="width:100%; height:380px;"></div>
+  </div>
+
+  <div id="montageCaption" style="margin-top:10px; padding:10px 12px; background:#f4ecf7; border-radius:8px; border:1px solid #d2b4de; font-size:0.9em; line-height:1.5;">
+    Pick a montage and source to begin.
+  </div>
+</div>
+
+<script>
+(function() {
+  const ELEC = [
+    {name:'Fp1', x:40, y:14}, {name:'Fp2', x:60, y:14},
+    {name:'F7', x:22, y:30}, {name:'F3', x:37, y:30}, {name:'Fz', x:50, y:30}, {name:'F4', x:63, y:30}, {name:'F8', x:78, y:30},
+    {name:'T3', x:16, y:50}, {name:'C3', x:34, y:50}, {name:'Cz', x:50, y:50}, {name:'C4', x:66, y:50}, {name:'T4', x:84, y:50},
+    {name:'T5', x:22, y:70}, {name:'P3', x:37, y:70}, {name:'Pz', x:50, y:70}, {name:'P4', x:63, y:70}, {name:'T6', x:78, y:70},
+    {name:'O1', x:40, y:86}, {name:'O2', x:60, y:86}
+  ];
+  const EI = {};
+  ELEC.forEach(function(e, i) { EI[e.name] = i; });
+
+  function bipolarList(pairs) {
+    return pairs.map(function(p) {
+      var o = {}; o[p[0]] = 1; o[p[1]] = -1;
+      return {name: p[0] + '-' + p[1], weights: o};
+    });
+  }
+
+  const MONTAGES = {
+    longitudinal: {
+      label: 'Longitudinal Bipolar (double banana)',
+      channels: bipolarList([
+        ['Fp1','F3'],['F3','C3'],['C3','P3'],['P3','O1'],
+        ['Fp2','F4'],['F4','C4'],['C4','P4'],['P4','O2'],
+        ['Fp1','F7'],['F7','T3'],['T3','T5'],['T5','O1'],
+        ['Fp2','F8'],['F8','T4'],['T4','T6'],['T6','O2']
+      ])
+    },
+    transverse: {
+      label: 'Transverse Bipolar',
+      channels: bipolarList([
+        ['F7','F3'],['F3','Fz'],['Fz','F4'],['F4','F8'],
+        ['T3','C3'],['C3','Cz'],['Cz','C4'],['C4','T4'],
+        ['T5','P3'],['P3','Pz'],['Pz','P4'],['P4','T6']
+      ])
+    },
+    referentialCz: {
+      label: 'Referential (Cz reference)',
+      channels: ELEC.filter(function(e) { return e.name !== 'Cz'; }).map(function(e) {
+        var o = {}; o[e.name] = 1; o.Cz = -1;
+        return {name: e.name + '-Cz', weights: o};
+      })
+    },
+    averageReference: {
+      label: 'Average Reference',
+      channels: ELEC.map(function(e) {
+        var o = {}, n = ELEC.length;
+        ELEC.forEach(function(e2) { o[e2.name] = (e2.name === e.name ? 1 : 0) - 1/n; });
+        return {name: e.name + '-avg', weights: o};
+      })
+    },
+    laplacian: {
+      label: 'Laplacian (central grid)',
+      channels: (function() {
+        const NB = {
+          F3:['Fz','C3','Fp1','F7'], Fz:['F3','F4','Cz','Fp1'], F4:['Fz','C4','Fp2','F8'],
+          C3:['F3','P3','T3','Cz'], Cz:['C3','C4','Fz','Pz'],   C4:['F4','P4','T4','Cz'],
+          P3:['C3','O1','T5','Pz'], Pz:['P3','P4','Cz','O1'],   P4:['C4','O2','T6','Pz']
+        };
+        return Object.keys(NB).map(function(e) {
+          var o = {}; o[e] = 1;
+          NB[e].forEach(function(n) { o[n] = -0.25; });
+          return {name: e + '-Lap', weights: o};
+        });
+      })()
+    }
+  };
+
+  const sr = 200, dur = 2, N = sr * dur;
+  const TOTAL_FRAMES = 40;
+  const DT_FRAME = dur / TOTAL_FRAMES;
+
+  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+
+  function spikeAt(t) {
+    const dt = t - 0.8;
+    if (dt < -0.02 || dt > 0.22) return 0;
+    if (dt < 0.018) return -Math.exp(-(dt*dt)/0.00004);
+    return 0.5 * Math.exp(-((dt-0.09)*(dt-0.09))/0.0035);
+  }
+
+  function generateElectrodeVoltages(sourceName) {
+    const src = ELEC[EI[sourceName]];
+    const sigma2 = 25 * 25, spikeAmp = 85;
+    const rand = seededRand(42);
+    const bgPh = ELEC.map(function() { return rand() * 2 * Math.PI; });
+    const bgPh2 = ELEC.map(function() { return rand() * 2 * Math.PI; });
+
+    return ELEC.map(function(e, i) {
+      const y = new Array(N);
+      const d2 = (e.x - src.x) * (e.x - src.x) + (e.y - src.y) * (e.y - src.y);
+      const gain = 1 / (1 + d2 / sigma2);
+      for (var j = 0; j < N; j++) {
+        const t = j / sr;
+        y[j] = 7 * Math.sin(2 * Math.PI * 10 * t + bgPh[i])
+             + 3 * Math.sin(2 * Math.PI * 6 * t + bgPh2[i])
+             + spikeAt(t) * spikeAmp * gain;
+      }
+      return y;
+    });
+  }
+
+  function applyMontage(V, montage) {
+    return montage.channels.map(function(ch) {
+      const y = new Array(N).fill(0);
+      for (const en in ch.weights) {
+        const idx = EI[en];
+        if (idx === undefined) continue;
+        const w = ch.weights[en];
+        for (var j = 0; j < N; j++) y[j] += w * V[idx][j];
+      }
+      return {name: ch.name, y: y};
+    });
+  }
+
+  const LAP_NB = {
+    F3:['Fz','C3','Fp1','F7'], Fz:['F3','F4','Cz','Fp1'], F4:['Fz','C4','Fp2','F8'],
+    C3:['F3','P3','T3','Cz'],  Cz:['C3','C4','Fz','Pz'],  C4:['F4','P4','T4','Cz'],
+    P3:['C3','O1','T5','Pz'],  Pz:['P3','P4','Cz','O1'],  P4:['C4','O2','T6','Pz']
+  };
+
+  const REF_INFO = {
+    longitudinal:     {label: 'avg ref (bipolar has no native topomap)', key: 'avg'},
+    transverse:       {label: 'avg ref (bipolar has no native topomap)', key: 'avg'},
+    referentialCz:    {label: 'Cz reference', key: 'cz'},
+    averageReference: {label: 'average reference', key: 'avg'},
+    laplacian:        {label: 'Laplacian (local 2nd derivative)', key: 'lap'}
+  };
+
+  function applyReference(V, montageKey) {
+    const mode = REF_INFO[montageKey].key;
+    const Vref = ELEC.map(function() { return new Array(N); });
+    for (var j = 0; j < N; j++) {
+      const raw = new Array(ELEC.length);
+      for (var i = 0; i < ELEC.length; i++) raw[i] = V[i][j];
+
+      var transformed;
+      if (mode === 'cz') {
+        const cz = raw[EI.Cz];
+        transformed = raw.map(function(v) { return v - cz; });
+      } else if (mode === 'lap') {
+        var gm = 0;
+        for (var k = 0; k < raw.length; k++) gm += raw[k];
+        gm /= raw.length;
+        transformed = ELEC.map(function(e, i) {
+          const nb = LAP_NB[e.name];
+          if (!nb) return raw[i] - gm;
+          var s = 0;
+          for (var k = 0; k < nb.length; k++) s += raw[EI[nb[k]]];
+          return raw[i] - s / nb.length;
+        });
+      } else {
+        var m = 0;
+        for (var k = 0; k < raw.length; k++) m += raw[k];
+        m /= raw.length;
+        transformed = raw.map(function(v) { return v - m; });
+      }
+      for (var i = 0; i < ELEC.length; i++) Vref[i][j] = transformed[i];
+    }
+    return Vref;
+  }
+
+  const GRID = 40;
+  const GX = [], GY = [];
+  for (var i = 0; i < GRID; i++) { GX.push(5 + 90 * i / (GRID - 1)); GY.push(6 + 88 * i / (GRID - 1)); }
+
+  function inHead(x, y) {
+    const dx = (x - 50) / 47, dy = (y - 50) / 44;
+    return dx * dx + dy * dy <= 1;
+  }
+
+  function topomapGrid(V, sampleIdx) {
+    const vAtT = ELEC.map(function(_, i) { return V[i][sampleIdx]; });
+    const Z = [];
+    for (var iy = 0; iy < GRID; iy++) {
+      const row = [];
+      for (var ix = 0; ix < GRID; ix++) {
+        const xC = GX[ix], yC = GY[iy];
+        if (!inHead(xC, yC)) { row.push(null); continue; }
+        var num = 0, den = 0, exact = null;
+        for (var k = 0; k < ELEC.length; k++) {
+          const d2 = (ELEC[k].x - xC) * (ELEC[k].x - xC) + (ELEC[k].y - yC) * (ELEC[k].y - yC);
+          if (d2 < 0.6) { exact = vAtT[k]; break; }
+          const w = 1 / d2;
+          num += w * vAtT[k];
+          den += w;
+        }
+        row.push(exact !== null ? exact : num / den);
+      }
+      Z.push(row);
+    }
+    return Z;
+  }
+
+  // State
+  var currentMontage = 'longitudinal';
+  var currentSource = 'C3';
+  var currentFrame = 16;
+  var playing = true;
+  var V = null, Vref = null, channels = null, colorMax = 30, colorMaxField = 30;
+
+  function precompute() {
+    V = generateElectrodeVoltages(currentSource);
+    channels = applyMontage(V, MONTAGES[currentMontage]);
+    Vref = applyReference(V, currentMontage);
+
+    // Fixed field colorMax (from raw V) — stable across non-Laplacian modes so
+    // references differ in visible intensity, not just in relative pattern.
+    var mF = 0;
+    for (var f = 0; f < TOTAL_FRAMES; f++) {
+      const si = Math.round(f / TOTAL_FRAMES * N);
+      for (var i = 0; i < ELEC.length; i++) {
+        const v = Math.abs(V[i][si]); if (v > mF) mF = v;
+      }
+    }
+    colorMaxField = Math.max(10, mF);
+
+    if (REF_INFO[currentMontage].key === 'lap') {
+      var mL = 0;
+      for (var f = 0; f < TOTAL_FRAMES; f++) {
+        const si = Math.round(f / TOTAL_FRAMES * N);
+        for (var i = 0; i < ELEC.length; i++) {
+          const v = Math.abs(Vref[i][si]); if (v > mL) mL = v;
+        }
+      }
+      colorMax = Math.max(3, mL);
+    } else {
+      colorMax = colorMaxField;
+    }
+  }
+
+  function renderTopomap() {
+    const sampleIdx = Math.round(currentFrame / TOTAL_FRAMES * N);
+    const Z = topomapGrid(Vref, sampleIdx);
+    const traces = [
+      {
+        type: 'contour', z: Z, x: GX, y: GY,
+        colorscale: 'RdBu', reversescale: true,
+        zmin: -colorMax, zmax: colorMax,
+        contours: { showlines: false, coloring: 'fill' },
+        hovertemplate: '%{z:.0f} μV<extra></extra>',
+        colorbar: { title: { text: 'μV', font: {size: 10} }, thickness: 8, len: 0.7, x: 1.02 }
+      },
+      (function() {
+        const isRefMode = REF_INFO[currentMontage].key === 'cz';
+        function label(e) {
+          if (isRefMode && e.name === 'Cz') return 'Cz (REF=0)';
+          return e.name;
+        }
+        function sz(e) {
+          if (isRefMode && e.name === 'Cz') return 22;
+          return e.name === currentSource ? 20 : 12;
+        }
+        function fill(e) {
+          if (isRefMode && e.name === 'Cz' && e.name === currentSource) return '#f39c12';
+          if (isRefMode && e.name === 'Cz') return '#1abc9c';
+          return e.name === currentSource ? '#f39c12' : 'rgba(255,255,255,0.85)';
+        }
+        function edge(e) {
+          if (isRefMode && e.name === 'Cz') return '#16a085';
+          return e.name === currentSource ? '#c0392b' : '#333';
+        }
+        function ew(e) {
+          if (isRefMode && e.name === 'Cz') return 3;
+          return e.name === currentSource ? 2 : 1;
+        }
+        return {
+          type: 'scatter', mode: 'markers+text',
+          x: ELEC.map(function(e) { return e.x; }),
+          y: ELEC.map(function(e) { return e.y; }),
+          text: ELEC.map(label),
+          textposition: 'middle center',
+          textfont: { size: 8, color: '#222' },
+          marker: {
+            size: ELEC.map(sz),
+            color: ELEC.map(fill),
+            line: { color: ELEC.map(edge), width: ELEC.map(ew) }
+          },
+          hoverinfo: 'text', showlegend: false
+        };
+      })()
+    ];
+
+    const layout = {
+      title: { text: 'Scalp topomap — t = ' + (currentFrame * DT_FRAME).toFixed(2) + ' s<br><span style="font-size:0.82em; color:#888;">' + REF_INFO[currentMontage].label + '</span>', font: { size: 12, color: '#555' } },
+      xaxis: { range: [0, 100], visible: false, scaleanchor: 'y', scaleratio: 1 },
+      yaxis: { range: [100, 0], visible: false },
+      margin: { t: 50, b: 10, l: 10, r: 50 },
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      shapes: [
+        { type:'circle', xref:'x', yref:'y', x0:3, y0:6, x1:97, y1:94, line:{color:'#222', width:2}, fillcolor:'rgba(0,0,0,0)' },
+        { type:'path', path:'M 46,6 L 50,0 L 54,6 Z', line:{color:'#222', width:1.5}, fillcolor:'rgba(0,0,0,0)' }
+      ]
+    };
+
+    Plotly.react('topomapPlot', traces, layout, {responsive: true, displayModeBar: false});
+  }
+
+  function renderTraces() {
+    const nCh = channels.length;
+    const t = Array.from({length: N}, function(_, i) { return i / sr; });
+    const spacing = 80;
+    const traces = channels.map(function(ch, idx) {
+      return {
+        x: t, y: ch.y.map(function(v) { return -v - idx * spacing; }),
+        type: 'scatter', mode: 'lines',
+        line: { color: '#2c3e50', width: 1.1 },
+        hoverinfo: 'skip', showlegend: false, name: ch.name
+      };
+    });
+
+    const cursorT = currentFrame * DT_FRAME;
+    const layout = {
+      xaxis: { title: 'Time (s)', range: [0, dur], showgrid: false },
+      yaxis: {
+        range: [-spacing * nCh + 40, spacing * 0.5],
+        tickvals: channels.map(function(_, idx) { return -idx * spacing; }),
+        ticktext: channels.map(function(ch) { return ch.name; }),
+        tickfont: { size: 9 },
+        showgrid: false
+      },
+      shapes: [{
+        type: 'line', x0: cursorT, x1: cursorT,
+        yref: 'paper', y0: 0, y1: 1,
+        line: { color: '#e74c3c', width: 1.5 }
+      }],
+      margin: { t: 15, b: 38, l: 55, r: 10 },
+      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      hovermode: false
+    };
+
+    Plotly.react('tracesPlot', traces, layout, {responsive: true, displayModeBar: false});
+  }
+
+  function updateCursorOnly() {
+    const cursorT = currentFrame * DT_FRAME;
+    Plotly.relayout('tracesPlot', {
+      'shapes[0].x0': cursorT,
+      'shapes[0].x1': cursorT
+    });
+  }
+
+  function updateCaption() {
+    const m = MONTAGES[currentMontage];
+    var hook = '';
+    if (currentMontage === 'longitudinal') {
+      hook = ' Find the two adjacent channels where the deflection flips — their shared electrode is the source.';
+    } else if (currentMontage === 'transverse') {
+      hook = ' Phase reversals now run left-right instead of front-back. Good for catching lateralized activity that the double banana can miss.';
+    } else if (currentMontage === 'referentialCz') {
+      hook = ' Every channel is (electrode − Cz). The source electrode shows the biggest deflection. Cz itself is absent — you can\'t subtract it from itself.';
+    } else if (currentMontage === 'averageReference') {
+      hook = ' Every channel is compared against the mean of all electrodes. Less arbitrary than a single reference, but a strong focal source can contaminate the average.';
+    } else if (currentMontage === 'laplacian') {
+      hook = ' Each channel is the electrode minus the mean of its four spatial neighbors — a local second derivative. Focal activity stays sharp; diffuse activity cancels out. Edge electrodes (temporal, occipital, frontopolar) fall back to average reference here, since the 4-neighbor Laplacian is only well-defined for the central 9 electrodes.';
+    }
+    document.getElementById('montageCaption').innerHTML =
+      '<b>' + m.label + '</b>, spike at <b>' + currentSource + '</b> (peak near t=0.80 s).' + hook;
+  }
+
+  function rebuildButtons() {
+    const row = document.getElementById('montageButtonRow');
+    const keys = ['longitudinal','transverse','referentialCz','averageReference','laplacian'];
+    const colors = {longitudinal:'#2c3e50', transverse:'#1abc9c', referentialCz:'#8e44ad', averageReference:'#e67e22', laplacian:'#e74c3c'};
+    row.innerHTML = '';
+    keys.forEach(function(k) {
+      const btn = document.createElement('button');
+      btn.className = 'montage-btn';
+      btn.dataset.key = k;
+      btn.textContent = MONTAGES[k].label;
+      btn.style.cssText = 'padding:6px 14px; border:2px solid ' + colors[k] + '; background:' + colors[k] + '; color:white; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600; opacity:' + (k === currentMontage ? '1' : '0.55');
+      btn.addEventListener('click', function() {
+        currentMontage = k;
+        document.querySelectorAll('.montage-btn').forEach(function(b) {
+          b.style.opacity = b.dataset.key === k ? '1' : '0.55';
+        });
+        rebuildAll();
+      });
+      row.appendChild(btn);
+    });
+  }
+
+  function rebuildAll() {
+    precompute();
+    renderTopomap();
+    renderTraces();
+    updateCaption();
+  }
+
+  function tick() {
+    if (!playing) return;
+    currentFrame = (currentFrame + 1) % TOTAL_FRAMES;
+    document.getElementById('montageScrub').value = currentFrame;
+    document.getElementById('montageTimeLabel').textContent = 't = ' + (currentFrame * DT_FRAME).toFixed(2) + ' s';
+    renderTopomap();
+    updateCursorOnly();
+    setTimeout(tick, 90);
+  }
+
+  document.getElementById('montageSourceSelect').addEventListener('change', function(e) {
+    currentSource = e.target.value;
+    rebuildAll();
+  });
+  document.getElementById('montagePlayBtn').addEventListener('click', function() {
+    playing = !playing;
+    this.textContent = playing ? '⏸ Pause' : '▶ Play';
+    if (playing) tick();
+  });
+  document.getElementById('montageScrub').addEventListener('input', function(e) {
+    playing = false;
+    document.getElementById('montagePlayBtn').textContent = '▶ Play';
+    currentFrame = parseInt(e.target.value);
+    document.getElementById('montageTimeLabel').textContent = 't = ' + (currentFrame * DT_FRAME).toFixed(2) + ' s';
+    renderTopomap();
+    updateCursorOnly();
+  });
+
+  rebuildButtons();
+  rebuildAll();
+  tick();
+})();
+</script>
+```
+
+::: {.key-concept}
+**The montage is a lens, not the signal.** The scalp topomap is the ground truth — the actual voltage at every point on the scalp. Every montage you can display is a linear combination of those 19 values. That's why source localization algorithms work on the raw, un-montaged data — any single montage throws information away or reshapes it for the human eye.
 :::
 
 ## Quiz: Check Your Understanding

@@ -16,6 +16,12 @@ EEG — **electroencephalography** — records the electrical activity of the ce
 
 This module covers the three things every doctor needs to know about EEG: **where the electrodes go**, **what the frequency bands mean**, and **how to recognize basic patterns**.
 
+## Where the Signal Comes From
+
+Before we talk about electrode placement, it's worth pausing on what the scalp electrode is actually measuring. The brain's cortex is full of **pyramidal neurons** — tall, vertically oriented cells whose apical dendrites reach toward the cortical surface. When thousands of these neurons receive excitatory input *at the same time*, the tiny postsynaptic voltages along their dendrites sum into a much larger electrical dipole. That dipole is what your scalp electrode picks up.
+
+Two things matter for EEG to exist at all. First, the neurons must be **aligned** — pyramidal cells are, but interneurons and cerebellar cells are not, which is why those structures don't show up well on scalp EEG. Second, they must fire **synchronously** — a single neuron's PSP is tiny, and by the time it reaches the scalp it's attenuated thousands of times over. Only summed, synchronous activity survives the trip through CSF, skull, and skin.
+
 ## The 10-20 System: Where Electrodes Go
 
 The **International 10-20 System** is the standard electrode placement scheme used worldwide. The "10-20" refers to the fact that electrodes are spaced at 10% or 20% intervals along the skull from standard landmarks (nasion, inion, preauricular points).
@@ -175,199 +181,190 @@ Click on any electrode below to see what it records.
 
 ## EEG Frequency Bands: The Language of Brain Rhythms
 
-EEG activity is categorized into five major frequency bands. Each band has a name, a frequency range, and a clinical meaning. This is the vocabulary that every neurologist uses.
-
-Click on a band to see its isolated waveform and clinical significance.
+EEG is never a single pure rhythm — it's a mixture of five frequency bands, each with its own name, clinical meaning, and typical amplitude. Toggle the bands on and off below, drag the sliders, and watch a realistic EEG emerge from the sum. Expand the **ⓘ Clinical significance** tab under any band to read the neurologist's version.
 
 ```{=html}
 <div class="widget-box">
-  <div id="bands_composite_plot" style="width:100%; height:250px;"></div>
-
-  <div style="margin:1em 0; text-align:center;">
-    <button class="band-btn" onclick="window.showBand('delta')"
-            style="padding:8px 16px; margin:3px; border:2px solid #2c3e50; background:#2c3e50; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
-      Delta (1-4 Hz)
+  <div style="text-align:center; margin-bottom:0.8em;">
+    <label style="font-weight:600; font-size:0.88em; color:#555;">Clinical scenarios:</label><br>
+    <button class="scenario-btn" onclick="window.setScenario('awake')"
+            style="padding:6px 14px; margin:3px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">
+      Awake, eyes closed
     </button>
-    <button class="band-btn" onclick="window.showBand('theta')"
-            style="padding:8px 16px; margin:3px; border:2px solid #1abc9c; background:#1abc9c; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
-      Theta (4-8 Hz)
+    <button class="scenario-btn" onclick="window.setScenario('drowsy')"
+            style="padding:6px 14px; margin:3px; border:2px solid #1abc9c; background:#1abc9c; color:white; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">
+      Drowsy
     </button>
-    <button class="band-btn" onclick="window.showBand('alpha')"
-            style="padding:8px 16px; margin:3px; border:2px solid #8e44ad; background:#8e44ad; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
-      Alpha (8-13 Hz)
-    </button>
-    <button class="band-btn" onclick="window.showBand('beta')"
-            style="padding:8px 16px; margin:3px; border:2px solid #e67e22; background:#e67e22; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
-      Beta (13-30 Hz)
-    </button>
-    <button class="band-btn" onclick="window.showBand('gamma')"
-            style="padding:8px 16px; margin:3px; border:2px solid #e74c3c; background:#e74c3c; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
-      Gamma (>30 Hz)
+    <button class="scenario-btn" onclick="window.setScenario('deepsleep')"
+            style="padding:6px 14px; margin:3px; border:2px solid #2c3e50; background:#2c3e50; color:white; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600;">
+      Deep sleep (N3)
     </button>
   </div>
 
-  <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-    <div id="band_time_plot" style="width:100%; height:250px;"></div>
-    <div id="band_spectrum_plot" style="width:100%; height:250px;"></div>
+  <div id="bands_composite_plot" style="width:100%; height:260px;"></div>
+
+  <div style="text-align:right; font-size:0.85em; color:#555; margin:4px 2px 10px;">
+    <label style="cursor:pointer;"><input type="checkbox" id="showComponents"> Show components</label>
   </div>
 
-  <div id="band_info" style="margin-top:10px; padding:12px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd; font-size:0.92em; min-height:80px;">
-    <em style="color:#888;">Click a frequency band above to see its waveform, spectrum, and clinical significance.</em>
-  </div>
+  <div id="bandRows"></div>
 </div>
 
 <script>
 (function() {
   function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
 
-  var bands = {
-    delta: {
-      name: 'Delta', range: '1-4 Hz', freq: 2.5, amp: 150,
-      ampLabel: '100-200 uV', location: 'Diffuse (widespread)',
-      color: '#2c3e50', fillColor: 'rgba(44,62,80,0.15)',
-      clinical: '<b>Delta (1-4 Hz)</b> &mdash; Amplitude: 100-200 &mu;V. The slowest and largest EEG waves. ' +
-        '<b>Normal:</b> dominant during deep sleep (stages N3). Also seen in infants. ' +
-        '<b>Abnormal:</b> persistent delta activity in a fully awake adult suggests diffuse cerebral dysfunction (encephalopathy, metabolic disturbance, or structural lesion). ' +
-        'Focal delta can indicate a localized structural lesion (tumor, stroke).'
-    },
-    theta: {
-      name: 'Theta', range: '4-8 Hz', freq: 6, amp: 75,
-      ampLabel: '50-100 uV', location: 'Temporal regions',
-      color: '#1abc9c', fillColor: 'rgba(26,188,156,0.15)',
-      clinical: '<b>Theta (4-8 Hz)</b> &mdash; Amplitude: 50-100 &mu;V. ' +
-        '<b>Normal:</b> seen during drowsiness and light sleep. Common in children and adolescents. Temporal theta is normal in the elderly. ' +
-        '<b>Abnormal:</b> prominent focal theta in an alert adult can indicate regional cerebral dysfunction. ' +
-        'Rhythmic temporal theta is sometimes seen at the onset of temporal lobe seizures.'
-    },
-    alpha: {
-      name: 'Alpha', range: '8-13 Hz', freq: 10, amp: 40,
-      ampLabel: '30-50 uV', location: 'Occipital (posterior)',
-      color: '#8e44ad', fillColor: 'rgba(142,68,173,0.15)',
-      clinical: '<b>Alpha (8-13 Hz)</b> &mdash; Amplitude: 30-50 &mu;V. The "default rhythm" of the awake, relaxed brain. ' +
-        '<b>Where:</b> most prominent over occipital electrodes (O1, O2) with eyes closed. ' +
-        '<b>Key feature:</b> alpha blocking &mdash; the rhythm disappears when the patient opens their eyes. This is one of the first things a neurologist checks. ' +
-        '<b>Abnormal:</b> absence of alpha, failure to block with eye opening, or marked asymmetry (>50% amplitude difference) between hemispheres.'
-    },
-    beta: {
-      name: 'Beta', range: '13-30 Hz', freq: 20, amp: 15,
-      ampLabel: '10-20 uV', location: 'Frontal / Central',
-      color: '#e67e22', fillColor: 'rgba(230,126,34,0.15)',
-      clinical: '<b>Beta (13-30 Hz)</b> &mdash; Amplitude: 10-20 &mu;V. Fast, low-amplitude activity. ' +
-        '<b>Normal:</b> seen during alert, active mental states. Prominent over frontal and central regions. ' +
-        '<b>Enhanced by:</b> benzodiazepines (a very common EEG finding in sedated patients), barbiturates, and anxiety. ' +
-        '<b>Clinical pearl:</b> if you see lots of fast beta activity and the patient is on a benzo drip, that is the drug, not pathology.'
-    },
-    gamma: {
-      name: 'Gamma', range: '>30 Hz', freq: 40, amp: 7,
-      ampLabel: '5-10 uV', location: 'Local / variable',
-      color: '#e74c3c', fillColor: 'rgba(231,76,60,0.15)',
-      clinical: '<b>Gamma (>30 Hz)</b> &mdash; Amplitude: 5-10 &mu;V. The fastest brain rhythms. ' +
-        '<b>Normal:</b> associated with higher cognitive processing, perception, and consciousness. Active area of research. ' +
-        '<b>Caveat:</b> gamma is very difficult to record from scalp EEG because the signal is tiny and easily contaminated by muscle artifact (which is also high-frequency). ' +
-        'Most reliable gamma data comes from intracranial recordings.'
-    }
-  };
-
   var sr = 512, dur = 2, N = sr * dur;
-  var rand = seededRand(77);
+  var t = [];
+  for (var i = 0; i < N; i++) t.push(i / sr);
 
-  // Build composite signal (all bands summed)
-  var t = [], composite = [];
-  for (var i = 0; i < N; i++) {
-    var ti = i / sr;
-    t.push(ti);
-    var v = 0;
-    v += 80 * Math.sin(2 * Math.PI * 2.5 * ti + 0.3);
-    v += 40 * Math.sin(2 * Math.PI * 6 * ti + 1.1);
-    v += 30 * Math.sin(2 * Math.PI * 10 * ti + 0.7);
-    v += 10 * Math.sin(2 * Math.PI * 20 * ti + 2.3);
-    v += 5 * Math.sin(2 * Math.PI * 40 * ti + 0.5);
-    v += 15 * (rand() - 0.5);
-    composite.push(v);
+  var BANDS = [
+    {key:'delta', glyph:'δ', name:'Delta', range:'1–4 Hz', color:'#2c3e50',
+     ampMax:200, ampDef:80, fMin:1.0, fMax:4.0, fDef:2.5, fStep:0.1,
+     clinical:'Amplitude: 100–200 μV. The slowest and largest EEG waves. <b>Normal:</b> dominant during deep sleep (stage N3). Also seen in infants. <b>Abnormal:</b> persistent delta in a fully awake adult suggests diffuse cerebral dysfunction (encephalopathy, metabolic disturbance, or structural lesion). Focal delta can indicate a localized lesion (tumor, stroke).'},
+    {key:'theta', glyph:'θ', name:'Theta', range:'4–8 Hz', color:'#1abc9c',
+     ampMax:100, ampDef:40, fMin:4.0, fMax:8.0, fDef:6.0, fStep:0.1,
+     clinical:'Amplitude: 50–100 μV. <b>Normal:</b> drowsiness and light sleep. Common in children and adolescents. Temporal theta is normal in the elderly. <b>Abnormal:</b> prominent focal theta in an alert adult suggests regional cerebral dysfunction. Rhythmic temporal theta is sometimes seen at the onset of temporal lobe seizures.'},
+    {key:'alpha', glyph:'α', name:'Alpha', range:'8–13 Hz', color:'#8e44ad',
+     ampMax:60, ampDef:30, fMin:8.0, fMax:13.0, fDef:10.0, fStep:0.1,
+     clinical:'Amplitude: 30–50 μV. The "default rhythm" of the awake, relaxed brain. <b>Where:</b> most prominent over occipital electrodes (O1, O2) with eyes closed. <b>Key feature:</b> alpha blocking — the rhythm disappears when the patient opens their eyes. One of the first things a neurologist checks. <b>Abnormal:</b> absence of alpha, failure to block with eye opening, or >50% amplitude asymmetry between hemispheres.'},
+    {key:'beta', glyph:'β', name:'Beta', range:'13–30 Hz', color:'#e67e22',
+     ampMax:30, ampDef:10, fMin:13.0, fMax:30.0, fDef:20.0, fStep:0.5,
+     clinical:'Amplitude: 10–20 μV. Fast, low-amplitude activity. <b>Normal:</b> alert, active mental states. Prominent over frontal and central regions. <b>Enhanced by:</b> benzodiazepines (a very common EEG finding in sedated patients), barbiturates, anxiety. <b>Clinical pearl:</b> lots of fast beta in a patient on a benzo drip is the drug, not pathology.'},
+    {key:'gamma', glyph:'γ', name:'Gamma', range:'>30 Hz', color:'#e74c3c',
+     ampMax:15, ampDef:5, fMin:30.0, fMax:50.0, fDef:40.0, fStep:0.5,
+     clinical:'Amplitude: 5–10 μV. The fastest brain rhythms. <b>Normal:</b> higher cognitive processing, perception, consciousness. Active area of research. <b>Caveat:</b> very hard to record from scalp EEG — the signal is tiny and easily contaminated by muscle artifact. Most reliable gamma data comes from intracranial recordings.'}
+  ];
+
+  var container = document.getElementById('bandRows');
+  BANDS.forEach(function(b) {
+    var row = document.createElement('div');
+    row.style.cssText = 'border-left:4px solid ' + b.color + '; padding:10px 14px; margin:8px 0; background:#fafafa; border-radius:0 6px 6px 0;';
+    row.innerHTML =
+      '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">' +
+        '<input type="checkbox" id="en_' + b.key + '" checked style="width:16px; height:16px; accent-color:' + b.color + '; flex-shrink:0; cursor:pointer;">' +
+        '<span style="font-size:1.7em; font-weight:700; color:' + b.color + '; min-width:1.2em; text-align:center; line-height:1;">' + b.glyph + '</span>' +
+        '<span style="font-weight:600; font-size:0.95em;">' + b.name + '</span>' +
+        '<span style="color:#888; font-size:0.85em;">' + b.range + '</span>' +
+      '</div>' +
+      '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; font-size:0.82em;">' +
+        '<div><label>Amp: <span id="ampV_' + b.key + '" style="color:' + b.color + '; font-weight:700;">' + b.ampDef + '</span> μV</label>' +
+          '<input type="range" id="amp_' + b.key + '" min="0" max="' + b.ampMax + '" step="1" value="' + b.ampDef + '" style="width:100%; accent-color:' + b.color + ';"></div>' +
+        '<div><label>Freq: <span id="fV_' + b.key + '" style="color:' + b.color + '; font-weight:700;">' + b.fDef.toFixed(1) + '</span> Hz</label>' +
+          '<input type="range" id="f_' + b.key + '" min="' + b.fMin + '" max="' + b.fMax + '" step="' + b.fStep + '" value="' + b.fDef + '" style="width:100%; accent-color:' + b.color + ';"></div>' +
+        '<div><label>Phase: <span id="pV_' + b.key + '" style="color:' + b.color + '; font-weight:700;">0</span>°</label>' +
+          '<input type="range" id="p_' + b.key + '" min="0" max="360" step="5" value="0" style="width:100%; accent-color:' + b.color + ';"></div>' +
+      '</div>' +
+      '<details style="margin-top:8px; font-size:0.87em;">' +
+        '<summary style="cursor:pointer; color:' + b.color + '; font-weight:600;">ⓘ Clinical significance</summary>' +
+        '<div style="padding:6px 4px 2px; color:#444; line-height:1.55;">' + b.clinical + '</div>' +
+      '</details>';
+    container.appendChild(row);
+  });
+
+  function readBand(b) {
+    return {
+      on: document.getElementById('en_' + b.key).checked,
+      amp: parseFloat(document.getElementById('amp_' + b.key).value),
+      freq: parseFloat(document.getElementById('f_' + b.key).value),
+      phase: parseFloat(document.getElementById('p_' + b.key).value)
+    };
   }
 
-  // Plot composite
-  var trComp = {
-    x: t, y: composite, type: 'scatter', mode: 'lines',
-    line: {color: '#555', width: 1.2},
-    hovertemplate: '%{x:.3f} s: %{y:.0f} uV<extra></extra>'
-  };
-  var layComp = {
-    title: {text: 'Composite EEG-like Signal (all bands)', font: {size: 13, color: '#555'}},
-    xaxis: {title: 'Time (s)', range: [0, 1]},
-    yaxis: {title: 'uV'},
-    margin: {t: 30, b: 40, l: 50, r: 15},
-    plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
-    hovermode: 'x unified'
-  };
-  Plotly.newPlot('bands_composite_plot', [trComp], layComp, {responsive: true, displayModeBar: false});
+  function updateLabels() {
+    BANDS.forEach(function(b) {
+      var s = readBand(b);
+      document.getElementById('ampV_' + b.key).textContent = s.amp.toFixed(0);
+      document.getElementById('fV_' + b.key).textContent = s.freq.toFixed(1);
+      document.getElementById('pV_' + b.key).textContent = s.phase.toFixed(0);
+    });
+  }
 
-  window.showBand = function(bandKey) {
-    var b = bands[bandKey];
-
-    // Generate isolated band signal
-    var tBand = [], yBand = [];
+  function genBand(amp, freq, phaseDeg) {
+    var rad = phaseDeg * Math.PI / 180;
+    var y = new Array(N);
     for (var i = 0; i < N; i++) {
-      var ti = i / sr;
-      tBand.push(ti);
-      yBand.push(b.amp * Math.sin(2 * Math.PI * b.freq * ti));
+      y[i] = amp * Math.sin(2 * Math.PI * freq * i / sr + rad);
     }
+    return y;
+  }
 
-    // Time domain
-    var trT = {
-      x: tBand, y: yBand, type: 'scatter', mode: 'lines',
-      line: {color: b.color, width: 2},
-      hovertemplate: '%{x:.3f} s: %{y:.0f} uV<extra></extra>'
+  function updatePlot() {
+    updateLabels();
+    var showComp = document.getElementById('showComponents').checked;
+    var states = BANDS.map(readBand);
+    var nOn = states.filter(function(s) { return s.on; }).length;
+
+    var composite = new Array(N).fill(0);
+    var bandTraces = [];
+
+    BANDS.forEach(function(b, idx) {
+      var s = states[idx];
+      if (!s.on) return;
+      var y = genBand(s.amp, s.freq, s.phase);
+      for (var i = 0; i < N; i++) composite[i] += y[i];
+      if (showComp) {
+        bandTraces.push({
+          x: t, y: y, type: 'scatter', mode: 'lines',
+          line: {color: b.color, width: 1, dash: 'dot'},
+          opacity: 0.5, name: b.glyph + ' ' + b.name, hoverinfo: 'skip'
+        });
+      }
+    });
+
+    // Scale noise with active band count so all-off is silent
+    var rand = seededRand(77);
+    var noiseAmp = nOn > 0 ? 8 * Math.sqrt(nOn) : 0;
+    for (var i = 0; i < N; i++) composite[i] += noiseAmp * (rand() - 0.5);
+
+    var trComp = {
+      x: t, y: composite, type: 'scatter', mode: 'lines',
+      line: {color: '#2c3e50', width: 1.4}, name: 'EEG',
+      hovertemplate: '%{x:.3f} s: %{y:.0f} μV<extra></extra>'
     };
-    var layT = {
-      title: {text: b.name + ' (' + b.range + ')', font: {size: 13, color: b.color}},
+
+    var layout = {
+      title: {text: 'Your EEG — sum of active bands', font: {size: 13, color: '#555'}},
       xaxis: {title: 'Time (s)', range: [0, 1]},
-      yaxis: {title: 'uV'},
-      margin: {t: 30, b: 40, l: 50, r: 10},
+      yaxis: {title: 'μV', range: [-300, 300]},
+      margin: {t: 30, b: 40, l: 55, r: 15},
       plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
+      showlegend: showComp,
+      legend: showComp ? {x: 0.55, y: 1.05, orientation: 'h', font: {size: 10}, bgcolor: 'rgba(255,255,255,0.8)'} : undefined,
       hovermode: 'x unified'
     };
-    Plotly.react('band_time_plot', [trT], layT, {responsive: true, displayModeBar: false});
 
-    // Spectrum: show all bands as background bars, highlight selected
-    var allBands = ['delta','theta','alpha','beta','gamma'];
-    var bandRanges = {delta:[1,4], theta:[4,8], alpha:[8,13], beta:[13,30], gamma:[30,50]};
-    var shapes = [];
-    allBands.forEach(function(bk) {
-      var br = bandRanges[bk];
-      shapes.push({
-        type: 'rect', x0: br[0], x1: br[1], y0: 0, y1: bands[bk].amp,
-        fillcolor: bk === bandKey ? b.fillColor : 'rgba(200,200,200,0.15)',
-        line: {color: bk === bandKey ? b.color : '#ccc', width: bk === bandKey ? 2 : 1}
-      });
-    });
+    Plotly.react('bands_composite_plot', bandTraces.concat([trComp]), layout, {responsive: true, displayModeBar: false});
+  }
 
-    var annotations = allBands.map(function(bk) {
-      var br = bandRanges[bk];
-      return {
-        x: (br[0] + br[1]) / 2, y: bands[bk].amp + 10,
-        text: bands[bk].name, showarrow: false,
-        font: {size: bk === bandKey ? 12 : 10, color: bk === bandKey ? b.color : '#aaa',
-               weight: bk === bandKey ? 'bold' : 'normal'}
-      };
-    });
-
-    var layS = {
-      title: {text: 'Frequency Bands', font: {size: 13, color: '#555'}},
-      xaxis: {title: 'Frequency (Hz)', range: [0, 55], dtick: 10},
-      yaxis: {title: 'Typical Amplitude (uV)', range: [0, 220]},
-      margin: {t: 30, b: 40, l: 50, r: 10},
-      plot_bgcolor: '#fafafa', paper_bgcolor: '#fafafa',
-      shapes: shapes, annotations: annotations
-    };
-    Plotly.react('band_spectrum_plot', [], layS, {responsive: true, displayModeBar: false});
-
-    // Info text
-    document.getElementById('band_info').innerHTML =
-      '<div style="border-left:4px solid ' + b.color + '; padding-left:10px;">' + b.clinical + '</div>' +
-      '<div style="margin-top:8px; font-size:0.88em; color:#666;">' +
-      '<b>Typical amplitude:</b> ' + b.ampLabel + ' &nbsp;|&nbsp; <b>Location:</b> ' + b.location + '</div>';
+  var PRESETS = {
+    awake:     {delta:[5,2.5,0],  theta:[10,6,0], alpha:[40,10,0], beta:[8,20,0], gamma:[3,40,0]},
+    drowsy:    {delta:[30,2.5,0], theta:[60,6,0], alpha:[20,10,0], beta:[5,20,0], gamma:[2,40,0]},
+    deepsleep: {delta:[180,2,0],  theta:[40,5,0], alpha:[5,10,0],  beta:[3,20,0], gamma:[1,40,0]}
   };
+
+  window.setScenario = function(name) {
+    var p = PRESETS[name];
+    if (!p) return;
+    BANDS.forEach(function(b) {
+      var v = p[b.key];
+      document.getElementById('en_' + b.key).checked = true;
+      document.getElementById('amp_' + b.key).value = v[0];
+      document.getElementById('f_' + b.key).value = v[1];
+      document.getElementById('p_' + b.key).value = v[2];
+    });
+    updatePlot();
+  };
+
+  BANDS.forEach(function(b) {
+    document.getElementById('en_' + b.key).addEventListener('change', updatePlot);
+    ['amp_', 'f_', 'p_'].forEach(function(prefix) {
+      document.getElementById(prefix + b.key).addEventListener('input', updatePlot);
+    });
+  });
+  document.getElementById('showComponents').addEventListener('change', updatePlot);
+
+  updatePlot();
 })();
 </script>
 ```
@@ -375,9 +372,10 @@ Click on a band to see its isolated waveform and clinical significance.
 ::: {.try-it}
 **Experiment:**
 
-- Click through each band in order from **Delta** to **Gamma**. Notice the inverse relationship: slower rhythms have higher amplitude, faster rhythms are tiny.
-- Compare **Delta** (150 uV, huge slow waves) with **Gamma** (7 uV, barely visible rapid oscillations). That amplitude difference is why gamma is so hard to record from the scalp.
-- Read the clinical notes for **Alpha** carefully. Alpha blocking will come up again shortly.
+- Start from the default mix and **mute every band except δ Delta**. Crank delta's amplitude. That's what deep sleep looks like — huge, slow waves.
+- Now leave only **α Alpha** on at 40 μV. That's the awake, eyes-closed rhythm over the occipital cortex.
+- Try the **Deep sleep (N3)** preset, then the **Awake, eyes closed** preset. Same brain, different state, dramatically different signal.
+- Toggle **Show components** to see each band as a dimmed dashed trace behind the composite — the building blocks you just summed.
 :::
 
 ## Alpha Blocking: The First Clinical Test

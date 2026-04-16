@@ -296,7 +296,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">7. Spectrograms</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../modules/08_challenge.qmd"> 
+    <a class="nav-link" href="../modules/08_challenge.html"> 
 <span class="menu-text">8. Challenge</span></a>
   </li>  
 </ul>
@@ -319,7 +319,6 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#the-five-usual-suspects" id="toc-the-five-usual-suspects" class="nav-link active" data-scroll-target="#the-five-usual-suspects">The Five Usual Suspects</a></li>
   <li><a href="#interactive-artifact-anatomy" id="toc-interactive-artifact-anatomy" class="nav-link" data-scroll-target="#interactive-artifact-anatomy">Interactive: Artifact Anatomy</a></li>
   <li><a href="#interactive-brain-or-noise-the-artifact-game" id="toc-interactive-brain-or-noise-the-artifact-game" class="nav-link" data-scroll-target="#interactive-brain-or-noise-the-artifact-game">Interactive: “Brain or Noise?” — The Artifact Game</a></li>
-  <li><a href="#interactive-before-after-cleaning-an-artifact" id="toc-interactive-before-after-cleaning-an-artifact" class="nav-link" data-scroll-target="#interactive-before-after-cleaning-an-artifact">Interactive: Before &amp; After — Cleaning an Artifact</a></li>
   <li><a href="#why-artifacts-fool-people" id="toc-why-artifacts-fool-people" class="nav-link" data-scroll-target="#why-artifacts-fool-people">Why Artifacts Fool People</a></li>
   <li><a href="#quiz-check-your-understanding" id="toc-quiz-check-your-understanding" class="nav-link" data-scroll-target="#quiz-check-your-understanding">Quiz: Check Your Understanding</a></li>
   <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s Next</a></li>
@@ -424,21 +423,11 @@ ul.task-list li input[type="checkbox"] {
   <div style="display:flex; flex-wrap:wrap; gap:12px;">
     <div style="flex:1; min-width:300px;">
       <div style="font-weight:600; font-size:0.88em; color:#555; margin-bottom:4px;">Time Domain</div>
-      <div id="artTimePlot" style="width:100%; height:260px;"></div>
+      <div id="artTimePlot" style="width:100%; height:320px;"></div>
     </div>
     <div style="flex:1; min-width:300px;">
       <div style="font-weight:600; font-size:0.88em; color:#555; margin-bottom:4px;">Frequency Spectrum</div>
-      <div id="artFreqPlot" style="width:100%; height:260px;"></div>
-    </div>
-  </div>
-  <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:10px;">
-    <div style="flex:1; min-width:300px;">
-      <div style="font-weight:600; font-size:0.88em; color:#555; margin-bottom:4px;">Artifact Alone</div>
-      <div id="artAlonePlot" style="width:100%; height:220px;"></div>
-    </div>
-    <div style="flex:1; min-width:300px;">
-      <div style="font-weight:600; font-size:0.88em; color:#555; margin-bottom:4px;">Artifact + Clean EEG</div>
-      <div id="artContamPlot" style="width:100%; height:220px;"></div>
+      <div id="artFreqPlot" style="width:100%; height:320px;"></div>
     </div>
   </div>
 </div>
@@ -491,17 +480,23 @@ ul.task-list li input[type="checkbox"] {
     return {freqs, power};
   }
 
-  // Artifact generators
+  // Artifact generators. Morphology targets drawn from learningeeg.com/artifacts
+  // and Niedermeyer summaries: blink = slow positive Fp deflection; EMG = broadband
+  // 30-200 Hz fuzz; 60 Hz = pure sinusoid; ECG = sharp QRS + T-wave at ~1 Hz;
+  // electrode pop = step-like onset with RC decay.
+
   function genBlink() {
+    // Gamma-shaped kernel: A * (dt/tau) * exp(1 - dt/tau). Rises to peak at dt=tau
+    // (~120 ms), then decays; natural asymmetry matches viscoelastic eyelid motion.
+    const peak = 130, tau = 0.12;
+    const blinks = [0.65, 1.95];
     return t.map(function(ti) {
       let v = 0;
-      // Blink at t=1.0 and t=2.2
-      const blinks = [1.0, 2.2];
       for (let b = 0; b < blinks.length; b++) {
         const dt = ti - blinks[b];
-        if (dt > -0.05 && dt < 0.35) {
-          const phase = (dt + 0.05) / 0.4;
-          v += 180 * Math.sin(Math.PI * phase) * Math.exp(-2 * phase);
+        if (dt >= 0 && dt < 0.9) {
+          const u = dt / tau;
+          v += peak * u * Math.exp(1 - u);
         }
       }
       return v;
@@ -509,53 +504,76 @@ ul.task-list li input[type="checkbox"] {
   }
 
   function genMuscle() {
+    // Broadband high-frequency noise, high-pass-ish via first-difference of
+    // smoothed white noise, gated by a smooth burst envelope. Produces the
+    // characteristic "fuzz/grass" morphology rather than smooth sinusoids.
     const rand = seededRand(77);
-    return t.map(function(ti) {
-      let v = 0;
-      // Muscle burst from 0.8 to 1.8s
-      const env = (ti > 0.8 && ti < 1.8) ? Math.sin(Math.PI * (ti - 0.8) / 1.0) : 0;
-      for (let k = 1; k <= 12; k++) {
-        v += Math.sin(2*Math.PI*(30 + k*15)*ti + k*2.3 + rand()*6.28);
-      }
-      return env * v * 4 + (rand()-0.5) * 2;
+    const N = t.length;
+    const raw = new Array(N);
+    for (let i = 0; i < N; i++) raw[i] = rand() - 0.5;
+    // Light smoothing → knocks out Nyquist-edge energy but keeps 30-150 Hz band.
+    const sm = new Array(N);
+    sm[0] = raw[0];
+    for (let i = 1; i < N; i++) sm[i] = 0.55 * sm[i-1] + 0.45 * raw[i];
+    // First difference = emphasize high frequencies.
+    const hp = new Array(N);
+    hp[0] = 0;
+    for (let i = 1; i < N; i++) hp[i] = sm[i] - sm[i-1];
+    return t.map(function(ti, i) {
+      const env = (ti > 0.75 && ti < 1.85)
+        ? Math.pow(Math.sin(Math.PI * (ti - 0.75) / 1.10), 2)
+        : 0;
+      return env * hp[i] * 600;
     });
   }
 
   function genLineNoise() {
+    // 60 Hz fundamental plus a trace of 120/180 Hz harmonics (invisible on the
+    // 80 Hz-capped spectrum but makes the time trace slightly less glassy).
     return t.map(function(ti) {
-      return 15 * Math.sin(2*Math.PI*60*ti);
+      return 14 * Math.sin(2*Math.PI*60*ti)
+           + 2.5 * Math.sin(2*Math.PI*120*ti + 0.4)
+           + 1.0 * Math.sin(2*Math.PI*180*ti + 1.1);
     });
   }
 
   function genECG() {
+    // Biphasic QRS: small Q (-), tall R (+), small S (-), then T-wave ~280 ms later.
+    // ~72 bpm = 1.2 Hz. Scalp-referenced ECG amplitude ~30-40 μV.
+    const hr = 1.2;
     return t.map(function(ti) {
-      const hr = 1.25; // ~75 bpm
-      const ph = (ti * hr) % 1;
+      const period = 1 / hr;
+      const ph = ti - Math.floor(ti / period) * period;
       let v = 0;
-      // QRS-like spike
-      if (ph > 0.28 && ph < 0.35) {
-        v = 40 * Math.sin(Math.PI*(ph-0.28)/0.07);
+      // Q: -6 μV, 15 ms
+      if (ph > 0.295 && ph < 0.310) {
+        v -= 6 * Math.sin(Math.PI * (ph - 0.295) / 0.015);
       }
-      // T-wave-like
-      if (ph > 0.42 && ph < 0.55) {
-        v += 12 * Math.sin(Math.PI*(ph-0.42)/0.13);
+      // R: +38 μV, 30 ms (sharp)
+      if (ph >= 0.310 && ph < 0.340) {
+        v += 38 * Math.sin(Math.PI * (ph - 0.310) / 0.030);
+      }
+      // S: -10 μV, 20 ms
+      if (ph >= 0.340 && ph < 0.360) {
+        v -= 10 * Math.sin(Math.PI * (ph - 0.340) / 0.020);
+      }
+      // T-wave: +9 μV, 140 ms broad bump
+      if (ph > 0.48 && ph < 0.62) {
+        v += 9 * Math.sin(Math.PI * (ph - 0.48) / 0.14);
       }
       return v;
     });
   }
 
   function genPop() {
+    // Near-instantaneous step (<5 ms rise) to ~150 μV followed by RC decay.
+    // τ≈25 ms approximates electrode impedance × coupling capacitance.
+    const onset = 1.5, peak = 150, rise = 0.003, tau = 0.025;
     return t.map(function(ti) {
-      let v = 0;
-      // Single electrode pop at t=1.5
-      const dt = ti - 1.5;
-      if (dt > 0 && dt < 0.02) {
-        v = 250 * Math.sin(Math.PI * dt / 0.02);
-      }
-      if (dt >= 0.02 && dt < 0.06) {
-        v = -60 * Math.exp(-80*(dt-0.02));
-      }
-      return v;
+      const dt = ti - onset;
+      if (dt < 0 || dt > 0.4) return 0;
+      if (dt < rise) return peak * (dt / rise);
+      return peak * Math.exp(-(dt - rise) / tau);
     });
   }
 
@@ -611,20 +629,21 @@ ul.task-list li input[type="checkbox"] {
     const artifactSignal = art.gen();
     const contaminated = eegClean.map(function(v, i) { return v + artifactSignal[i]; });
 
-    // Time domain: clean + contaminated overlaid
+    // Time domain: clean + contaminated overlaid. Clean is dashed gray so the
+    // contaminated trace (tab color) reads as the "signal of interest".
     const trClean = {
       x: t, y: eegClean, type:'scatter', mode:'lines',
-      line:{color:'#2980b9', width:1.5}, name:'Clean EEG',
+      line:{color:'#8a8a8a', width:1.1, dash:'dot'}, name:'Clean EEG',
       hovertemplate:'%{y:.1f} μV<extra>Clean</extra>'
     };
     const trContam = {
       x: t, y: contaminated, type:'scatter', mode:'lines',
-      line:{color:art.color, width:1.5}, name:'Contaminated',
+      line:{color:art.color, width:1.6}, name:'Contaminated',
       hovertemplate:'%{y:.1f} μV<extra>Contaminated</extra>'
     };
     Plotly.react('artTimePlot', [trClean, trContam], {
       xaxis:{title:'Time (s)', range:[0,dur]},
-      yaxis:{title:'μV'},
+      yaxis:{title:'μV (negative up)', autorange:'reversed'},
       margin:{t:10, b:42, l:50, r:10},
       plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
       legend:{x:0.6, y:1, font:{size:10}},
@@ -636,10 +655,10 @@ ul.task-list li input[type="checkbox"] {
     const specContam = computeSpectrum(contaminated, sr);
     Plotly.react('artFreqPlot', [
       {x:specClean.freqs, y:specClean.power, type:'scatter', mode:'lines',
-       line:{color:'#2980b9', width:1.5}, name:'Clean',
+       line:{color:'#8a8a8a', width:1.1, dash:'dot'}, name:'Clean',
        hovertemplate:'%{x:.1f} Hz: %{y:.1f} dB<extra>Clean</extra>'},
       {x:specContam.freqs, y:specContam.power, type:'scatter', mode:'lines',
-       line:{color:art.color, width:1.5}, name:'Contaminated',
+       line:{color:art.color, width:1.6}, name:'Contaminated',
        hovertemplate:'%{x:.1f} Hz: %{y:.1f} dB<extra>Contaminated</extra>'}
     ], {
       xaxis:{title:'Frequency (Hz)', range:[0,80]},
@@ -650,35 +669,6 @@ ul.task-list li input[type="checkbox"] {
       hovermode:'x unified'
     }, {responsive:true, displayModeBar:false});
 
-    // Artifact alone
-    Plotly.react('artAlonePlot', [{
-      x:t, y:artifactSignal, type:'scatter', mode:'lines',
-      line:{color:art.color, width:1.5}, name:'Artifact',
-      hovertemplate:'%{y:.1f} μV<extra>Artifact</extra>'
-    }], {
-      xaxis:{title:'Time (s)', range:[0,dur]},
-      yaxis:{title:'μV'},
-      margin:{t:10, b:42, l:50, r:10},
-      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
-      showlegend:false, hovermode:'x unified'
-    }, {responsive:true, displayModeBar:false});
-
-    // Artifact contaminating clean EEG
-    Plotly.react('artContamPlot', [
-      {x:t, y:eegClean, type:'scatter', mode:'lines',
-       line:{color:'#bbb', width:1, dash:'dot'}, name:'Original clean EEG',
-       hovertemplate:'%{y:.1f} μV<extra>Clean</extra>'},
-      {x:t, y:contaminated, type:'scatter', mode:'lines',
-       line:{color:art.color, width:1.5}, name:'Contaminated EEG',
-       hovertemplate:'%{y:.1f} μV<extra>Contaminated</extra>'}
-    ], {
-      xaxis:{title:'Time (s)', range:[0,dur]},
-      yaxis:{title:'μV'},
-      margin:{t:10, b:42, l:50, r:10},
-      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
-      legend:{x:0.55, y:1, font:{size:10}},
-      hovermode:'x unified'
-    }, {responsive:true, displayModeBar:false});
   };
 
   // Show blink tab by default
@@ -830,7 +820,7 @@ ul.task-list li input[type="checkbox"] {
       hovertemplate:'%{x:.2f}s: %{y:.1f} μV<extra></extra>'
     }], {
       xaxis:{title:'Time (s)', range:[0,dur]},
-      yaxis:{title:'μV'},
+      yaxis:{title:'μV (negative up)', autorange:'reversed'},
       margin:{t:10, b:42, l:50, r:10},
       plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
       hovermode:'x unified'
@@ -888,183 +878,6 @@ ul.task-list li input[type="checkbox"] {
 <li>Look for <strong>perfect regularity</strong> — 60 Hz noise or ECG.</li>
 <li>Clean EEG has a natural, somewhat irregular rhythm. Artifacts tend to stand out because they don’t “fit” the background.</li>
 </ul>
-</div>
-</section>
-<section id="interactive-before-after-cleaning-an-artifact" class="level2">
-<h2 class="anchored" data-anchor-id="interactive-before-after-cleaning-an-artifact">Interactive: Before &amp; After — Cleaning an Artifact</h2>
-<p>Real EEG recordings usually have multiple artifacts. Here’s a “dirty” EEG contaminated with both eye blink artifacts and 60 Hz line noise. Use the toggle buttons to remove them and watch what changes — in both the time domain and the frequency spectrum.</p>
-<div class="widget-box">
-  <div style="margin-bottom:12px; text-align:center;">
-    <button id="cleanBlink" onclick="toggleClean('blink')" style="padding:8px 20px; margin:4px; border:2px solid #e74c3c; background:white; color:#e74c3c; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
-      Remove Blinks
-    </button>
-    <button id="cleanLine" onclick="toggleClean('line')" style="padding:8px 20px; margin:4px; border:2px solid #8e44ad; background:white; color:#8e44ad; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
-      Remove 60 Hz
-    </button>
-    <button id="cleanBoth" onclick="toggleClean('both')" style="padding:8px 20px; margin:4px; border:2px solid #2c3e50; background:white; color:#2c3e50; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
-      Remove Both
-    </button>
-    <button id="cleanNone" onclick="toggleClean('none')" style="padding:8px 20px; margin:4px; border:2px solid #95a5a6; background:#95a5a6; color:white; border-radius:20px; cursor:pointer; font-size:0.9em; font-weight:600;">
-      Show Original (Dirty)
-    </button>
-  </div>
-  <div id="cleanStatus" style="text-align:center; font-size:0.9em; color:#555; margin-bottom:8px; font-style:italic;">Showing the original dirty signal — blinks + 60 Hz noise present.</div>
-  <div style="display:flex; flex-wrap:wrap; gap:12px;">
-    <div style="flex:1; min-width:300px;">
-      <div id="cleanTimePlot" style="width:100%; height:300px;"></div>
-    </div>
-    <div style="flex:1; min-width:300px;">
-      <div id="cleanFreqPlot" style="width:100%; height:300px;"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-(function() {
-  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
-  const rand = seededRand(123);
-
-  const sr = 500, dur = 4;
-  const t = [];
-  for (let i = 0; i < dur * sr; i++) t.push(i / sr);
-
-  // Clean EEG (alpha + theta)
-  const clean = t.map(function(ti) {
-    return 25*Math.sin(2*Math.PI*10*ti + 0.3)
-         + 12*Math.sin(2*Math.PI*6*ti + 1.5)
-         + 6*Math.sin(2*Math.PI*15*ti + 0.7)
-         + 7*(rand()-0.5);
-  });
-
-  // Blink artifacts
-  const blinks = t.map(function(ti) {
-    let v = 0;
-    const blinkTimes = [0.8, 1.9, 3.1];
-    for (let b = 0; b < blinkTimes.length; b++) {
-      const dt = ti - blinkTimes[b];
-      if (dt > -0.05 && dt < 0.35) {
-        const phase = (dt + 0.05) / 0.4;
-        v += 150 * Math.sin(Math.PI * phase) * Math.exp(-2 * phase);
-      }
-    }
-    return v;
-  });
-
-  // 60 Hz line noise
-  const lineNoise = t.map(function(ti) {
-    return 12 * Math.sin(2*Math.PI*60*ti);
-  });
-
-  // Dirty = clean + blinks + lineNoise
-  const dirty = clean.map(function(v, i) { return v + blinks[i] + lineNoise[i]; });
-
-  function computeSpectrum(signal) {
-    const N = signal.length;
-    const maxK = Math.min(Math.floor(80 * N / sr), Math.floor(N/2));
-    const freqs = [], power = [];
-    const step = Math.max(1, Math.floor(N / 512));
-    for (let k = 1; k <= maxK; k++) {
-      freqs.push(k * sr / N);
-      let re = 0, im = 0, count = 0;
-      for (let n = 0; n < N; n += step) {
-        const angle = 2*Math.PI*k*n/N;
-        re += signal[n]*Math.cos(angle);
-        im -= signal[n]*Math.sin(angle);
-        count++;
-      }
-      re /= count; im /= count;
-      power.push(10*Math.log10(re*re + im*im + 1e-10));
-    }
-    return {freqs, power};
-  }
-
-  let currentMode = 'none';
-
-  function getCleanedSignal(mode) {
-    if (mode === 'none') return dirty;
-    if (mode === 'blink') return clean.map(function(v, i) { return v + lineNoise[i]; });
-    if (mode === 'line') return clean.map(function(v, i) { return v + blinks[i]; });
-    if (mode === 'both') return clean.slice();
-    return dirty;
-  }
-
-  function updateCleanPlots(mode) {
-    currentMode = mode;
-    const sig = getCleanedSignal(mode);
-    const spec = computeSpectrum(sig);
-    const specDirty = computeSpectrum(dirty);
-
-    // Update button styles
-    ['cleanBlink','cleanLine','cleanBoth','cleanNone'].forEach(function(id) {
-      const btn = document.getElementById(id);
-      const map = {cleanBlink:'blink', cleanLine:'line', cleanBoth:'both', cleanNone:'none'};
-      if (map[id] === mode) {
-        btn.style.color = 'white';
-        // Keep the border color as background
-        btn.style.background = btn.style.borderColor;
-      } else {
-        btn.style.background = 'white';
-        const colors = {cleanBlink:'#e74c3c', cleanLine:'#8e44ad', cleanBoth:'#2c3e50', cleanNone:'#95a5a6'};
-        btn.style.color = colors[id];
-      }
-    });
-
-    const statusMap = {
-      none: 'Showing the original dirty signal — blinks + 60 Hz noise present.',
-      blink: 'Blinks removed. 60 Hz noise still present. Notice the low-frequency transients are gone.',
-      line: '60 Hz removed (notch filter). Blinks still present. The sharp spike at 60 Hz in the spectrum is gone.',
-      both: 'Both artifacts removed. This is close to the original clean EEG.'
-    };
-    document.getElementById('cleanStatus').textContent = statusMap[mode];
-
-    const sigColor = mode === 'both' ? '#27ae60' : mode === 'none' ? '#c0392b' : '#e67e22';
-
-    Plotly.react('cleanTimePlot', [
-      {x:t, y:sig, type:'scatter', mode:'lines',
-       line:{color:sigColor, width:1.5}, name:mode==='none'?'Dirty':'Cleaned',
-       hovertemplate:'%{x:.2f}s: %{y:.1f} μV<extra></extra>'}
-    ], {
-      title:{text:'Time Domain', font:{size:13, color:'#555'}},
-      xaxis:{title:'Time (s)', range:[0,dur]},
-      yaxis:{title:'μV', range:[-120, 180]},
-      margin:{t:30, b:42, l:50, r:10},
-      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
-      hovermode:'x unified'
-    }, {responsive:true, displayModeBar:false});
-
-    Plotly.react('cleanFreqPlot', [
-      {x:specDirty.freqs, y:specDirty.power, type:'scatter', mode:'lines',
-       line:{color:'#ddd', width:1.5, dash:'dot'}, name:'Original (dirty)',
-       hovertemplate:'%{x:.1f} Hz: %{y:.1f} dB<extra>Dirty</extra>'},
-      {x:spec.freqs, y:spec.power, type:'scatter', mode:'lines',
-       line:{color:sigColor, width:1.5}, name:mode==='none'?'Dirty':'Cleaned',
-       hovertemplate:'%{x:.1f} Hz: %{y:.1f} dB<extra>Current</extra>'}
-    ], {
-      title:{text:'Frequency Spectrum', font:{size:13, color:'#555'}},
-      xaxis:{title:'Frequency (Hz)', range:[0,80]},
-      yaxis:{title:'Power (dB)'},
-      margin:{t:30, b:42, l:50, r:10},
-      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
-      legend:{x:0.5, y:1, font:{size:10}},
-      hovermode:'x unified'
-    }, {responsive:true, displayModeBar:false});
-  }
-
-  window.toggleClean = function(mode) {
-    updateCleanPlots(mode);
-  };
-
-  // Initial render
-  updateCleanPlots('none');
-})();
-</script>
-<div class="try-it">
-<p><strong>Try each cleaning step:</strong></p>
-<ol type="1">
-<li>Click <strong>“Remove Blinks”</strong> — watch the large slow deflections disappear from the time trace. In the spectrum, low-frequency power drops.</li>
-<li>Click <strong>“Remove 60 Hz”</strong> — the fast ripple disappears. In the spectrum, the sharp spike at 60 Hz is gone (this is what a <strong>notch filter</strong> does).</li>
-<li>Click <strong>“Remove Both”</strong> — now you see clean EEG. Compare with the dotted gray line (original dirty spectrum) to see everything that was removed.</li>
-</ol>
 </div>
 <div class="key-concept">
 <p><strong>Artifact rejection is not optional.</strong> If you analyze contaminated EEG, your results are wrong. Garbage in, garbage out. The three main strategies are:</p>

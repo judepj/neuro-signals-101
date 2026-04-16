@@ -1,2 +1,5 @@
 /.quarto/
 **/*.quarto_ipynb
+__pycache__/
+.DS_Store
+assets/manim_sources/media/

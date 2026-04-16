@@ -325,7 +325,7 @@ window.Quarto = {
 <span class="menu-text">7. Spectrograms</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../modules/08_challenge.qmd"> 
+    <a class="nav-link" href="../modules/08_challenge.html"> 
 <span class="menu-text">8. Challenge</span></a>
   </li>  
 </ul>
@@ -349,7 +349,6 @@ window.Quarto = {
   <li><a href="#interactive-building-a-spectrogram-from-scratch" id="toc-interactive-building-a-spectrogram-from-scratch" class="nav-link" data-scroll-target="#interactive-building-a-spectrogram-from-scratch">Interactive: Building a Spectrogram from Scratch</a></li>
   <li><a href="#interactive-design-your-own-signal" id="toc-interactive-design-your-own-signal" class="nav-link" data-scroll-target="#interactive-design-your-own-signal">Interactive: Design Your Own Signal</a></li>
   <li><a href="#the-window-size-tradeoff" id="toc-the-window-size-tradeoff" class="nav-link" data-scroll-target="#the-window-size-tradeoff">The Window Size Tradeoff</a></li>
-  <li><a href="#interactive-the-window-size-tradeoff" id="toc-interactive-the-window-size-tradeoff" class="nav-link" data-scroll-target="#interactive-the-window-size-tradeoff">Interactive: The Window Size Tradeoff</a></li>
   <li><a href="#clinical-applications" id="toc-clinical-applications" class="nav-link" data-scroll-target="#clinical-applications">Clinical Applications</a></li>
   <li><a href="#quiz-check-your-understanding" id="toc-quiz-check-your-understanding" class="nav-link" data-scroll-target="#quiz-check-your-understanding">Quiz: Check Your Understanding</a></li>
   <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s Next</a></li>
@@ -673,7 +672,7 @@ window.Quarto = {
 </section>
 <section id="interactive-design-your-own-signal" class="level2">
 <h2 class="anchored" data-anchor-id="interactive-design-your-own-signal">Interactive: Design Your Own Signal</h2>
-<p>Choose the dominant frequency for three time periods. The widget generates the signal and its spectrogram in real time. Use the <strong>“Seizure-like”</strong> preset to see what a seizure’s frequency evolution looks like.</p>
+<p>Choose the dominant frequency for three time periods. The widget generates the signal and its spectrogram in real time — watch how the frequency content shifts across the three regimes.</p>
 <div class="widget-box">
   <div style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:12px; align-items:center;">
     <div>
@@ -702,9 +701,6 @@ window.Quarto = {
         <option value="10">Alpha (10 Hz)</option>
         <option value="20" selected="">Beta (20 Hz)</option>
       </select>
-    </div>
-    <div>
-      <button onclick="setSeizurePreset()" style="padding:8px 20px; border:2px solid #c0392b; background:#c0392b; color:white; border-radius:20px; cursor:pointer; font-size:0.88em; font-weight:600;">Seizure-like Preset</button>
     </div>
   </div>
   <div id="designerSignalPlot" style="width:100%; height:220px;"></div>
@@ -807,13 +803,6 @@ window.Quarto = {
     }, {responsive:true, displayModeBar:false});
   };
 
-  window.setSeizurePreset = function() {
-    document.getElementById('freq1').value = '10';  // Normal alpha
-    document.getElementById('freq2').value = '2';    // Seizure onset: slow activity
-    document.getElementById('freq3').value = '20';   // Post-ictal: fast beta
-    updateDesigner();
-  };
-
   // Initial render
   updateDesigner();
 })();
@@ -823,7 +812,7 @@ window.Quarto = {
 <ul>
 <li>Set all three periods to <strong>Alpha (10 Hz)</strong> — you’ll see a single bright horizontal band that doesn’t change. Boring brain.</li>
 <li>Set them to <strong>Delta → Alpha → Beta</strong> — a waking-up sequence. Watch the bright band move upward.</li>
-<li>Click <strong>“Seizure-like Preset”</strong> — Alpha (normal baseline) transitions to Delta (seizure onset, dominated by slow rhythmic activity) then Beta (post-ictal fast activity). This is a simplified version of what seizure spectrograms look like.</li>
+<li>Try <strong>Beta → Delta → Alpha</strong> — a jarring drop in frequency mid-recording. Changes this abrupt almost never show up in a real brain, but the spectrogram makes even small regime shifts obvious.</li>
 </ul>
 </div>
 </section>
@@ -838,135 +827,6 @@ window.Quarto = {
 <li><strong>Large window</strong> = good frequency resolution (clean, sharp frequency bands) but poor time resolution (changes are smeared over time)</li>
 </ul>
 <p>The math is simple: if your window is <span class="math inline">\(T\)</span> seconds long, your frequency resolution is <span class="math inline">\(\Delta f = 1/T\)</span> Hz. A 1-second window gives you 1 Hz resolution. A 0.25-second window gives you 4 Hz resolution — you can’t distinguish frequencies closer than 4 Hz apart.</p>
-</section>
-<section id="interactive-the-window-size-tradeoff" class="level2">
-<h2 class="anchored" data-anchor-id="interactive-the-window-size-tradeoff">Interactive: The Window Size Tradeoff</h2>
-<p>The signal below switches from <strong>10 Hz to 20 Hz at exactly t = 2.5 seconds</strong>. Drag the slider to change the window size and watch the spectrogram change. Small windows catch the transition sharply but blur the frequencies. Large windows show clean frequency bands but smear the transition.</p>
-<div class="widget-box">
-  <div style="margin-bottom:12px;">
-    <label for="winSlider" style="font-weight:600;">Window size:
-      <span id="winVal" style="color:#e74c3c; font-weight:700;">1.00</span> seconds
-    </label><br>
-    <input type="range" id="winSlider" min="0.25" max="2.0" step="0.05" value="1.0" style="width:100%; accent-color:#e74c3c;">
-    <div id="resolutionInfo" style="font-size:0.92em; color:#555; margin-top:6px; padding:8px 12px; background:#f9f9f9; border-radius:6px;"></div>
-  </div>
-  <div id="winSignalPlot" style="width:100%; height:200px;"></div>
-  <div id="winSpectroPlot" style="width:100%; height:300px;"></div>
-</div>
-
-<script>
-(function() {
-  function seededRand(s) { return function() { s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
-  const rand = seededRand(99);
-
-  const sr = 512, dur = 5;
-  const N = sr * dur;
-  const t = [], signal = [];
-  for (let i = 0; i < N; i++) {
-    const ti = i / sr;
-    t.push(ti);
-    const freq = (ti < 2.5) ? 10 : 20;
-    signal.push(Math.sin(2*Math.PI*freq*ti) + 0.2*(rand()-0.5));
-  }
-
-  function computeSpectrogram(sig, sr, winSec) {
-    const hopSec = Math.max(0.05, winSec / 4);
-    const winN = Math.floor(winSec * sr);
-    const hopN = Math.max(1, Math.floor(hopSec * sr));
-    const maxFreqIdx = Math.min(Math.floor(40 * winN / sr), Math.floor(winN/2));
-    const times = [], freqs = [], power = [];
-    for (let k = 0; k <= maxFreqIdx; k++) freqs.push(k * sr / winN);
-    for (let start = 0; start + winN <= sig.length; start += hopN) {
-      times.push((start + winN/2) / sr);
-      const row = [];
-      const chunk = sig.slice(start, start + winN);
-      for (let i = 0; i < chunk.length; i++) {
-        chunk[i] *= 0.5*(1-Math.cos(2*Math.PI*i/(chunk.length-1)));
-      }
-      for (let k = 0; k <= maxFreqIdx; k++) {
-        let re=0, im=0;
-        for (let n=0; n<winN; n++) {
-          const angle=2*Math.PI*k*n/winN;
-          re+=chunk[n]*Math.cos(angle);
-          im-=chunk[n]*Math.sin(angle);
-        }
-        row.push(10*Math.log10((re*re+im*im)/(winN*winN)+1e-10));
-      }
-      power.push(row);
-    }
-    return {times, freqs, power};
-  }
-
-  function updateWinPlot() {
-    const winSec = parseFloat(document.getElementById('winSlider').value);
-    document.getElementById('winVal').textContent = winSec.toFixed(2);
-
-    const freqRes = (1/winSec).toFixed(1);
-    const timeRes = winSec.toFixed(2);
-    const info = document.getElementById('resolutionInfo');
-    info.innerHTML = '<b>Window = ' + timeRes + 's</b> &rarr; Time resolution = ' + timeRes +
-      's, Frequency resolution = ' + freqRes + ' Hz' +
-      (winSec < 0.5 ? ' <span style="color:#27ae60;">(sharp time, blurry frequency)</span>' :
-       winSec > 1.5 ? ' <span style="color:#e74c3c;">(blurry time, sharp frequency)</span>' :
-       ' <span style="color:#e67e22;">(balanced)</span>');
-
-    // Signal plot with transition line
-    Plotly.react('winSignalPlot', [{
-      x:t, y:signal, type:'scatter', mode:'lines',
-      line:{color:'#2c3e50', width:1.2},
-      hovertemplate:'%{x:.2f}s: %{y:.2f}<extra></extra>'
-    }], {
-      xaxis:{title:'Time (s)', range:[0,dur]},
-      yaxis:{title:'Amplitude', range:[-1.8,1.8]},
-      shapes:[{type:'line',x0:2.5,x1:2.5,y0:-1.8,y1:1.8,
-        line:{color:'#c0392b',width:2,dash:'dash'}}],
-      annotations:[{x:2.5,y:1.7,text:'Transition: 10→20 Hz',showarrow:false,
-        font:{size:11,color:'#c0392b'}}],
-      margin:{t:10,b:38,l:50,r:10},
-      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa',
-      hovermode:'x unified'
-    }, {responsive:true, displayModeBar:false});
-
-    // Spectrogram
-    const spec = computeSpectrogram(signal, sr, winSec);
-    const zData = [];
-    for (let f = 0; f < spec.freqs.length; f++) {
-      const row = [];
-      for (let ti = 0; ti < spec.times.length; ti++) row.push(spec.power[ti][f]);
-      zData.push(row);
-    }
-
-    Plotly.react('winSpectroPlot', [{
-      z:zData, x:spec.times, y:spec.freqs,
-      type:'heatmap', colorscale:'Viridis', zsmooth:'best',
-      hovertemplate:'Time: %{x:.2f}s<br>Freq: %{y:.1f} Hz<br>Power: %{z:.1f} dB<extra></extra>',
-      colorbar:{title:'dB', titleside:'right', thickness:15}
-    },{
-      // Marker for transition
-      x:[2.5], y:[15], type:'scatter', mode:'markers',
-      marker:{color:'red', size:0}, showlegend:false
-    }], {
-      xaxis:{title:'Time (s)', range:[0,dur]},
-      yaxis:{title:'Frequency (Hz)', range:[0,35]},
-      shapes:[{type:'line',x0:2.5,x1:2.5,y0:0,y1:35,
-        line:{color:'rgba(192,57,43,0.5)',width:1.5,dash:'dash'}}],
-      margin:{t:10,b:42,l:50,r:10},
-      plot_bgcolor:'#fafafa', paper_bgcolor:'#fafafa'
-    }, {responsive:true, displayModeBar:false});
-  }
-
-  document.getElementById('winSlider').addEventListener('input', updateWinPlot);
-  updateWinPlot();
-})();
-</script>
-<div class="try-it">
-<p><strong>Try these three settings:</strong></p>
-<ol type="1">
-<li><strong>Window = 0.25s</strong> — The transition at 2.5s is sharp and crisp. But the frequency bands at 10 Hz and 20 Hz are wide and blurry (frequency resolution = 4 Hz — you can barely tell them apart).</li>
-<li><strong>Window = 2.0s</strong> — The frequency bands are beautifully sharp and narrow. But the transition is smeared over nearly 2 seconds — you’ve lost the ability to say <em>exactly</em> when it happened.</li>
-<li><strong>Window = 0.75–1.0s</strong> — A reasonable compromise. This is roughly what clinical EEG software uses.</li>
-</ol>
-</div>
 <div class="key-concept">
 <p><strong>The time-frequency tradeoff:</strong></p>
 <ul>
@@ -1125,7 +985,7 @@ window.Quarto = {
 <p>You now have every tool in the box: you understand signals, sampling, filtering, frequency decomposition, EEG patterns, artifacts, and time-frequency analysis. One thing remains: use it all on a real patient.</p>
 <p><strong>Module 8</strong> is a real EEG recording from a real patient. Something is happening in that recording. Your job is to find it.</p>
 <div class="module-nav">
-<p><a href="../modules/06_artifacts.html">← Module 6: Artifacts</a> <a href="08_challenge.qmd">Module 8: The Challenge →</a></p>
+<p><a href="../modules/06_artifacts.html">← Module 6: Artifacts</a> <a href="../modules/08_challenge.html">Module 8: The Challenge →</a></p>
 </div>
 
 
