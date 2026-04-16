@@ -380,8 +380,18 @@ window.Quarto = {
 </header>
 
 
-<div class="clinical-vignette">
-<p>A technician is setting up an EEG for a patient with suspected temporal lobe epilepsy. The attending neurologist glances at the machine settings and asks: “What sampling rate are you using?” The tech replies: “256 Hz.” The attending nods and moves on. But why 256? Why not 100? Why not 10,000? And what happens if you get it wrong?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Clinical scenario">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Clinical scenario
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You’re the admitting physician. A 34-year-old with suspected temporal lobe epilepsy needs a routine EEG. You put in the order. The EEG tech at the bedside turns to you: <em>“What sampling rate do you want?”</em> You realize you have no idea what the options mean — or what happens if you pick wrong. This module teaches you what to answer.</p>
+</div>
 </div>
 <p>You now know what signals look like — smooth, continuous waves with amplitude and frequency. But here’s the problem: your body produces <strong>continuous</strong> signals (voltage that changes every infinitesimal instant), and computers only understand <strong>discrete numbers</strong> (a list of measurements at specific times). To get that EEG onto a screen, we need to <em>sample</em> it — measure the voltage at regular intervals.</p>
 <p>How often is often enough? That’s the central question of this module. Get it right, and you faithfully capture the brain’s activity. Get it wrong, and the signal you see on screen is a lie.</p>
@@ -888,6 +898,19 @@ window.Quarto = {
 <li><strong>Anti-aliasing filters</strong> in the hardware prevent aliasing before it happens.</li>
 </ol>
 <p>The signal is now digital. But look at it — there’s noise everywhere. Power line hum at 60 Hz, slow electrode drift, muscle artifacts. How do we clean it up without throwing away the brain activity? That’s filtering.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Where we're going">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Where we’re going
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Next: the recording is back, but contaminated. How do we clean it without losing the brain signal? <strong><a href="../modules/03_filtering.html">Module 3: Filtering</a></strong>.</p>
+</div>
+</div>
 <div class="module-nav">
 <p><a href="../modules/01_signals.html">← Module 1: Signals</a> <a href="../modules/03_filtering.html">Module 3: Filtering →</a></p>
 </div>

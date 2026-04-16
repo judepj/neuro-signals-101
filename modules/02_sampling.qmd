@@ -6,8 +6,8 @@ format:
     code-fold: true
 ---
 
-::: {.clinical-vignette}
-A technician is setting up an EEG for a patient with suspected temporal lobe epilepsy. The attending neurologist glances at the machine settings and asks: "What sampling rate are you using?" The tech replies: "256 Hz." The attending nods and moves on. But why 256? Why not 100? Why not 10,000? And what happens if you get it wrong?
+::: {.callout-note title="Clinical scenario"}
+You're the admitting physician. A 34-year-old with suspected temporal lobe epilepsy needs a routine EEG. You put in the order. The EEG tech at the bedside turns to you: *"What sampling rate do you want?"* You realize you have no idea what the options mean — or what happens if you pick wrong. This module teaches you what to answer.
 :::
 
 You now know what signals look like — smooth, continuous waves with amplitude and frequency. But here's the problem: your body produces **continuous** signals (voltage that changes every infinitesimal instant), and computers only understand **discrete numbers** (a list of measurements at specific times). To get that EEG onto a screen, we need to *sample* it — measure the voltage at regular intervals.
@@ -515,6 +515,10 @@ We captured the signal digitally. The key ideas:
 5. **Anti-aliasing filters** in the hardware prevent aliasing before it happens.
 
 The signal is now digital. But look at it — there's noise everywhere. Power line hum at 60 Hz, slow electrode drift, muscle artifacts. How do we clean it up without throwing away the brain activity? That's filtering.
+
+::: {.callout-tip title="Where we're going"}
+Next: the recording is back, but contaminated. How do we clean it without losing the brain signal? **[Module 3: Filtering](03_filtering.qmd)**.
+:::
 
 ::: {.module-nav}
 [← Module 1: Signals](01_signals.qmd)

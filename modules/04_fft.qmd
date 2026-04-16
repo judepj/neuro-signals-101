@@ -6,8 +6,8 @@ format:
     code-fold: true
 ---
 
-::: {.clinical-vignette}
-A neurologist is reviewing a patient's EEG. She glances at the screen and says: "I see a lot of theta activity." How does she know? She's not counting cycles by hand — the machine computed a **power spectrum**. The Fourier Transform is doing the work behind the scenes, every time anyone looks at a frequency analysis of any physiological signal.
+::: {.callout-note title="Clinical scenario"}
+Recording is clean now. But looking at the trace, you see only wiggles. Is the posterior alpha rhythm present? Is there abnormal slowing? Is there epileptiform activity in the theta or beta range? This module teaches you how the FFT lets you **see** what's inside any EEG — the decomposition that makes diagnosis possible.
 :::
 
 Your signal is clean (thanks to filtering). But looking at a wiggly line in the time domain is like listening to an orchestra and trying to identify every instrument by ear. The **Fourier Transform** is like a prism — it splits the signal into its individual frequency components so you can see exactly what's inside.
@@ -659,6 +659,10 @@ Three things to remember:
 3. **Resolution = $1/T$** — longer recordings give you finer frequency detail
 
 But so far we've been working with clean synthetic signals — sums of perfect sine waves. Real brain signals are messier, more interesting, and carry clinical meaning. Time to meet actual EEG.
+
+::: {.callout-tip title="Where we're going"}
+With sampling, filtering, and frequency decomposition, you can now read any EEG. **[Module 5: EEG Basics](05_eeg_basics.qmd)** puts the pieces together in real clinical recordings.
+:::
 
 ::: {.module-nav}
 [← Module 3: Filtering](03_filtering.qmd)

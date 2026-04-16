@@ -6,8 +6,8 @@ format:
     code-fold: true
 ---
 
-::: {.clinical-vignette}
-A neurology resident is reviewing an EEG recording. The tracing is a mess — every channel shows a fast, jittery oscillation riding on top of the brain waves. It's 60 Hz power line noise, picked up from the hospital's electrical wiring. The attending says: "Apply a notch filter at 60 Hz." The resident clicks a button. The noise vanishes. The underlying alpha rhythm is now clearly visible. But what just happened? Did the filter remove *only* the noise? Could it have removed something important from the brain signal too?
+::: {.callout-note title="Clinical scenario"}
+The EEG is back. You pull it up. Baseline's drifting, 60 Hz mains noise is everywhere, the prep room was next to the MRI control panel. *"Can we salvage this?"* you ask the tech. This module teaches you what filters do — and what they can hide.
 :::
 
 Your EEG recording is full of stuff you don't want. 60 Hz power line noise. Slow electrode drift (the baseline wanders up and down over seconds). Muscle artifact from the patient clenching their jaw. Filtering is how you separate what matters from what doesn't — like adjusting the bass and treble on a stereo, but for brain waves.
@@ -650,6 +650,10 @@ Filtering is your first line of defense against noise. The key ideas:
 5. **Every filter is a tradeoff** — removing noise always risks removing signal. Clinical judgment determines the right balance.
 
 The signal is clean. But right now we're looking at wiggly lines in the time domain. What if we could peek inside and see exactly which frequencies are present, and how strong each one is? That's the Fourier Transform — and it's the single most important tool in signal processing.
+
+::: {.callout-tip title="Where we're going"}
+Next: we have a clean trace — but how do we quantify what's inside? **[Module 4: FFT](04_fft.qmd)**.
+:::
 
 ::: {.module-nav}
 [← Module 2: Sampling](02_sampling.qmd)

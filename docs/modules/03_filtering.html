@@ -351,8 +351,18 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<div class="clinical-vignette">
-<p>A neurology resident is reviewing an EEG recording. The tracing is a mess — every channel shows a fast, jittery oscillation riding on top of the brain waves. It’s 60 Hz power line noise, picked up from the hospital’s electrical wiring. The attending says: “Apply a notch filter at 60 Hz.” The resident clicks a button. The noise vanishes. The underlying alpha rhythm is now clearly visible. But what just happened? Did the filter remove <em>only</em> the noise? Could it have removed something important from the brain signal too?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Clinical scenario">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Clinical scenario
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The EEG is back. You pull it up. Baseline’s drifting, 60 Hz mains noise is everywhere, the prep room was next to the MRI control panel. <em>“Can we salvage this?”</em> you ask the tech. This module teaches you what filters do — and what they can hide.</p>
+</div>
 </div>
 <p>Your EEG recording is full of stuff you don’t want. 60 Hz power line noise. Slow electrode drift (the baseline wanders up and down over seconds). Muscle artifact from the patient clenching their jaw. Filtering is how you separate what matters from what doesn’t — like adjusting the bass and treble on a stereo, but for brain waves.</p>
 <p>The idea is simple: every signal is a mixture of different frequencies. A filter lets certain frequencies through and blocks others. The question is always: <em>which frequencies do you keep?</em></p>
@@ -995,6 +1005,19 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Every filter is a tradeoff</strong> — removing noise always risks removing signal. Clinical judgment determines the right balance.</li>
 </ol>
 <p>The signal is clean. But right now we’re looking at wiggly lines in the time domain. What if we could peek inside and see exactly which frequencies are present, and how strong each one is? That’s the Fourier Transform — and it’s the single most important tool in signal processing.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Where we're going">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Where we’re going
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Next: we have a clean trace — but how do we quantify what’s inside? <strong><a href="../modules/04_fft.html">Module 4: FFT</a></strong>.</p>
+</div>
+</div>
 <div class="module-nav">
 <p><a href="../modules/02_sampling.html">← Module 2: Sampling</a> <a href="../modules/04_fft.html">Module 4: FFT →</a></p>
 </div>

@@ -380,8 +380,18 @@ window.Quarto = {
 </header>
 
 
-<div class="clinical-vignette">
-<p>A neurologist is reviewing a patient’s EEG. She glances at the screen and says: “I see a lot of theta activity.” How does she know? She’s not counting cycles by hand — the machine computed a <strong>power spectrum</strong>. The Fourier Transform is doing the work behind the scenes, every time anyone looks at a frequency analysis of any physiological signal.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Clinical scenario">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Clinical scenario
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Recording is clean now. But looking at the trace, you see only wiggles. Is the posterior alpha rhythm present? Is there abnormal slowing? Is there epileptiform activity in the theta or beta range? This module teaches you how the FFT lets you <strong>see</strong> what’s inside any EEG — the decomposition that makes diagnosis possible.</p>
+</div>
 </div>
 <p>Your signal is clean (thanks to filtering). But looking at a wiggly line in the time domain is like listening to an orchestra and trying to identify every instrument by ear. The <strong>Fourier Transform</strong> is like a prism — it splits the signal into its individual frequency components so you can see exactly what’s inside.</p>
 <p>This module teaches you the single most important analysis tool in signal processing: the <strong>Fast Fourier Transform (FFT)</strong>. By the end, you’ll be able to look at any signal and answer: <em>what frequencies are in there, and how strong are they?</em></p>
@@ -998,6 +1008,19 @@ window.Quarto = {
 <li><strong>Resolution = <span class="math inline">\(1/T\)</span></strong> — longer recordings give you finer frequency detail</li>
 </ol>
 <p>But so far we’ve been working with clean synthetic signals — sums of perfect sine waves. Real brain signals are messier, more interesting, and carry clinical meaning. Time to meet actual EEG.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Where we're going">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Where we’re going
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>With sampling, filtering, and frequency decomposition, you can now read any EEG. <strong><a href="../modules/05_eeg_basics.html">Module 5: EEG Basics</a></strong> puts the pieces together in real clinical recordings.</p>
+</div>
+</div>
 <div class="module-nav">
 <p><a href="../modules/03_filtering.html">← Module 3: Filtering</a> <a href="../modules/05_eeg_basics.html">Module 5: EEG Basics →</a></p>
 </div>
