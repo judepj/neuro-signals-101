@@ -17,22 +17,50 @@ Each module is **interactive**. You'll drag sliders, change parameters, and watc
 
 ## Modules
 
-| # | Module | What You'll Learn |
-|---|--------|-------------------|
-| 1 | [Signals](modules/01_signals.qmd) | What electrical signals from the body look like and how to describe them |
-| 2 | [Sampling](modules/02_sampling.qmd) | How we capture continuous biological signals with a digital machine |
-| 3 | [Filtering](modules/03_filtering.qmd) | How to clean up a noisy recording to see what matters |
-| 4 | [FFT](modules/04_fft.qmd) | How to reveal the hidden frequencies in a signal |
-| 5 | [EEG Basics](modules/05_eeg_basics.qmd) | What the EEG measures, where electrodes go, and what the bands mean |
-| 5b | [Montages & Dipoles](modules/05b_montages.qmd) | How EEG signals are displayed, cortical dipoles, and phase reversal |
-| 6 | [Artifacts](modules/06_artifacts.qmd) | Telling brain activity apart from eye blinks, muscle, and noise |
-| 7 | [Spectrograms](modules/07_spectrograms.qmd) | Watching brain rhythms change over time |
-| 8 | [**The Challenge**](modules/08_challenge.qmd) | A real EEG recording. A real clinical question. Your job to figure it out. |
+```{=html}
+<style>
+.module-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; margin:1.2em 0; }
+.module-card { display:block; padding:16px 18px; border-radius:10px; border:1px solid #d8dde3; background:#fafbfc; color:#2c3e50; text-decoration:none; transition:all 0.15s; }
+.module-card:hover { border-color:#2980b9; background:#fff; box-shadow:0 3px 10px rgba(41,128,185,0.12); transform:translateY(-1px); }
+.module-card.disabled { opacity:0.55; cursor:not-allowed; background:#f0f2f5; }
+.module-card.disabled:hover { border-color:#d8dde3; box-shadow:none; transform:none; }
+.module-number { font-size:0.78em; font-weight:700; letter-spacing:0.08em; color:#8e44ad; margin-bottom:2px; }
+.module-title { font-size:1.08em; font-weight:700; color:#2c3e50; margin-bottom:4px; }
+.module-desc { font-size:0.85em; color:#555; line-height:1.4; }
+.module-card.challenge .module-number { color:#e67e22; }
+.module-card.challenge .module-title { color:#c0392b; }
+.module-soon { display:inline-block; font-size:0.7em; font-weight:700; letter-spacing:0.05em; color:#e67e22; background:#fdf2e3; padding:1px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+</style>
+<div class="module-grid">
+  <a class="module-card" href="modules/01_signals.qmd"><div class="module-number">01</div><div class="module-title">Signals</div><div class="module-desc">Amplitude, frequency, phase — the language of bioelectrical recordings.</div></a>
+  <a class="module-card" href="modules/02_sampling.qmd"><div class="module-number">02</div><div class="module-title">Sampling</div><div class="module-desc">How continuous biology becomes numbers in a computer.</div></a>
+  <a class="module-card" href="modules/03_filtering.qmd"><div class="module-number">03</div><div class="module-title">Filtering</div><div class="module-desc">Stripping noise without throwing away the signal.</div></a>
+  <a class="module-card" href="modules/04_fft.qmd"><div class="module-number">04</div><div class="module-title">FFT</div><div class="module-desc">Decomposing any signal into its hidden frequency ingredients.</div></a>
+  <a class="module-card" href="modules/05_eeg_basics.qmd"><div class="module-number">05</div><div class="module-title">EEG Basics</div><div class="module-desc">Electrodes, the 10-20 system, and the clinical frequency bands.</div></a>
+  <a class="module-card" href="modules/05b_montages.qmd"><div class="module-number">05B</div><div class="module-title">Montages &amp; Dipoles</div><div class="module-desc">How the same brain signal looks different under different display montages.</div></a>
+  <a class="module-card" href="modules/06_artifacts.qmd"><div class="module-number">06</div><div class="module-title">Artifacts</div><div class="module-desc">Blinks, muscle, ECG, line noise — distinguishing brain from contamination.</div></a>
+  <a class="module-card" href="modules/07_spectrograms.qmd"><div class="module-number">07</div><div class="module-title">Spectrograms</div><div class="module-desc">Watching brain rhythms evolve — frequency content as a movie in time.</div></a>
+  <a class="module-card challenge" href="modules/08_challenge.qmd"><div class="module-number">08</div><div class="module-title">The Challenge</div><div class="module-desc">A real EEG, a real clinical question. The graded capstone.</div></a>
+</div>
+```
 
 ## What You'll Need
 
 - A web browser (you're using one right now — good start)
 - For Module 8: Python or MATLAB, and a willingness to ask an AI for help writing code
+
+## Homework
+
+A short self-paced problem set covering modules 1–7, designed to be solved by reading the modules and playing with the widgets. About two hours.
+
+```{=html}
+<a class="module-card" href="homework/homework.pdf" download
+   style="display:inline-block; max-width:340px; background:#fff; border:1px solid #2980b9;">
+  <div class="module-number" style="color:#2980b9;">PDF</div>
+  <div class="module-title">Download Homework</div>
+  <div class="module-desc">10 problems &middot; ~2 hours &middot; keep this site open while you work</div>
+</a>
+```
 
 Let's begin.
 

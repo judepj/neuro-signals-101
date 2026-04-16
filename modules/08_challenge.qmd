@@ -1,0 +1,220 @@
+---
+title: "Module 8: The Challenge"
+subtitle: "A Real EEG. A Real Question. Your Diagnosis."
+format:
+  html:
+    code-fold: true
+---
+
+::: {.clinical-vignette}
+A 68-year-old retired teacher is brought to the emergency department by her daughter. Over the past two days, the patient has had episodes of "staring and not responding" lasting 30--60 seconds, sometimes with subtle lip-smacking. Between episodes she seems confused and drowsy. The ED attending orders a stat EEG. The technician places 19 electrodes using the standard 10-20 system and begins recording. Twenty minutes later, the neurologist pulls up the recording and turns to you: "Take a look at this. Tell me what you see."
+:::
+
+Everything you've learned in Modules 1--7 comes together here. This is the graded capstone: you will load a real EEG recording, examine it systematically, and write a brief clinical interpretation --- exactly what a neurology resident does every day.
+
+## What You'll Need
+
+- **Python** (3.8+) with the `mne` and `numpy` libraries, OR **MATLAB** with basic signal processing
+- About **90 minutes** of focused time
+- This tutorial site open in another tab for reference
+
+If you don't have `mne` installed:
+
+```bash
+pip install mne numpy matplotlib
+```
+
+## The Data
+
+We'll use a publicly available EEG recording from the **Temple University Hospital (TUH) EEG Corpus** --- the largest public clinical EEG dataset in the world. Your instructor will provide the specific `.edf` file or a download link.
+
+If you're working with a simulated dataset provided by your instructor, the same analysis steps apply.
+
+::: {.key-concept}
+**EDF (European Data Format)** is the standard file format for clinical EEG. It stores multi-channel time series data along with metadata: patient info, electrode labels, sampling rate, and calibration. The `mne` library reads it directly.
+:::
+
+### Loading the Data
+
+```python
+import mne
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the EDF file (replace with your actual file path)
+raw = mne.io.read_raw_edf("patient_eeg.edf", preload=True)
+
+# Basic info
+print(raw.info)
+print(f"Channels: {raw.ch_names}")
+print(f"Sampling rate: {raw.info['sfreq']} Hz")
+print(f"Duration: {raw.n_times / raw.info['sfreq']:.1f} seconds")
+
+# Plot the raw data (scroll through it)
+raw.plot(duration=10, n_channels=19, scalings='auto', title='Raw EEG')
+plt.show()
+```
+
+Take a moment to scroll through the recording. Get a feel for it. Don't try to interpret yet --- just look.
+
+## Your Tasks
+
+There are **five tasks**. Each builds on the previous one.
+
+### Task 1: Orientation (10 minutes)
+
+Before you analyze anything, answer these basic questions about the recording:
+
+1. How many channels are in the recording?
+2. What is the sampling rate?
+3. How long is the recording (in seconds)?
+4. What montage is being used? (Check the channel names --- are they labeled as individual electrodes like "Fp1", or as differences like "Fp1-F3"?)
+5. What is the amplitude range of the signals in microvolts?
+
+Write your answers in your report. These are the first things a neurologist checks when opening any EEG --- it's how you orient yourself to the data.
+
+### Task 2: Artifact Identification (20 minutes)
+
+Scroll through the recording and identify **at least three distinct artifacts**. For each artifact:
+
+1. **What type** of artifact is it? (Refer to Module 6: blink, eye movement, muscle, ECG, electrode pop, 60 Hz line noise, movement)
+2. **Which channels** are affected?
+3. **When** does it occur? (Give approximate time stamps)
+4. **How do you know** it's an artifact and not brain activity? (One sentence is enough)
+
+::: {.try-it}
+**Tip:** Plot a short segment (2--5 seconds) around each artifact. Annotate or screenshot it for your report. Use filtering to confirm your identification --- for example, a notch filter at 60 Hz should eliminate line noise but not brain activity.
+
+```python
+# Example: zoom in on a 5-second segment starting at t=30s
+start, stop = int(30 * raw.info['sfreq']), int(35 * raw.info['sfreq'])
+data, times = raw[:, start:stop]
+
+fig, ax = plt.subplots(figsize=(12, 6))
+for i, ch_name in enumerate(raw.ch_names[:10]):
+    ax.plot(times, data[i] * 1e6 + i * 100, label=ch_name)
+ax.set_xlabel('Time (s)')
+ax.set_ylabel('Channel (offset for display)')
+ax.set_title('EEG Segment: 30-35 seconds')
+plt.tight_layout()
+plt.show()
+```
+:::
+
+### Task 3: Frequency Analysis (20 minutes)
+
+Pick a **10-second segment of clean EEG** (minimal artifacts). Then:
+
+1. **Compute the power spectrum** (FFT) of at least two channels.
+2. **Identify the dominant frequency** in each channel. Which EEG band does it fall in? (Delta: 0.5--4 Hz, Theta: 4--8 Hz, Alpha: 8--13 Hz, Beta: 13--30 Hz)
+3. **Compute and display a spectrogram** for one channel over a longer segment (at least 60 seconds). Describe what you see --- is the frequency content stable, or does it change over time?
+
+```python
+# Power spectrum of a clean segment
+clean_start, clean_stop = 60, 70  # seconds (adjust to a clean segment you found)
+clean_data = raw.copy().crop(tmin=clean_start, tmax=clean_stop)
+
+# Compute PSD using Welch's method
+spectrum = clean_data.compute_psd(method='welch', fmin=0.5, fmax=40)
+spectrum.plot(average=True)
+plt.title('Power Spectral Density — Clean Segment')
+plt.show()
+
+# Spectrogram of a single channel
+from matplotlib.mlab import specgram
+
+ch_idx = raw.ch_names.index('C3')  # pick a central channel
+long_data, long_times = raw[ch_idx, :]
+long_data = long_data.flatten() * 1e6  # convert to microvolts
+
+fig, ax = plt.subplots(figsize=(14, 4))
+Pxx, freqs, bins, im = ax.specgram(
+    long_data, NFFT=int(raw.info['sfreq'] * 2),
+    Fs=raw.info['sfreq'], noverlap=int(raw.info['sfreq']),
+    cmap='viridis', vmin=-20, vmax=30
+)
+ax.set_ylim(0, 30)
+ax.set_xlabel('Time (s)')
+ax.set_ylabel('Frequency (Hz)')
+ax.set_title('Spectrogram — Channel C3')
+plt.colorbar(im, ax=ax, label='Power (dB)')
+plt.tight_layout()
+plt.show()
+```
+
+::: {.key-concept}
+**What to look for in the spectrogram:** Is there a persistent alpha band? Does the frequency content shift suddenly at any point? A sudden change in the spectrogram --- especially an evolving pattern of rhythmic activity --- could indicate a seizure or other clinically significant event. Compare what you see to the seizure spectrogram description in Module 7.
+:::
+
+### Task 4: Find the Abnormality (20 minutes)
+
+This is the clinical core. Something is abnormal in this recording. It might be:
+
+- **Epileptiform discharges** (spikes, sharp waves, spike-and-wave complexes)
+- **Focal slowing** (one region showing slower frequencies than the rest)
+- **Generalized slowing** (all channels showing abnormally slow activity)
+- **A seizure** (evolving rhythmic activity)
+- **Asymmetry** (one hemisphere looks different from the other)
+
+Your job:
+
+1. **Describe the abnormality.** What does it look like in the raw EEG? (Shape, duration, amplitude, repetition rate)
+2. **Localize it.** Which channels show it most prominently? What brain region does that correspond to?
+3. **Time it.** When does it start? Does it evolve? How long does it last?
+4. **Show your evidence.** Include at least two plots:
+   - A raw EEG segment showing the abnormality
+   - A spectrogram or power spectrum that highlights it
+
+::: {.try-it}
+**Strategy:** Don't stare at every second of the recording looking for something weird. Use the spectrogram as your map --- it compresses the entire recording into one image. Look for sudden changes in the frequency pattern. Then go back to the raw EEG at those time points and examine what's happening.
+:::
+
+### Task 5: Clinical Interpretation (20 minutes)
+
+Write a brief **clinical EEG report** as if you were dictating it for the medical record. Use this structure:
+
+> **Clinical History:** [1--2 sentences summarizing the patient and the reason for the EEG]
+>
+> **Technical Description:** [Recording parameters --- channels, sampling rate, duration, montage]
+>
+> **Background Activity:** [What does the normal background look like? Is it symmetric? What is the dominant posterior rhythm?]
+>
+> **Abnormal Findings:** [Describe each abnormality you found --- type, location, morphology, frequency]
+>
+> **Artifacts:** [List the artifacts you identified and how they were handled]
+>
+> **Clinical Correlation:** [What do these findings suggest? What clinical condition is most consistent with this EEG? What would you recommend as a next step?]
+
+Your report doesn't need to be long. A real clinical EEG report is usually **half a page**. Precision and clarity matter more than length.
+
+## Submission
+
+Submit a single document (PDF preferred) containing:
+
+1. **Answers to all five tasks** with the requested plots and descriptions
+2. **Your Python/MATLAB code** (as an appendix or in code blocks within the document)
+3. **Your clinical EEG report** (Task 5)
+
+Label each section clearly. Include figure captions.
+
+::: {.key-concept}
+**Grading criteria:**
+
+- **Completeness** --- Did you address all five tasks?
+- **Accuracy** --- Are your artifact identifications correct? Did you find the real abnormality?
+- **Clinical reasoning** --- Does your interpretation make sense given the findings?
+- **Code quality** --- Does your code run? Is it readable?
+- **Communication** --- Is your report clear, concise, and professional?
+:::
+
+## A Final Word
+
+This is the hardest module in the tutorial, and it's meant to be. Everything before this was guided --- sliders, widgets, immediate feedback. Here, you're on your own with real data and a real question.
+
+That's what clinical medicine is. The patient doesn't come with a quiz answer key. You have to look at the data, apply what you know, and make a judgment.
+
+You have all the tools. Go use them.
+
+::: {.module-nav}
+[← Module 7: Spectrograms](07_spectrograms.qmd)
+:::
