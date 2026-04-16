@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>EEG 10-20 Electrode Placement - VR Demo</title>
+  <meta name="description" content="Interactive 3D brain with 19 EEG electrodes at 10-20 positions. Works on desktop, mobile, and VR headsets via WebXR.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script>
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    #overlay {
+      position: fixed; top: 12px; left: 12px; z-index: 1000;
+      background: rgba(20, 20, 28, 0.78); color: #fff;
+      padding: 10px 14px; border-radius: 8px;
+      font-size: 13px; line-height: 1.4; max-width: 320px;
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      pointer-events: none;
+    }
+    #overlay h1 { margin: 0 0 4px 0; font-size: 15px; font-weight: 600; }
+    #overlay .sub { opacity: 0.75; font-size: 11px; }
+    #selection {
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; background: rgba(255, 220, 60, 0.95); color: #1a1a1a;
+      padding: 10px 22px; border-radius: 999px;
+      font-size: 18px; font-weight: 600; letter-spacing: 0.5px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      opacity: 0; transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+    #selection.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div id="overlay">
+  <h1>EEG 10-20 Electrode Placement</h1>
+  <div class="sub">Drag to rotate. Scroll to zoom. Click an electrode to inspect it.<br>
+  On mobile: one-finger rotate, pinch zoom. VR: tap the goggles button.</div>
+</div>
+
+<div id="selection"></div>
+
+<!--
+  Component: auto-rotate the brain group; pause on user interaction.
+  The orbit-controls component fires 'change' events while the user interacts;
+  we listen on the camera and freeze rotation for a cooldown period.
+-->
+<script>
+  AFRAME.registerComponent('auto-rotate', {
+    schema: {
+      speed: { type: 'number', default: 36 },      // deg/sec => 10s per revolution
+      pauseMs: { type: 'number', default: 2500 }
+    },
+    init: function () {
+      this.pausedUntil = 0;
+      const camera = document.querySelector('[camera]');
+      if (camera) {
+        camera.addEventListener('componentchanged', (e) => {
+          if (e.detail.name === 'position' || e.detail.name === 'rotation') {
+            this.pausedUntil = performance.now() + this.data.pauseMs;
+          }
+        });
+      }
+      // Also pause on pointer events globally (mouse/touch).
+      const canvas = this.el.sceneEl.canvas;
+      const pause = () => { this.pausedUntil = performance.now() + this.data.pauseMs; };
+      if (canvas) {
+        canvas.addEventListener('mousedown', pause);
+        canvas.addEventListener('touchstart', pause, { passive: true });
+        canvas.addEventListener('wheel', pause, { passive: true });
+      }
+    },
+    tick: function (time, dt) {
+      if (performance.now() < this.pausedUntil) return;
+      const deg = (this.data.speed * dt) / 1000;
+      const r = this.el.getAttribute('rotation');
+      this.el.setAttribute('rotation', { x: r.x, y: r.y + deg, z: r.z });
+    }
+  });
+
+  // Component to make an electrode interactive.
+  AFRAME.registerComponent('electrode', {
+    schema: {
+      name: { type: 'string', default: '' }
+    },
+    init: function () {
+      const el = this.el;
+      const name = this.data.name;
+      this.originalScale = el.getAttribute('scale') || { x: 1, y: 1, z: 1 };
+      this.originalColor = '#ff3b4a';
+
+      el.addEventListener('click', (e) => {
+        e.stopPropagation && e.stopPropagation();
+        const scene = el.sceneEl;
+        // Clear any previously selected electrode.
+        const prev = scene.querySelector('[electrode].selected');
+        if (prev && prev !== el) {
+          prev.classList.remove('selected');
+          prev.setAttribute('scale', '1 1 1');
+          prev.setAttribute('material', 'color', '#ff3b4a');
+          prev.setAttribute('material', 'emissive', '#000000');
+        }
+        el.classList.add('selected');
+        el.setAttribute('scale', '2 2 2');
+        el.setAttribute('material', 'color', '#ffd93d');
+        el.setAttribute('material', 'emissive', '#ffaa00');
+        el.setAttribute('material', 'emissiveIntensity', 0.6);
+
+        // Update floating 3D label card and HTML banner.
+        const banner = document.getElementById('selection');
+        banner.textContent = 'Selected: ' + name;
+        banner.classList.add('visible');
+
+        const card = document.getElementById('selection-card');
+        if (card) {
+          card.setAttribute('visible', true);
+          card.setAttribute('text', 'value', name);
+        }
+      });
+    }
+  });
+
+  // Billboard: face the active camera every frame. Cheap enough for 19 labels.
+  AFRAME.registerComponent('billboard', {
+    tick: function () {
+      const cam = this.el.sceneEl.camera;
+      if (!cam) return;
+      const obj = this.el.object3D;
+      // Get camera world position and orient the label to face it.
+      const camWorld = new THREE.Vector3();
+      cam.getWorldPosition(camWorld);
+      obj.lookAt(camWorld);
+    }
+  });
+
+  // Component on the scene to deselect on background clicks.
+  AFRAME.registerComponent('scene-click-deselect', {
+    init: function () {
+      const sceneEl = this.el;
+      sceneEl.addEventListener('click', (e) => {
+        // If the click hit an electrode, its handler runs; we only act on background.
+        const target = e.target;
+        if (target && target.getAttribute && target.getAttribute('electrode') !== null) return;
+        if (target && target.components && target.components.electrode) return;
+
+        const prev = sceneEl.querySelector('[electrode].selected');
+        if (prev) {
+          prev.classList.remove('selected');
+          prev.setAttribute('scale', '1 1 1');
+          prev.setAttribute('material', 'color', '#ff3b4a');
+          prev.setAttribute('material', 'emissive', '#000000');
+        }
+        const banner = document.getElementById('selection');
+        banner.classList.remove('visible');
+        const card = document.getElementById('selection-card');
+        if (card) card.setAttribute('visible', false);
+      });
+    }
+  });
+</script>
+
+<a-scene background="color: #e4e9f0" scene-click-deselect renderer="antialias: true; colorManagement: true; physicallyCorrectLights: true">
+
+  <!-- Asset cursor/ring for VR interaction -->
+  <a-assets></a-assets>
+
+  <!-- Lighting -->
+  <a-entity light="type: ambient; color: #ffffff; intensity: 0.55"></a-entity>
+  <a-entity light="type: directional; color: #ffffff; intensity: 0.85; castShadow: false"
+            position="2 4 3"></a-entity>
+  <a-entity light="type: directional; color: #b8cfff; intensity: 0.35"
+            position="-3 -1 -2"></a-entity>
+
+  <!-- Gradient-ish sky via large sphere with vertex colors isn't trivial; use background color on scene + soft fog. -->
+  <a-entity fog="type: linear; color: #e4e9f0; near: 6; far: 18"></a-entity>
+
+  <!-- Title card floating in space (billboards to camera so text stays crisp from any angle) -->
+  <a-entity id="title-card" position="0 1.95 -1.6" billboard>
+    <a-plane width="1.9" height="0.38" color="#1a1f2e" opacity="0.92"
+             material="shader: flat" position="0 0 0"></a-plane>
+    <a-text value="EEG 10-20 Electrode Placement"
+            align="center" color="#ffffff"
+            width="1.8" position="0 0.06 0.05"></a-text>
+    <a-text value="VR / AR / Desktop Demo"
+            align="center" color="#8fb5ff"
+            width="1.3" position="0 -0.10 0.05"></a-text>
+  </a-entity>
+
+  <!-- Prominent selection label card (hidden until a click) -->
+  <a-entity id="selection-card" visible="false" position="0 1.3 -1.6">
+    <a-plane width="0.9" height="0.3" color="#ffd93d" opacity="0.95"
+             material="shader: flat"></a-plane>
+    <a-text id="selection-card-text" value="" align="center" color="#1a1a1a"
+            width="2.0" position="0 0 0.01"
+            text="value: ; align: center; width: 2.0"></a-text>
+  </a-entity>
+
+  <!--
+    Brain group: gets auto-rotated. A pink ellipsoid serves as the brain surface;
+    a sagittal fissure and a handful of bumps add visual interest. Not anatomical,
+    but good enough to place electrodes on for a demo.
+  -->
+  <a-entity id="brain-group" auto-rotate="speed: 36; pauseMs: 2500" position="0 1.0 -1.6">
+
+    <!-- Main cerebrum: ellipsoid approximated by a scaled sphere -->
+    <a-sphere radius="0.55" color="#e89ba8"
+              scale="1.0 0.88 1.15"
+              material="roughness: 0.55; metalness: 0.0"
+              segments-width="48" segments-height="32"></a-sphere>
+
+    <!-- Central sagittal fissure (a thin darker stripe) -->
+    <a-box depth="1.3" height="0.01" width="0.01" color="#b7717f"
+           position="0 0.45 0" material="roughness: 0.9"></a-box>
+
+    <!-- Cerebellum lump (posterior-inferior) -->
+    <a-sphere radius="0.22" color="#d88a98"
+              position="0 -0.45 -0.35"
+              scale="1.1 0.7 0.9"
+              material="roughness: 0.6"></a-sphere>
+
+    <!-- Brainstem hint -->
+    <a-cylinder radius="0.07" height="0.25" color="#c07a88"
+                position="0 -0.62 -0.15"
+                rotation="20 0 0"></a-cylinder>
+
+    <!-- Gyri bumps for surface detail -->
+    <a-sphere radius="0.06" color="#db8d9c" position="0.35 0.35 0.35" scale="1 0.5 1.3" material="roughness: 0.6"></a-sphere>
+    <a-sphere radius="0.06" color="#db8d9c" position="-0.35 0.35 0.35" scale="1 0.5 1.3" material="roughness: 0.6"></a-sphere>
+    <a-sphere radius="0.07" color="#db8d9c" position="0.4 0.05 0.4"   scale="1 0.5 1.2" material="roughness: 0.6"></a-sphere>
+    <a-sphere radius="0.07" color="#db8d9c" position="-0.4 0.05 0.4"  scale="1 0.5 1.2" material="roughness: 0.6"></a-sphere>
+    <a-sphere radius="0.06" color="#db8d9c" position="0.3 -0.25 0.4"  scale="1 0.5 1.2" material="roughness: 0.6"></a-sphere>
+    <a-sphere radius="0.06" color="#db8d9c" position="-0.3 -0.25 0.4" scale="1 0.5 1.2" material="roughness: 0.6"></a-sphere>
+    <a-sphere radius="0.05" color="#db8d9c" position="0.55 0.15 0"    scale="0.7 0.6 1.0" material="roughness: 0.6"></a-sphere>
+    <a-sphere radius="0.05" color="#db8d9c" position="-0.55 0.15 0"   scale="0.7 0.6 1.0" material="roughness: 0.6"></a-sphere>
+
+    <!--
+      Electrodes. Positions are unit vectors in (x, y, z) from the 10-20 spec,
+      scaled by R (brain radius along that axis). We use R = 0.62 so spheres sit
+      just above the cerebrum surface.
+
+      NOTE: The scene's +Y is up; +Z is forward (toward the viewer via the camera).
+      In the spec supplied, the third coordinate is the posterior/anterior axis.
+      A-Frame convention: nose points +Z. So (x, y, z) maps directly.
+    -->
+
+    <!-- Frontal pole -->
+    <a-sphere class="electrode" electrode="name: FP1" position="-0.1054 0.589 0.1674" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="FP1" position="-0.1054 0.635 0.1674" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <a-sphere class="electrode" electrode="name: FP2" position="0.1054 0.589 0.1674" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="FP2" position="0.1054 0.635 0.1674" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <!-- Frontal lateral -->
+    <a-sphere class="electrode" electrode="name: F7" position="-0.5022 0.3596 0.0558" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="F7" position="-0.5022 0.4056 0.0558" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <a-sphere class="electrode" electrode="name: F8" position="0.5022 0.3596 0.0558" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="F8" position="0.5022 0.4056 0.0558" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <!-- Frontal mid -->
+    <a-sphere class="electrode" electrode="name: F3" position="-0.2604 0.4464 0.341" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="F3" position="-0.2604 0.4924 0.341" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <a-sphere class="electrode" electrode="name: F4" position="0.2604 0.4464 0.341" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="F4" position="0.2604 0.4924 0.341" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <!-- Frontal midline -->
+    <a-sphere class="electrode" electrode="name: Fz" position="0 0.4464 0.4278" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="Fz" position="0 0.4924 0.4278" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <!-- Temporal -->
+    <a-sphere class="electrode" electrode="name: T7" position="-0.62 0 0" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="T7" position="-0.62 0.046 0" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <a-sphere class="electrode" electrode="name: T8" position="0.62 0 0" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="T8" position="0.62 0.046 0" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <!-- Central -->
+    <a-sphere class="electrode" electrode="name: C3" position="-0.3596 0 0.5022" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="C3" position="-0.3596 0.046 0.5022" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <a-sphere class="electrode" electrode="name: C4" position="0.3596 0 0.5022" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="C4" position="0.3596 0.046 0.5022" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <!-- Vertex -->
+    <a-sphere class="electrode" electrode="name: Cz" position="0 0 0.62" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="Cz" position="0 0.046 0.62" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <!-- Parietal lateral -->
+    <a-sphere class="electrode" electrode="name: P7" position="-0.5022 -0.3596 0.0558" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="P7" position="-0.5022 -0.3136 0.0558" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <a-sphere class="electrode" electrode="name: P8" position="0.5022 -0.3596 0.0558" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="P8" position="0.5022 -0.3136 0.0558" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <!-- Parietal mid -->
+    <a-sphere class="electrode" electrode="name: P3" position="-0.2604 -0.4464 0.341" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="P3" position="-0.2604 -0.4004 0.341" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <a-sphere class="electrode" electrode="name: P4" position="0.2604 -0.4464 0.341" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="P4" position="0.2604 -0.4004 0.341" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <!-- Parietal midline -->
+    <a-sphere class="electrode" electrode="name: Pz" position="0 -0.4464 0.4278" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="Pz" position="0 -0.4004 0.4278" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <!-- Occipital -->
+    <a-sphere class="electrode" electrode="name: O1" position="-0.1054 -0.589 0.1674" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="O1" position="-0.1054 -0.543 0.1674" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+    <a-sphere class="electrode" electrode="name: O2" position="0.1054 -0.589 0.1674" radius="0.022" color="#ff3b4a"
+              material="emissive: #000000; roughness: 0.3"></a-sphere>
+    <a-text value="O2" position="0.1054 -0.543 0.1674" align="center" color="#0a0a0a" width="0.8" text="color: #0a0a0a; align: center; width: 0.8"
+            billboard></a-text>
+
+  </a-entity>
+
+  <!-- Ground plane (subtle) -->
+  <a-plane position="0 0 -1.6" rotation="-90 0 0" width="10" height="10"
+           color="#d4dae3" material="roughness: 0.95; metalness: 0" opacity="0.6"></a-plane>
+
+  <!--
+    Camera with orbit-controls. Target the brain group's center.
+    cursor=rayOrigin: mouse makes click work on desktop without a physical cursor.
+  -->
+  <a-entity id="rig" position="0 1.0 0">
+    <a-camera
+      camera="fov: 55"
+      orbit-controls="target: 0 1.0 -1.6; enableDamping: true; dampingFactor: 0.12; rotateSpeed: 0.7; zoomSpeed: 0.6; minDistance: 0.6; maxDistance: 4.5; initialPosition: 0 1.0 0.8"
+      cursor="rayOrigin: mouse"
+      raycaster="objects: .electrode; far: 20">
+    </a-camera>
+  </a-entity>
+
+</a-scene>
+
+</body>
+</html>
