@@ -3,3 +3,10 @@
 __pycache__/
 .DS_Store
 assets/manim_sources/media/
+# EDF files are too large for GitHub (40 MB+) — download from PhysioNet
+*.edf
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.synctex.gz

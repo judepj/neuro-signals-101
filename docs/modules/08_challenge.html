@@ -351,11 +351,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#what-youll-need" id="toc-what-youll-need" class="nav-link active" data-scroll-target="#what-youll-need">What You’ll Need</a></li>
-  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The Data</a></li>
-  <li><a href="#your-tasks" id="toc-your-tasks" class="nav-link" data-scroll-target="#your-tasks">Your Tasks</a></li>
-  <li><a href="#submission" id="toc-submission" class="nav-link" data-scroll-target="#submission">Submission</a></li>
-  <li><a href="#a-final-word" id="toc-a-final-word" class="nav-link" data-scroll-target="#a-final-word">A Final Word</a></li>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting started</a></li>
+  <li><a href="#your-five-questions" id="toc-your-five-questions" class="nav-link" data-scroll-target="#your-five-questions">Your five questions</a></li>
+  <li><a href="#attribution" id="toc-attribution" class="nav-link" data-scroll-target="#attribution">Attribution</a></li>
   </ul>
 </nav>
     </div>
@@ -384,193 +382,98 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <div class="clinical-vignette">
-<p>A 68-year-old retired teacher is brought to the emergency department by her daughter. Over the past two days, the patient has had episodes of “staring and not responding” lasting 30–60 seconds, sometimes with subtle lip-smacking. Between episodes she seems confused and drowsy. The ED attending orders a stat EEG. The technician places 19 electrodes using the standard 10-20 system and begins recording. Twenty minutes later, the neurologist pulls up the recording and turns to you: “Take a look at this. Tell me what you see.”</p>
+<p>A 14-year-old girl is brought to the emergency department by her parents. Over the past two days she has had episodes of “staring and not responding” lasting 30–60 seconds, sometimes with lip-smacking. Between episodes she seems confused and drowsy. The ED attending orders a stat EEG.</p>
 </div>
-<p>Everything you’ve learned in Modules 1–7 comes together here. This is the graded capstone: you will load a real EEG recording, examine it systematically, and write a brief clinical interpretation — exactly what a neurology resident does every day.</p>
-<section id="what-youll-need" class="level2">
-<h2 class="anchored" data-anchor-id="what-youll-need">What You’ll Need</h2>
-<ul>
-<li><strong>Python</strong> (3.8+) with the <code>mne</code> and <code>numpy</code> libraries, OR <strong>MATLAB</strong> with basic signal processing</li>
-<li>About <strong>90 minutes</strong> of focused time</li>
-<li>This tutorial site open in another tab for reference</li>
-</ul>
+<p>Here’s a real EEG recording from the <strong>CHB-MIT Scalp EEG Database</strong> on PhysioNet — a publicly available dataset of pediatric patients with epilepsy.</p>
+<p>The file is <code>chb03_01.edf</code>. It should be provided with this tutorial (in <code>assets/eeg_data/</code>). If you need to download it yourself:</p>
+<blockquote class="blockquote">
+<p><a href="https://physionet.org/content/chbmit/1.0.0/chb03/chb03_01.edf">https://physionet.org/content/chbmit/1.0.0/chb03/chb03_01.edf</a></p>
+</blockquote>
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting started</h2>
 <p>If you don’t have <code>mne</code> installed:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install mne numpy matplotlib</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="the-data" class="level2">
-<h2 class="anchored" data-anchor-id="the-data">The Data</h2>
-<p>We’ll use a publicly available EEG recording from the <strong>Temple University Hospital (TUH) EEG Corpus</strong> — the largest public clinical EEG dataset in the world. Your instructor will provide the specific <code>.edf</code> file or a download link.</p>
-<p>If you’re working with a simulated dataset provided by your instructor, the same analysis steps apply.</p>
-<div class="key-concept">
-<p><strong>EDF (European Data Format)</strong> is the standard file format for clinical EEG. It stores multi-channel time series data along with metadata: patient info, electrode labels, sampling rate, and calibration. The <code>mne</code> library reads it directly.</p>
-</div>
-<section id="loading-the-data" class="level3">
-<h3 class="anchored" data-anchor-id="loading-the-data">Loading the Data</h3>
+<p>Load the file:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> mne</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the EDF file (replace with your actual file path)</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> mne.io.read_raw_edf(<span class="st">"patient_eeg.edf"</span>, preload<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Basic info</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(raw.info)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Channels: </span><span class="sc">{</span>raw<span class="sc">.</span>ch_names<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Sampling rate: </span><span class="sc">{</span>raw<span class="sc">.</span>info[<span class="st">'sfreq'</span>]<span class="sc">}</span><span class="ss"> Hz"</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Duration: </span><span class="sc">{</span>raw<span class="sc">.</span>n_times <span class="op">/</span> raw<span class="sc">.</span>info[<span class="st">'sfreq'</span>]<span class="sc">:.1f}</span><span class="ss"> seconds"</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the raw data (scroll through it)</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>raw.plot(duration<span class="op">=</span><span class="dv">10</span>, n_channels<span class="op">=</span><span class="dv">19</span>, scalings<span class="op">=</span><span class="st">'auto'</span>, title<span class="op">=</span><span class="st">'Raw EEG'</span>)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Take a moment to scroll through the recording. Get a feel for it. Don’t try to interpret yet — just look.</p>
-</section>
-</section>
-<section id="your-tasks" class="level2">
-<h2 class="anchored" data-anchor-id="your-tasks">Your Tasks</h2>
-<p>There are <strong>five tasks</strong>. Each builds on the previous one.</p>
-<section id="task-1-orientation-10-minutes" class="level3">
-<h3 class="anchored" data-anchor-id="task-1-orientation-10-minutes">Task 1: Orientation (10 minutes)</h3>
-<p>Before you analyze anything, answer these basic questions about the recording:</p>
-<ol type="1">
-<li>How many channels are in the recording?</li>
-<li>What is the sampling rate?</li>
-<li>How long is the recording (in seconds)?</li>
-<li>What montage is being used? (Check the channel names — are they labeled as individual electrodes like “Fp1”, or as differences like “Fp1-F3”?)</li>
-<li>What is the amplitude range of the signals in microvolts?</li>
-</ol>
-<p>Write your answers in your report. These are the first things a neurologist checks when opening any EEG — it’s how you orient yourself to the data.</p>
-</section>
-<section id="task-2-artifact-identification-20-minutes" class="level3">
-<h3 class="anchored" data-anchor-id="task-2-artifact-identification-20-minutes">Task 2: Artifact Identification (20 minutes)</h3>
-<p>Scroll through the recording and identify <strong>at least three distinct artifacts</strong>. For each artifact:</p>
-<ol type="1">
-<li><strong>What type</strong> of artifact is it? (Refer to Module 6: blink, eye movement, muscle, ECG, electrode pop, 60 Hz line noise, movement)</li>
-<li><strong>Which channels</strong> are affected?</li>
-<li><strong>When</strong> does it occur? (Give approximate time stamps)</li>
-<li><strong>How do you know</strong> it’s an artifact and not brain activity? (One sentence is enough)</li>
-</ol>
-<div class="try-it">
-<p><strong>Tip:</strong> Plot a short segment (2–5 seconds) around each artifact. Annotate or screenshot it for your report. Use filtering to confirm your identification — for example, a notch filter at 60 Hz should eliminate line noise but not brain activity.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: zoom in on a 5-second segment starting at t=30s</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>start, stop <span class="op">=</span> <span class="bu">int</span>(<span class="dv">30</span> <span class="op">*</span> raw.info[<span class="st">'sfreq'</span>]), <span class="bu">int</span>(<span class="dv">35</span> <span class="op">*</span> raw.info[<span class="st">'sfreq'</span>])</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>data, times <span class="op">=</span> raw[:, start:stop]</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">6</span>))</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, ch_name <span class="kw">in</span> <span class="bu">enumerate</span>(raw.ch_names[:<span class="dv">10</span>]):</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    ax.plot(times, data[i] <span class="op">*</span> <span class="fl">1e6</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">100</span>, label<span class="op">=</span>ch_name)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (s)'</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Channel (offset for display)'</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'EEG Segment: 30-35 seconds'</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> mne.io.read_raw_edf(<span class="st">"assets/eeg_data/chb03_01.edf"</span>, preload<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(raw.info)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Channels: </span><span class="sc">{</span>raw<span class="sc">.</span>ch_names<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Sampling rate: </span><span class="sc">{</span>raw<span class="sc">.</span>info[<span class="st">'sfreq'</span>]<span class="sc">}</span><span class="ss"> Hz"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Duration: </span><span class="sc">{</span>raw<span class="sc">.</span>n_times <span class="op">/</span> raw<span class="sc">.</span>info[<span class="st">'sfreq'</span>]<span class="sc">:.1f}</span><span class="ss"> seconds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Heads up:</strong> One channel name appears twice in the file (T8-P8). MNE auto-renames the duplicate — don’t worry about it. The header says 3600 seconds but the actual recording is shorter (~3068 s). That’s normal for this dataset.</p>
+</div>
 </div>
 </section>
-<section id="task-3-frequency-analysis-20-minutes" class="level3">
-<h3 class="anchored" data-anchor-id="task-3-frequency-analysis-20-minutes">Task 3: Frequency Analysis (20 minutes)</h3>
-<p>Pick a <strong>10-second segment of clean EEG</strong> (minimal artifacts). Then:</p>
-<ol type="1">
-<li><strong>Compute the power spectrum</strong> (FFT) of at least two channels.</li>
-<li><strong>Identify the dominant frequency</strong> in each channel. Which EEG band does it fall in? (Delta: 0.5–4 Hz, Theta: 4–8 Hz, Alpha: 8–13 Hz, Beta: 13–30 Hz)</li>
-<li><strong>Compute and display a spectrogram</strong> for one channel over a longer segment (at least 60 seconds). Describe what you see — is the frequency content stable, or does it change over time?</li>
-</ol>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Power spectrum of a clean segment</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>clean_start, clean_stop <span class="op">=</span> <span class="dv">60</span>, <span class="dv">70</span>  <span class="co"># seconds (adjust to a clean segment you found)</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>clean_data <span class="op">=</span> raw.copy().crop(tmin<span class="op">=</span>clean_start, tmax<span class="op">=</span>clean_stop)</span>
+<section id="your-five-questions" class="level2">
+<h2 class="anchored" data-anchor-id="your-five-questions">Your five questions</h2>
+<p>That’s it — just five. Should take 20–30 minutes.</p>
+<section id="orientation" class="level3">
+<h3 class="anchored" data-anchor-id="orientation">1. Orientation</h3>
+<p>How many channels are in the recording? What’s the sampling rate? How long is the recording (in seconds)?</p>
+</section>
+<section id="montage" class="level3">
+<h3 class="anchored" data-anchor-id="montage">2. Montage</h3>
+<p>Look at the channel names. Are they individual electrodes (like <code>Fp1</code>, <code>C3</code>) or bipolar pairs (like <code>Fp1-F7</code>, <code>C3-P3</code>)? What type of montage is this?</p>
+</section>
+<section id="find-the-abnormality" class="level3">
+<h3 class="anchored" data-anchor-id="find-the-abnormality">3. Find the abnormality</h3>
+<p>Scroll through the recording. Something abnormal happens. Find it.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Interactive scroll (works in a Jupyter/IPython environment)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>raw.plot(duration<span class="op">=</span><span class="dv">10</span>, n_channels<span class="op">=</span><span class="dv">20</span>, scalings<span class="op">=</span><span class="st">'auto'</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>What time (in seconds) does it start? When does it end?</p>
+</section>
+<section id="spectrogram" class="level3">
+<h3 class="anchored" data-anchor-id="spectrogram">4. Spectrogram</h3>
+<p>Pick one channel. Make a spectrogram around the abnormal event you found.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: spectrogram of one channel around a time of interest</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ch_name <span class="op">=</span> <span class="st">"FP1-F7"</span>  <span class="co"># pick any channel</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ch_idx <span class="op">=</span> raw.ch_names.index(ch_name)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute PSD using Welch's method</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>spectrum <span class="op">=</span> clean_data.compute_psd(method<span class="op">=</span><span class="st">'welch'</span>, fmin<span class="op">=</span><span class="fl">0.5</span>, fmax<span class="op">=</span><span class="dv">40</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>spectrum.plot(average<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Power Spectral Density — Clean Segment'</span>)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Spectrogram of a single channel</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.mlab <span class="im">import</span> specgram</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>ch_idx <span class="op">=</span> raw.ch_names.index(<span class="st">'C3'</span>)  <span class="co"># pick a central channel</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>long_data, long_times <span class="op">=</span> raw[ch_idx, :]</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>long_data <span class="op">=</span> long_data.flatten() <span class="op">*</span> <span class="fl">1e6</span>  <span class="co"># convert to microvolts</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">4</span>))</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>Pxx, freqs, bins, im <span class="op">=</span> ax.specgram(</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    long_data, NFFT<span class="op">=</span><span class="bu">int</span>(raw.info[<span class="st">'sfreq'</span>] <span class="op">*</span> <span class="dv">2</span>),</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    Fs<span class="op">=</span>raw.info[<span class="st">'sfreq'</span>], noverlap<span class="op">=</span><span class="bu">int</span>(raw.info[<span class="st">'sfreq'</span>]),</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    cmap<span class="op">=</span><span class="st">'viridis'</span>, vmin<span class="op">=-</span><span class="dv">20</span>, vmax<span class="op">=</span><span class="dv">30</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="dv">30</span>)</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (s)'</span>)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Frequency (Hz)'</span>)</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Spectrogram — Channel C3'</span>)</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im, ax<span class="op">=</span>ax, label<span class="op">=</span><span class="st">'Power (dB)'</span>)</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="key-concept">
-<p><strong>What to look for in the spectrogram:</strong> Is there a persistent alpha band? Does the frequency content shift suddenly at any point? A sudden change in the spectrogram — especially an evolving pattern of rhythmic activity — could indicate a seizure or other clinically significant event. Compare what you see to the seizure spectrogram description in Module 7.</p>
-</div>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Get data around the event (adjust times to bracket what you found)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>tmin, tmax <span class="op">=</span> <span class="dv">300</span>, <span class="dv">500</span>  <span class="co"># seconds — adjust these</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> <span class="bu">int</span>(tmin <span class="op">*</span> raw.info[<span class="st">'sfreq'</span>])</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>stop <span class="op">=</span> <span class="bu">int</span>(tmax <span class="op">*</span> raw.info[<span class="st">'sfreq'</span>])</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>data, times <span class="op">=</span> raw[ch_idx, start:stop]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data.flatten() <span class="op">*</span> <span class="fl">1e6</span>  <span class="co"># convert to microvolts</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>ax.specgram(data, NFFT<span class="op">=</span><span class="bu">int</span>(raw.info[<span class="st">'sfreq'</span>] <span class="op">*</span> <span class="dv">2</span>),</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>            Fs<span class="op">=</span>raw.info[<span class="st">'sfreq'</span>], noverlap<span class="op">=</span><span class="bu">int</span>(raw.info[<span class="st">'sfreq'</span>]),</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            cmap<span class="op">=</span><span class="st">'viridis'</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="dv">40</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (s, relative to window start)'</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Frequency (Hz)'</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="ss">f'Spectrogram — </span><span class="sc">{</span>ch_name<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>plt.colorbar(ax.images[<span class="dv">0</span>], ax<span class="op">=</span>ax, label<span class="op">=</span><span class="st">'Power (dB)'</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>What do you see in the spectrogram? Describe it in 1–2 sentences.</p>
 </section>
-<section id="task-4-find-the-abnormality-20-minutes" class="level3">
-<h3 class="anchored" data-anchor-id="task-4-find-the-abnormality-20-minutes">Task 4: Find the Abnormality (20 minutes)</h3>
-<p>This is the clinical core. Something is abnormal in this recording. It might be:</p>
-<ul>
-<li><strong>Epileptiform discharges</strong> (spikes, sharp waves, spike-and-wave complexes)</li>
-<li><strong>Focal slowing</strong> (one region showing slower frequencies than the rest)</li>
-<li><strong>Generalized slowing</strong> (all channels showing abnormally slow activity)</li>
-<li><strong>A seizure</strong> (evolving rhythmic activity)</li>
-<li><strong>Asymmetry</strong> (one hemisphere looks different from the other)</li>
-</ul>
-<p>Your job:</p>
-<ol type="1">
-<li><strong>Describe the abnormality.</strong> What does it look like in the raw EEG? (Shape, duration, amplitude, repetition rate)</li>
-<li><strong>Localize it.</strong> Which channels show it most prominently? What brain region does that correspond to?</li>
-<li><strong>Time it.</strong> When does it start? Does it evolve? How long does it last?</li>
-<li><strong>Show your evidence.</strong> Include at least two plots:
-<ul>
-<li>A raw EEG segment showing the abnormality</li>
-<li>A spectrogram or power spectrum that highlights it</li>
-</ul></li>
-</ol>
-<div class="try-it">
-<p><strong>Strategy:</strong> Don’t stare at every second of the recording looking for something weird. Use the spectrogram as your map — it compresses the entire recording into one image. Look for sudden changes in the frequency pattern. Then go back to the raw EEG at those time points and examine what’s happening.</p>
-</div>
+<section id="whats-happening" class="level3">
+<h3 class="anchored" data-anchor-id="whats-happening">5. What’s happening?</h3>
+<p>Based on the clinical vignette and your analysis: what is happening to this patient? Answer in 2–3 sentences.</p>
 </section>
-<section id="task-5-clinical-interpretation-20-minutes" class="level3">
-<h3 class="anchored" data-anchor-id="task-5-clinical-interpretation-20-minutes">Task 5: Clinical Interpretation (20 minutes)</h3>
-<p>Write a brief <strong>clinical EEG report</strong> as if you were dictating it for the medical record. Use this structure:</p>
+</section>
+<section id="attribution" class="level2">
+<h2 class="anchored" data-anchor-id="attribution">Attribution</h2>
+<p>Data from the <strong>CHB-MIT Scalp EEG Database</strong>. Available at PhysioNet: <a href="https://physionet.org/content/chbmit/1.0.0/">https://physionet.org/content/chbmit/1.0.0/</a></p>
 <blockquote class="blockquote">
-<p><strong>Clinical History:</strong> [1–2 sentences summarizing the patient and the reason for the EEG]</p>
-<p><strong>Technical Description:</strong> [Recording parameters — channels, sampling rate, duration, montage]</p>
-<p><strong>Background Activity:</strong> [What does the normal background look like? Is it symmetric? What is the dominant posterior rhythm?]</p>
-<p><strong>Abnormal Findings:</strong> [Describe each abnormality you found — type, location, morphology, frequency]</p>
-<p><strong>Artifacts:</strong> [List the artifacts you identified and how they were handled]</p>
-<p><strong>Clinical Correlation:</strong> [What do these findings suggest? What clinical condition is most consistent with this EEG? What would you recommend as a next step?]</p>
+<p>Shoeb, A. H. (2009). <em>Application of Machine Learning to Epileptic Seizure Onset Detection and Treatment.</em> PhD thesis, MIT.</p>
 </blockquote>
-<p>Your report doesn’t need to be long. A real clinical EEG report is usually <strong>half a page</strong>. Precision and clarity matter more than length.</p>
-</section>
-</section>
-<section id="submission" class="level2">
-<h2 class="anchored" data-anchor-id="submission">Submission</h2>
-<p>Submit a single document (PDF preferred) containing:</p>
-<ol type="1">
-<li><strong>Answers to all five tasks</strong> with the requested plots and descriptions</li>
-<li><strong>Your Python/MATLAB code</strong> (as an appendix or in code blocks within the document)</li>
-<li><strong>Your clinical EEG report</strong> (Task 5)</li>
-</ol>
-<p>Label each section clearly. Include figure captions.</p>
-<div class="key-concept">
-<p><strong>Grading criteria:</strong></p>
-<ul>
-<li><strong>Completeness</strong> — Did you address all five tasks?</li>
-<li><strong>Accuracy</strong> — Are your artifact identifications correct? Did you find the real abnormality?</li>
-<li><strong>Clinical reasoning</strong> — Does your interpretation make sense given the findings?</li>
-<li><strong>Code quality</strong> — Does your code run? Is it readable?</li>
-<li><strong>Communication</strong> — Is your report clear, concise, and professional?</li>
-</ul>
-</div>
-</section>
-<section id="a-final-word" class="level2">
-<h2 class="anchored" data-anchor-id="a-final-word">A Final Word</h2>
-<p>This is the hardest module in the tutorial, and it’s meant to be. Everything before this was guided — sliders, widgets, immediate feedback. Here, you’re on your own with real data and a real question.</p>
-<p>That’s what clinical medicine is. The patient doesn’t come with a quiz answer key. You have to look at the data, apply what you know, and make a judgment.</p>
-<p>You have all the tools. Go use them.</p>
 <div class="module-nav">
 <p><a href="../modules/07_spectrograms.html">← Module 7: Spectrograms</a></p>
 </div>
