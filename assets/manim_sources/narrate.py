@@ -29,12 +29,17 @@ SEGMENTS = {
         (22.0, "and you get the original signal. Every complex waveform is just a sum of simple sine waves."),
     ],
     "sampling": [
-        (0.0, "Here's a ten hertz sine wave, a smooth, continuous signal."),
-        (3.0, "Sample it at fifty hertz, five times the signal frequency, and the reconstruction is nearly perfect."),
-        (8.0, "Now try twelve hertz, barely above the Nyquist limit. The shape is preserved, but it's rough."),
-        (14.0, "Eight hertz, below Nyquist. The samples now trace a completely different frequency. This is aliasing."),
-        (21.0, "The alias frequency is two hertz, a phantom that doesn't exist in the original signal."),
-        (25.0, "The rule: always sample at least twice the highest frequency."),
+        # Intro segments (~0-13s)
+        (0.0, "The signals in your body, your brain waves, your heartbeat, are continuous. They change smoothly, without gaps."),
+        (4.0, "But computers don't work that way. They store numbers as discrete values, ones and zeros. To record a continuous signal, we have to sample it."),
+        (9.5, "The question is, how often? Sample too much, and you drown in data. Sample too little, and you miss what matters."),
+        # Main demo segments (shifted forward ~14s)
+        (14.0, "Here's a ten hertz sine wave, a smooth, continuous signal."),
+        (17.0, "Sample it at fifty hertz, five times the signal frequency, and the reconstruction is nearly perfect."),
+        (22.0, "Now try twelve hertz, barely above the Nyquist limit. The shape is preserved, but it's rough."),
+        (28.0, "Eight hertz, below Nyquist. The samples now trace a completely different frequency. This is aliasing."),
+        (35.0, "The alias frequency is two hertz, a phantom that doesn't exist in the original signal."),
+        (39.0, "The rule: always sample at least twice the highest frequency."),
     ],
     "filtering": [
         (0.0, "This is raw E.E.G., contaminated with slow drift and sixty hertz power line noise."),

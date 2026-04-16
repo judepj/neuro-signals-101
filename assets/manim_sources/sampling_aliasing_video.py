@@ -1,12 +1,13 @@
 """Sampling & Aliasing Animation for Module 2.
 
 Demonstrates:
+  0. Intro: physiology is continuous, computers are digital, how often to sample?
   1. Continuous 10 Hz sine wave
   2. Sampling at 50 Hz (good) — dots match, reconstruction accurate
   3. Sampling at 12 Hz (barely above Nyquist) — wobbly but correct frequency
   4. Sampling at 8 Hz (below Nyquist) — aliased signal in red
 
-Target duration: ~20 seconds.
+Target duration: ~35-40 seconds.
 """
 
 from manim import *
@@ -15,6 +16,140 @@ import numpy as np
 
 class SamplingAliasing(Scene):
     def construct(self):
+        # ══════════════════════════════════════════════════════════════
+        # INTRO SECTION (~14 seconds)
+        # ══════════════════════════════════════════════════════════════
+
+        # ── Intro Phase 1: "Physiology is continuous" ──
+        intro_title = Text(
+            "Physiology is continuous", font_size=40, color=BLUE
+        ).to_edge(UP, buff=0.6)
+
+        # A smooth EEG-like waveform
+        intro_axes = Axes(
+            x_range=[0, 2, 0.5],
+            y_range=[-1.5, 1.5, 0.5],
+            x_length=10,
+            y_length=3.5,
+            axis_config={"include_numbers": False, "stroke_width": 1.5},
+        ).shift(DOWN * 0.2)
+
+        eeg_label = Text(
+            "Brain signal (EEG)", font_size=22, color=BLUE_C
+        ).next_to(intro_axes, DOWN, buff=0.25)
+
+        def eeg_wave(t):
+            """Multi-frequency waveform mimicking EEG."""
+            return (
+                0.5 * np.sin(2 * np.pi * 4 * t)
+                + 0.3 * np.sin(2 * np.pi * 10 * t)
+                + 0.15 * np.sin(2 * np.pi * 22 * t)
+            )
+
+        eeg_curve = intro_axes.plot(
+            eeg_wave, x_range=[0, 2, 0.001], color=BLUE, stroke_width=3
+        )
+
+        self.play(Write(intro_title), run_time=0.8)
+        self.play(
+            Create(intro_axes), FadeIn(eeg_label), run_time=0.6
+        )
+        self.play(Create(eeg_curve), run_time=2.0)
+        self.wait(0.6)
+
+        # ── Intro Phase 2: "Computers are digital" ──
+        digital_title = Text(
+            "Computers are digital", font_size=40, color=GREEN
+        ).to_edge(UP, buff=0.6)
+
+        # Sample the EEG curve into dots
+        n_intro_samples = 20
+        intro_ts = np.linspace(0, 2, n_intro_samples)
+        intro_dots = VGroup()
+        for t_i in intro_ts:
+            pt = intro_axes.c2p(t_i, eeg_wave(t_i))
+            intro_dots.add(Dot(pt, radius=0.06, color=GREEN, z_index=3))
+
+        # Vertical stem lines from x-axis to each dot
+        intro_stems = VGroup()
+        for t_i in intro_ts:
+            bottom = intro_axes.c2p(t_i, 0)
+            top = intro_axes.c2p(t_i, eeg_wave(t_i))
+            intro_stems.add(
+                Line(bottom, top, color=GREEN, stroke_width=1.5, stroke_opacity=0.5)
+            )
+
+        # Binary text decoration
+        bits_text = Text(
+            "0 1 1 0 1 0 0 1 1 0 1 1 0 1 0 1",
+            font_size=18, color=GREEN_A, opacity=0.6,
+        ).next_to(intro_axes, DOWN, buff=0.25)
+
+        self.play(
+            ReplacementTransform(intro_title, digital_title),
+            FadeOut(eeg_label),
+            run_time=0.5,
+        )
+        self.play(
+            eeg_curve.animate.set_stroke(opacity=0.3),
+            LaggedStart(*[GrowFromCenter(d) for d in intro_dots], lag_ratio=0.04),
+            LaggedStart(*[Create(s) for s in intro_stems], lag_ratio=0.04),
+            run_time=1.8,
+        )
+        self.play(FadeIn(bits_text), run_time=0.5)
+        self.wait(0.7)
+
+        # ── Intro Phase 3: "How often do we sample?" ──
+        question_title = Text(
+            "How often do we sample?", font_size=40, color=GOLD
+        ).to_edge(UP, buff=0.6)
+
+        # Two consequence lines
+        too_much = Text(
+            "Too often \u2192 drowning in data",
+            font_size=26, color=YELLOW,
+        ).move_to(DOWN * 2.4 + LEFT * 2.8)
+
+        too_little = Text(
+            "Too rarely \u2192 lost information",
+            font_size=26, color=RED,
+        ).move_to(DOWN * 2.4 + RIGHT * 2.8)
+
+        self.play(
+            ReplacementTransform(digital_title, question_title),
+            FadeOut(bits_text),
+            run_time=0.5,
+        )
+        self.play(
+            FadeIn(too_much, shift=LEFT * 0.3),
+            FadeIn(too_little, shift=RIGHT * 0.3),
+            run_time=1.0,
+        )
+        self.wait(1.5)
+
+        # ── Intro Phase 4: Transition — clear intro, set up main demo ──
+        transition_text = Text(
+            "Let's see what happens...", font_size=36, color=WHITE
+        ).move_to(ORIGIN)
+
+        self.play(
+            FadeOut(question_title),
+            FadeOut(eeg_curve),
+            FadeOut(intro_dots),
+            FadeOut(intro_stems),
+            FadeOut(intro_axes),
+            FadeOut(too_much),
+            FadeOut(too_little),
+            run_time=0.6,
+        )
+        self.play(FadeIn(transition_text), run_time=0.5)
+        self.wait(0.8)
+        self.play(FadeOut(transition_text), run_time=0.4)
+
+        # ══════════════════════════════════════════════════════════════
+        # MAIN DEMO (original content)
+        # ══════════════════════════════════════════════════════════════
+
         # ── Parameters ──
         f_sig = 10  # Hz
         duration = 1.0  # seconds of signal shown
